@@ -1,0 +1,250 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "이미지 변환 API",
+    "description": "사용자가 이미지를 업로드하고, 스타일 변환을 적용하며, QR 코드를 생성할 수 있는 API입니다.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "tags": [
+    {
+      "name": "카테고리 및 화가 선택",
+      "description": "카테고리 및 화가 선택 API"
+    },
+    { "name": "이미지 업로드", "description": "이미지 업로드 API" },
+    { "name": "이미지 변환", "description": "이미지 변환 및 스타일 조정 API" },
+    { "name": "QR 코드 생성", "description": "QR 코드 생성 및 다운로드 API" },
+    { "name": "폴더 초기화", "description": "폴더 초기화 API" }
+  ],
+  "paths": {
+    "/select-artists": {
+      "post": {
+        "tags": ["카테고리 및 화가 선택"],
+        "summary": "카테고리 및 화가 선택",
+        "description": "이미지 변환 카테고리와 두 명의 화가를 선택합니다.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "카테고리와 선택한 화가들",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "string",
+                  "example": "풍경"
+                },
+                "artist1": {
+                  "type": "string",
+                  "example": "빈센트 반 고흐"
+                },
+                "artist2": {
+                  "type": "string",
+                  "example": "클로드 모네"
+                }
+              },
+              "required": ["category", "artist1", "artist2"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" },
+                "category": { "type": "string" },
+                "artist1": { "type": "string" },
+                "artist2": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 입력, 카테고리 또는 화가 정보 누락"
+          }
+        }
+      }
+    },
+    "/upload-image": {
+      "post": {
+        "tags": ["이미지 업로드"],
+        "summary": "이미지 업로드",
+        "description": "이미지 변환을 위해 이미지를 업로드합니다 (QR 코드 또는 직접 촬영).",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "image",
+            "type": "file",
+            "description": "업로드할 이미지 파일",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "이미지 업로드 성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" },
+                "image_path": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "이미지 파일이 없습니다."
+          }
+        }
+      }
+    },
+    "/generate-images": {
+      "post": {
+        "tags": ["이미지 변환"],
+        "summary": "스타일 변환된 이미지 생성",
+        "description": "선택한 화가의 스타일을 적용하여 업로드된 이미지에 스타일 변환을 적용합니다.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "스타일 강도 수준",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "style_intensity": {
+                  "type": "integer",
+                  "example": 2
+                }
+              },
+              "required": ["style_intensity"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "이미지 변환 성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "original": { "type": "string" },
+                "artist1_image": { "type": "string" },
+                "artist2_image": { "type": "string" },
+                "combined_image": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "이미지 또는 화가 정보 누락"
+          },
+          "500": {
+            "description": "이미지 생성 실패"
+          }
+        }
+      }
+    },
+    "/adjust-style": {
+      "post": {
+        "tags": ["이미지 변환"],
+        "summary": "스타일 강도 조절",
+        "description": "이미지 변환 스타일 강도를 조정합니다.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "새로운 스타일 강도 수준",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "style_intensity": {
+                  "type": "integer",
+                  "example": 2
+                }
+              },
+              "required": ["style_intensity"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "이미지 스타일 조정 성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "original": { "type": "string" },
+                "artist1_image": { "type": "string" },
+                "artist2_image": { "type": "string" },
+                "combined_image": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "이미지 또는 화가 정보 누락"
+          }
+        }
+      }
+    },
+    "/generate-qr": {
+      "post": {
+        "tags": ["QR 코드 생성"],
+        "summary": "QR 코드 생성",
+        "description": "변환된 이미지를 다운로드할 수 있는 QR 코드를 생성합니다.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "QR 코드를 생성할 이미지의 URL",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "image_url": {
+                  "type": "string",
+                  "example": "http://example.com/image.png"
+                }
+              },
+              "required": ["image_url"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "QR 코드 생성 성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" },
+                "qr_code_url": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "이미지 URL이 제공되지 않았습니다."
+          }
+        }
+      }
+    },
+    "/reset-folders": {
+      "post": {
+        "tags": ["폴더 초기화"],
+        "summary": "폴더 초기화",
+        "description": "업로드된 이미지와 생성된 이미지 폴더의 내용을 초기화합니다.",
+        "responses": {
+          "200": {
+            "description": "폴더 초기화 성공",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
