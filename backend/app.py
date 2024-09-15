@@ -3,20 +3,29 @@ import requests
 
 app = Flask(__name__)
 
-# WebUI API를 호출하여 이미지 생성
+def call_stable_diffusion_api(prompt):
+    url = "http://localhost:7860/sdapi/v1/txt2img"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "prompt": prompt,
+        "steps": 20  # 이미지 생성 단계 수 (필요에 따라 조정 가능)
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()  # 오류가 발생하면 예외를 발생시킴
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
+
 @app.route('/generate', methods=['POST'])
-def generate():
-    data = request.json
-    prompt = data.get('prompt')
-    steps = data.get('steps', 50)
+def generate_image():
+    prompt = request.json.get('prompt')
+    if not prompt:
+        return jsonify({"error": "No prompt provided"}), 400
 
-    # WebUI의 txt2img API 호출
-    response = requests.post(
-        'http://localhost:7860/sdapi/v1/txt2img',
-        json={'prompt': prompt, 'steps': steps}
-    )
-
-    return jsonify(response.json())
+    response = call_stable_diffusion_api(prompt)
+    return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # Flask 서버를 포트 5000에서 실행 (포트는 필요에 따라 변경 가능)
+    app.run(debug=True, port=5000)
