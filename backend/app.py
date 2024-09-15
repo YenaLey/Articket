@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
 import os
 import requests
 import qrcode
 import shutil
 from flasgger import Swagger
+import subprocess
+import time  # 추가
 
 app = Flask(__name__)
 
@@ -140,10 +141,18 @@ def reset_folders():
     clear_folder(app.config['GENERATED_FOLDER'])
     return jsonify({"status": "Folders cleared successfully"}), 200
 
-# Flask 서버 실행
+# 백엔드 서버 실행 시 Stable Diffusion WebUI 서버도 실행
+def start_stable_diffusion():
+    process = subprocess.Popen(
+        ["source", "venv/bin/activate && python", "launch.py", "--api"],
+        cwd="./stable-diffusion-webui",
+        shell=True
+    )
+    time.sleep(5)  # Stable Diffusion WebUI가 시작될 시간을 기다림
+    print("Stable Diffusion WebUI 서버가 실행 중입니다: http://localhost:7860")
+
 if __name__ == '__main__':
-    port = 5000
-    swagger_url = f"http://localhost:{port}/apidocs"
-    print(f"Server running on http://localhost:{port}")
-    print(f"Swagger UI available at {swagger_url}")
-    app.run(debug=True, port=port)
+    start_stable_diffusion() 
+    print("Flask 백엔드 서버가 실행 중입니다: http://localhost:5000")
+    print("Swagger API 문서를 보려면: http://localhost:5000/apidocs")
+    app.run(debug=True, port=5000)
