@@ -4,8 +4,6 @@ import requests
 import qrcode
 import shutil
 from flasgger import Swagger
-import subprocess
-import time  # 추가
 
 app = Flask(__name__)
 
@@ -61,18 +59,37 @@ def upload_image():
 def generate_images():
     style_intensity = request.json.get('style_intensity', 2)
     image_path = selected_artists.get('image_path')
-    artist1 = selected_artists.get('artist1')
+    artist1 = selected_artists.get('artist1', 'tbh296-sdxl')  # 기본으로 사용할 LoRA 모델
     artist2 = selected_artists.get('artist2')
 
-    if not image_path or not artist1 or not artist2:
+    if not image_path:
         return jsonify({"error": "Missing image or artist information"}), 400
 
+    # Interrogate CLIP 호출 (프롬프트 자동 생성)
+    interrogate_url = "http://localhost:7860/sdapi/v1/interrogate"
+    interrogate_data = {
+        "image": image_path,
+        "model": "clip"
+    }
+    response = requests.post(interrogate_url, json=interrogate_data)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to interrogate image"}), 500
+    clip_result = response.json()
+    prompt = clip_result['caption']
+
+    # 자동으로 불필요한 부분 삭제 (choi buk, perfect facial symmetry, a photocopy, mannerism 부분 제거)
+    prompt = prompt.replace("choi buk", "").replace("perfect facial symmetry", "").replace("a photocopy", "").replace("mannerism", "")
+
+    # LoRA 적용 및 피카소 스타일 추가
+    prompt = f"masterpiece, best quality, illustration, style of pablo picasso, {prompt}, <lora:{artist1}:1>"
+
+    # 이미지 생성 API 호출
     url = "http://localhost:7860/sdapi/v1/img2img"
     headers = {"Content-Type": "application/json"}
     
     data = {
         "init_images": [image_path], 
-        "prompt": f"style of {artist1}, style of {artist2}",
+        "prompt": prompt,
         "steps": 20,
         "cfg_scale": style_intensity 
     }
@@ -86,10 +103,9 @@ def generate_images():
     
     return jsonify({
         "original": image_path,
-        "artist1_image": result['images'][0],
-        "artist2_image": result['images'][1],
-        "combined_image": result['images'][2]
+        "generated_image": result['images'][0]
     }), 200
+
 
 # 스타일 강도 조절
 @app.route('/adjust-style', methods=['POST'])
@@ -141,18 +157,11 @@ def reset_folders():
     clear_folder(app.config['GENERATED_FOLDER'])
     return jsonify({"status": "Folders cleared successfully"}), 200
 
-# 백엔드 서버 실행 시 Stable Diffusion WebUI 서버도 실행
-def start_stable_diffusion():
-    process = subprocess.Popen(
-        ["source", "venv/bin/activate && python", "launch.py", "--api"],
-        cwd="./stable-diffusion-webui",
-        shell=True
-    )
-    time.sleep(5)  # Stable Diffusion WebUI가 시작될 시간을 기다림
-    print("Stable Diffusion WebUI 서버가 실행 중입니다: http://localhost:7860")
 
 if __name__ == '__main__':
-    start_stable_diffusion() 
-    print("Flask 백엔드 서버가 실행 중입니다: http://localhost:5000")
-    print("Swagger API 문서를 보려면: http://localhost:5000/apidocs")
-    app.run(debug=True, port=5000)
+    try:
+        print("Flask 백엔드 서버가 성공적으로 실행 중입니다: http://localhost:5000")
+        print("Swagger API 문서를 보려면: http://localhost:5000/apidocs")
+        app.run(debug=True, port=5000)
+    except Exception as e:
+        print(f"Flask 서버 실행 중 오류 발생: {e}")
