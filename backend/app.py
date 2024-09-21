@@ -94,9 +94,9 @@ def generate_style_images(style):
 
     # 인물과 풍경에 따른 수식어 리스트
     if style == 'portrait':
-        modifiers = ['portrait_style1', 'portrait_style2', 'portrait_style3']
+        modifiers = ['oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,']
     elif style == 'landscape':
-        modifiers = ['landscape_style1', 'landscape_style2', 'landscape_style3']
+        modifiers = ['oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,']
     else:
         return jsonify({"error": "Invalid style"}), 400
 
@@ -158,9 +158,9 @@ def generate_enhanced_images(style):
         return jsonify({"error": "Failed to interrogate image"}), 500
 
     if style == 'portrait':
-        modifiers = ['portrait_style1', 'portrait_style2', 'portrait_style3']
+        modifiers = ['oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,']
     elif style == 'landscape':
-        modifiers = ['landscape_style1', 'landscape_style2', 'landscape_style3']
+        modifiers = ['oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,', 'oil painging,style of Paul Cezanne,<lora:Paul_Cezanne:1.0>,masterpiece,best quality,']
     else:
         return jsonify({"error": "Invalid style"}), 400
 
