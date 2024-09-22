@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { QRCodeCanvas } from "qrcode.react"; // QRCodeCanvas 임포트
+import { QRCodeCanvas } from "qrcode.react";
 
 function QR() {
   const [ipAddress, setIpAddress] = useState("");
 
   useEffect(() => {
-    const localIp = "192.168.133.155"; // Mac에서 확인한 IP 주소
+    const localIp = "192.168.133.155"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
     setIpAddress(localIp);
   }, []);
 
