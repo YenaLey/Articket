@@ -18,7 +18,7 @@
       "post": {
         "tags": ["이미지 업로드"],
         "summary": "이미지 업로드",
-        "description": "이미지 변환을 위해 이미지를 업로드합니다.",
+        "description": "이미지를 업로드합니다.",
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
@@ -46,16 +46,16 @@
         }
       }
     },
-    "/generate-style-images/{style}": {
+    "/generate-images/{style}": {
       "post": {
         "tags": ["이미지 변환"],
-        "summary": "스타일 변환된 이미지 생성",
-        "description": "선택한 화가의 스타일을 적용하여 업로드된 이미지에 스타일 변환을 적용합니다.",
+        "summary": "이미지 생성",
+        "description": "사진 원본 또는 간단한 그림을 화가들의 스타일로 변환합니다.",
         "parameters": [
           {
             "in": "path",
             "name": "style",
-            "description": "이미지 스타일 (portrait 또는 landscape)",
+            "description": "이미지 종류 (portrait 또는 landscape)",
             "required": true,
             "type": "string"
           }
@@ -82,72 +82,30 @@
         }
       }
     },
-    "/generate-enhanced-images/{style}": {
-      "post": {
-        "tags": ["이미지 변환"],
-        "summary": "그림을 스타일로 변환",
-        "description": "사용자가 그린 그림을 해당 화가의 스타일로 변환합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "style",
-            "description": "이미지 스타일 (portrait 또는 landscape)",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "description": "사용자가 입력한 추가 정보",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user_input": {
-                  "type": "string",
-                  "example": "사용자가 추가한 설명"
-                }
-              },
-              "required": ["user_input"]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "이미지 변환 성공",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generated_images": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "이미지 또는 사용자 입력 정보 누락"
-          },
-          "500": {
-            "description": "이미지 생성 실패"
-          }
-        }
-      }
-    },
     "/get-generated-images": {
       "get": {
         "tags": ["이미지 변환"],
-        "summary": "생성된 이미지 가져오기",
-        "description": "생성된 이미지 목록을 반환합니다.",
+        "summary": "생성된 이미지 및 업로드된 이미지 가져오기",
+        "description": "생성된 이미지와 업로드된 이미지 목록을 반환합니다.",
         "responses": {
           "200": {
             "description": "이미지 목록 반환 성공",
             "schema": {
               "type": "object",
               "properties": {
-                "generated_images": {
+                "images": {
                   "type": "array",
-                  "items": { "type": "string" }
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "filename": { "type": "string" },
+                      "image_base64": { "type": "string" },
+                      "type": {
+                        "type": "string",
+                        "description": "uploaded 또는 generated"
+                      }
+                    }
+                  }
                 }
               }
             }
