@@ -8,6 +8,7 @@ cd stable-diffusion-webui
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+/models/Lora 에 모델 넣기
 python launch.py --api --skip-torch-cuda-test
 ```
 
