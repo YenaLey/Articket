@@ -1,3 +1,6 @@
 Flask
 requests
 qrcode
+flasgger
+python-dotenv
+pytz
