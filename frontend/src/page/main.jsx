@@ -25,7 +25,7 @@ function Main() {
           <>
             <QRCodeCanvas 
               value={`http://${ipAddress}:3000`}
-              fgColor="#248248"
+              fgColor="rgb(55, 117, 117)"
               size={64}
             />
             <p>QR코드를 인식해서 사진을 선택해주세요</p>
