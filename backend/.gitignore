@@ -8,6 +8,10 @@ venv/
 # Environment variables
 .env
 
-# Ignore generated and uploaded images
+# Ignore generated and uploaded images but keep directories
 /static/generated/*
 /static/uploads/*
+
+# Allow empty folders by tracking .gitkeep
+!static/generated/.gitkeep
+!static/uploads/.gitkeep
