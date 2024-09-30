@@ -3,8 +3,8 @@
 ### stable diffusion webui 서버 실행
 
 ```
-cd backend/static
-stable-diffusion-server 파일을 google colab에서 실행
+cd backend/static/file
+stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 GPU 사용, Lora 모델 파일들을 /models/Lora에 삽입)
 생성된 public URL을 WEBUI_URL의 환경변수로 사용
 ```
 
