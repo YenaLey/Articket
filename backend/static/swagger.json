@@ -9,16 +9,21 @@
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
-    { "name": "이미지 업로드", "description": "이미지 업로드 API" },
-    { "name": "이미지 변환", "description": "이미지 변환 및 스타일 조정 API" },
-    { "name": "폴더 초기화", "description": "폴더 초기화 API" }
+    {
+      "name": "이미지 업로드",
+      "description": "이미지 업로드 API"
+    },
+    {
+      "name": "이미지 변환",
+      "description": "이미지 변환 및 스타일 조정 API"
+    }
   ],
   "paths": {
     "/upload-image": {
       "post": {
         "tags": ["이미지 업로드"],
         "summary": "이미지 업로드",
-        "description": "이미지를 업로드합니다.",
+        "description": "사용자가 이미지를 업로드합니다. 업로드된 이미지는 서버에 저장되며, 변환 작업을 수행할 준비가 됩니다.",
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
@@ -49,13 +54,13 @@
     "/generate-images/{style}": {
       "post": {
         "tags": ["이미지 변환"],
-        "summary": "이미지 생성",
-        "description": "사진 원본 또는 간단한 그림을 화가들의 스타일로 변환합니다.",
+        "summary": "이미지 생성 및 스타일 변환",
+        "description": "사용자가 업로드한 이미지를 지정된 스타일로 변환합니다. 변환된 이미지는 원본 이미지와 함께 저장됩니다.",
         "parameters": [
           {
             "in": "path",
             "name": "style",
-            "description": "이미지 종류 (portrait 또는 landscape)",
+            "description": "이미지 변환에 사용할 스타일. 예: 'portrait' 또는 'landscape'.",
             "required": true,
             "type": "string"
           }
@@ -86,7 +91,7 @@
       "get": {
         "tags": ["이미지 변환"],
         "summary": "생성된 이미지 및 업로드된 이미지 가져오기",
-        "description": "생성된 이미지와 업로드된 이미지 목록을 반환합니다.",
+        "description": "서버에 저장된 업로드된 이미지와 생성된 이미지 목록을 반환합니다. 이미지는 base64로 인코딩된 형식으로 전송됩니다.",
         "responses": {
           "200": {
             "description": "이미지 목록 반환 성공",
@@ -107,24 +112,6 @@
                     }
                   }
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/reset-folders": {
-      "post": {
-        "tags": ["폴더 초기화"],
-        "summary": "폴더 초기화",
-        "description": "업로드된 이미지와 생성된 이미지 폴더의 내용을 초기화합니다.",
-        "responses": {
-          "200": {
-            "description": "폴더 초기화 성공",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "string" }
               }
             }
           }
