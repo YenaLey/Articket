@@ -35,49 +35,43 @@ for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, ARCHIVE_FOLDER]:
 
 selected_artists = {}
 
+# 보관함에서 가장 큰 카운트 값을 가져오는 함수
+def get_latest_count_from_archive():
+    count_list = []
+    for filename in os.listdir(app.config['ARCHIVE_FOLDER']):
+        if filename.split('_')[0].isdigit():
+            count_list.append(int(filename.split('_')[0]))
+    return max(count_list) + 1 if count_list else 1
+
 # 이미지 파일을 base64로 인코딩하는 함수
-def encode_image_to_base64(image_path): 
+def encode_image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
-# 아카이브 폴더에서 마지막 폴더 번호를 찾는 함수
-def get_next_archive_folder_number():
-    existing_folders = [int(f) for f in os.listdir(app.config['ARCHIVE_FOLDER']) if f.isdigit()]
-    if existing_folders:
-        return max(existing_folders) + 1
-    else:
-        return 1
-
-# 보관함에 이미지 저장 (화가 이름, 폴더 생성)
-def save_to_archive(image_path, artist_name, folder_number):
-    folder_path = os.path.join(app.config['ARCHIVE_FOLDER'], str(folder_number))
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    
-    filename = f"{artist_name}.png"
-    archive_path = os.path.join(folder_path, filename)
-    
+# 보관함(ARCHIVE_FOLDER)에 이미지 저장 함수
+def save_to_archive(image_path, filename):
+    archive_path = os.path.join(app.config['ARCHIVE_FOLDER'], filename)
     shutil.copy(image_path, archive_path)
-    
     return archive_path
 
 # 이미지 업로드
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
+    global count
     if 'image' not in request.files:
         return jsonify({"error": "No image file found"}), 400
     file = request.files['image']
 
-    fixed_filename = f"uploaded_image.png"
+    count = get_latest_count_from_archive()
+
+    fixed_filename = f"{count}_original.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], fixed_filename)
     
     file.save(file_path)
-    
-    folder_number = get_next_archive_folder_number()
-    save_to_archive(file_path, 'uploaded', folder_number)
+    save_to_archive(file_path, fixed_filename)
     
     selected_artists['image_path'] = file_path
-    selected_artists['folder_number'] = folder_number
+    selected_artists['count'] = count
     
     return jsonify({"status": "image uploaded successfully", "image_path": file_path}), 200
 
@@ -102,11 +96,11 @@ def clip_interrogate(image_path, clip_skip_level=1):
 # 이미지 변환 (비동기)
 @app.route('/generate-images/<style>', methods=['POST'])
 async def generate_style_images(style):
+    global count
     image_path = selected_artists.get('image_path')
-    folder_number = selected_artists.get('folder_number')
 
-    if not image_path or not folder_number:
-        return jsonify({"error": "Missing image or folder number"}), 400
+    if not image_path:
+        return jsonify({"error": "Missing image"}), 400
 
     prompt = await asyncio.to_thread(clip_interrogate, image_path, clip_skip_level=1)
     if not prompt:
@@ -127,6 +121,7 @@ async def generate_style_images(style):
     else:
         return jsonify({"error": "Invalid style"}), 400
 
+    current_count = selected_artists.get('count')
     generated_images = []
     image_base64 = encode_image_to_base64(image_path)
 
@@ -156,16 +151,19 @@ async def generate_style_images(style):
 
         result = response.json()
 
-        image_filename = f"generated_image_{artist_name}.png"
+        image_filename = f"{current_count}_{artist_name}.png"
         generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
         with open(generated_path, "wb") as f:
             f.write(base64.b64decode(result['images'][0]))
 
-        save_to_archive(generated_path, artist_name, folder_number)
+        save_to_archive(generated_path, image_filename)
+
         return generated_path
 
     tasks = [generate_image(modifier, artist_name) for modifier, artist_name in modifiers]
     generated_images = await asyncio.gather(*tasks)
+
+    count += 1
 
     return jsonify({"generated_images": generated_images}), 200
 
