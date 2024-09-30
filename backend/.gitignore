@@ -1,4 +1,13 @@
+# Python virtual environment
 venv/
 .venv/
+
+# macOS specific files
 .DS_Store
+
+# Environment variables
 .env
+
+# Ignore generated and uploaded images
+/static/generated/*
+/static/uploads/*

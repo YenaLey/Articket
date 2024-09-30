@@ -1,14 +1,12 @@
 from flask import Flask, request, jsonify
-import asyncio
 import os
-import requests
-import base64
 import shutil
+import base64
+import requests
+import time
+import asyncio
 from flasgger import Swagger
 from dotenv import load_dotenv
-from datetime import datetime
-import pytz
-import time
 
 load_dotenv()
 
@@ -18,41 +16,44 @@ app = Flask(__name__)
 swagger = Swagger(app, template_file='./static/swagger.json')
 
 WEBUI_URL = os.getenv('WEBUI_URL')
-
-# 한국 시간대 설정 (Asia/Seoul)
-KST = pytz.timezone('Asia/Seoul')
+DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER')
 
 UPLOAD_FOLDER = './static/uploads'
 GENERATED_FOLDER = './static/generated'
-ARCHIVE_FOLDER = './static/archive'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GENERATED_FOLDER'] = GENERATED_FOLDER
-app.config['ARCHIVE_FOLDER'] = ARCHIVE_FOLDER
 
-for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, ARCHIVE_FOLDER]:
+for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, DESKTOP_FOLDER]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
 selected_artists = {}
 
-# 보관함에서 가장 큰 카운트 값을 가져오는 함수
-def get_latest_count_from_archive():
+# 특정 폴더 내의 파일들을 삭제하는 함수
+def clear_folder(folder_path):
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
+# 바탕화면 폴더에서 가장 큰 카운트 값을 가져오는 함수
+def get_latest_count_from_desktop():
     count_list = []
-    for filename in os.listdir(app.config['ARCHIVE_FOLDER']):
+    for filename in os.listdir(DESKTOP_FOLDER):
         if filename.split('_')[0].isdigit():
             count_list.append(int(filename.split('_')[0]))
     return max(count_list) + 1 if count_list else 1
 
-# 이미지 파일을 base64로 인코딩하는 함수
-def encode_image_to_base64(image_path):
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode('utf-8')
-
-# 보관함(ARCHIVE_FOLDER)에 이미지 저장 함수
-def save_to_archive(image_path, filename):
-    archive_path = os.path.join(app.config['ARCHIVE_FOLDER'], filename)
-    shutil.copy(image_path, archive_path)
-    return archive_path
+# 바탕화면 폴더에 이미지 저장 함수
+def save_to_desktop(image_path, filename):
+    desktop_path = os.path.join(DESKTOP_FOLDER, filename)
+    shutil.copy(image_path, desktop_path)
+    return desktop_path
 
 # 이미지 업로드
 @app.route('/upload-image', methods=['POST'])
@@ -62,18 +63,26 @@ def upload_image():
         return jsonify({"error": "No image file found"}), 400
     file = request.files['image']
 
-    count = get_latest_count_from_archive()
+    clear_folder(UPLOAD_FOLDER)
+    clear_folder(GENERATED_FOLDER)
+
+    count = get_latest_count_from_desktop()
 
     fixed_filename = f"{count}_original.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], fixed_filename)
     
     file.save(file_path)
-    save_to_archive(file_path, fixed_filename)
+    save_to_desktop(file_path, fixed_filename)
     
     selected_artists['image_path'] = file_path
     selected_artists['count'] = count
     
     return jsonify({"status": "image uploaded successfully", "image_path": file_path}), 200
+
+# 이미지 파일을 base64로 인코딩하는 함수
+def encode_image_to_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode('utf-8')
 
 # CLIP으로 이미지를 텍스트로 변환하는 함수
 def clip_interrogate(image_path, clip_skip_level=1):
@@ -93,7 +102,7 @@ def clip_interrogate(image_path, clip_skip_level=1):
         return None
     return response.json().get('caption', '')
 
-# 이미지 변환 (비동기)
+# 이미지 생성 및 저장
 @app.route('/generate-images/<style>', methods=['POST'])
 async def generate_style_images(style):
     global count
@@ -156,7 +165,7 @@ async def generate_style_images(style):
         with open(generated_path, "wb") as f:
             f.write(base64.b64decode(result['images'][0]))
 
-        save_to_archive(generated_path, image_filename)
+        save_to_desktop(generated_path, image_filename)
 
         return generated_path
 
@@ -195,25 +204,6 @@ def get_generated_images():
             })
     
     return jsonify({"images": image_data}), 200
-
-# 폴더 초기화 함수
-def clear_folder(folder_path):
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print(f'Failed to delete {file_path}. Reason: {e}')
-
-# 각 테스트가 끝날 때 폴더 초기화
-@app.route('/reset-folders', methods=['POST'])
-def reset_folders():
-    clear_folder(app.config['UPLOAD_FOLDER'])
-    clear_folder(app.config['GENERATED_FOLDER'])
-    return jsonify({"status": "Folders cleared successfully"}), 200
 
 if __name__ == '__main__':
     try:
