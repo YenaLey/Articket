@@ -12,18 +12,25 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Flasgger 설정
 swagger = Swagger(app, template_file='./static/swagger.json')
 
 WEBUI_URL = os.getenv('WEBUI_URL')
 DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER')
 
 UPLOAD_FOLDER = './static/uploads'
+DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER', '../achieve') # DESKTOP_FOLDER 환경 변수에서 경로를 가져오고 없을 경우 기본 경로 설정
+
+# 만약 DESKTOP_FOLDER 경로가 존재하지 않으면 폴더 생성
+if not os.path.exists(DESKTOP_FOLDER):
+    os.makedirs(DESKTOP_FOLDER)
+
+UPLOAD_FOLDER = './static/uploads'
 GENERATED_FOLDER = './static/generated'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GENERATED_FOLDER'] = GENERATED_FOLDER
 
-for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, DESKTOP_FOLDER]:
+# UPLOAD_FOLDER, GENERATED_FOLDER도 폴더가 없으면 생성
+for folder in [UPLOAD_FOLDER, GENERATED_FOLDER]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -41,7 +48,7 @@ def clear_folder(folder_path):
         except Exception as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
 
-# 바탕화면 폴더에서 가장 큰 카운트 값을 가져오는 함수
+# 데스크탑 폴더에서 가장 큰 카운트 값을 가져오는 함수
 def get_latest_count_from_desktop():
     count_list = []
     for filename in os.listdir(DESKTOP_FOLDER):
