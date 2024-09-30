@@ -17,7 +17,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 .env 파일 추가
-WEBUI_URL=https://5279210f23e5270644.gradio.live/
+WEBUI_URL=https://5279210f23e5270644.gradio.live/ # 예시
 DESKTOP_FOLDER='/Users/leeyena/Desktop/stable-diffusion-images' # 업로드한 이미지와 생성된 이미지들을 로컬에 자동 저장되도록 하는 폴더 경로 (생략 가능)
 
 python app.py
