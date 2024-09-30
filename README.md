@@ -3,13 +3,9 @@
 ### stable diffusion webui 서버 실행
 
 ```
-cd backend
-cd stable-diffusion-webui
-python3.10 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-/models/Lora 에 모델 넣기
-python launch.py --api --skip-torch-cuda-test
+cd backend/static
+stable-diffusion-server 파일을 google colab에서 실행
+생성된 public URL을 WEBUI_URL의 환경변수로 사용
 ```
 
 ### backend 서버 실행
@@ -19,7 +15,11 @@ cd backend
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-WEBUI_URL= http://127.0.0.1:7860 내용의 .env 파일 생성
+
+.env 파일 추가
+WEBUI_URL=https://5279210f23e5270644.gradio.live/
+DESKTOP_FOLDER='/Users/leeyena/Desktop/stable-diffusion-images' # 업로드한 이미지와 생성된 이미지들을 로컬에 자동 저장되도록 하는 폴더 경로 (생략 가능)
+
 python app.py
 ```
 
