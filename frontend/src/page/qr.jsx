@@ -5,7 +5,7 @@ function QR() {
   const [ipAddress, setIpAddress] = useState("");
 
   useEffect(() => {
-    const localIp = "192.168.133.155"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
+    const localIp = "192.168.0.14"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
     setIpAddress(localIp);
   }, []);
 

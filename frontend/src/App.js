@@ -18,9 +18,9 @@ function App() {
           </Routes>
 
           {/* 링크로 페이지 이동 */}
-          <nav>
+          {/* <nav>
             <Link to="/">Home</Link> | <Link to="/qr">QR Code</Link>
-          </nav>
+          </nav> */}
         </header>
       </div>
     </Router>
