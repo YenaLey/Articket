@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "./App.css";
 import QR from "./page/qr";
 import Main from "./page/main";
+import Result from "./page/result";
+import Upload from './page/upload'; 
 
 function App() {
   return (
@@ -14,7 +16,10 @@ function App() {
             <Route path="/" element={<Main />} />
 
             {/* QR 코드 페이지 경로 */}
-            <Route path="/qr" element={<QR />} />
+            <Route path="/upload" element={<Upload />} />
+
+            {/* 결과 페이지 경로 */}
+            <Route path="/result" element={<Result />} />
           </Routes>
 
           {/* 링크로 페이지 이동 */}
