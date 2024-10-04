@@ -1,0 +1,94 @@
+.result-container {
+    width: 100%;
+    max-width: 1500px;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Nanum Gothic';
+    
+    & h1 {
+        cursor: pointer;
+        align-self: flex-start;
+        margin-bottom: 0;
+        font-family: 'Merriweather';
+        font-size: 1.5rem;
+    }
+}
+
+.loading-container,
+.result-result {
+    width: 100%;
+    margin-top: 15vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loading-img-container,
+.result-img-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5%;
+}
+
+.loading-img,
+.result-img {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    & img {
+        width: 100%;
+        aspect-ratio: 1/1;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+    
+    & p {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+}
+
+.loading-loading {
+    margin-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    & p {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+}
+
+.result-qr {
+    margin-top: 5vh;
+
+    & p{
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    & h4 {
+        cursor: pointer;
+        padding: 10px 0;
+        text-align: center;
+        font-size: 1.2rem;
+        color: white;
+        background-color: black;
+        border-radius: 10px;
+        transition: all 0.5s ease;
+
+
+        &:hover {
+            color: #585858;
+            background-color: #D6D6D6;    
+        }
+    }
+}

@@ -5,8 +5,10 @@ import QR from "./page/qr";
 import Main from "./page/main";
 import Result from "./page/result";
 import Upload from './page/upload'; 
+import Save from "./page/save";
 
 function App() {
+  
   return (
     <Router>
       <div className="App">
@@ -20,6 +22,9 @@ function App() {
 
             {/* 결과 페이지 경로 */}
             <Route path="/result" element={<Result />} />
+
+            {/* 사진 저장 페이지 경로 */}
+            <Route path="/save" element={<Save />} />
           </Routes>
 
           {/* 링크로 페이지 이동 */}

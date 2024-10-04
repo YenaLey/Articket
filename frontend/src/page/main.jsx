@@ -1,16 +1,16 @@
 // HomePage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
 import '../style/main.css';
-import { QRCodeCanvas } from "qrcode.react";
+import { FaArrowRight } from "react-icons/fa6";
+import QR from "./qr";
 
 function Main() {
   const navigate = useNavigate();
   const [ipAddress, setIpAddress] = useState("");
 
   useEffect(() => {
-    const localIp = "10.0.14.232"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
+    const localIp = "10.0.28.91"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
     setIpAddress(localIp);
   }, []);
 
@@ -26,24 +26,20 @@ function Main() {
       <div className="main-qr">
         {ipAddress && (
           <>
-            <QRCodeCanvas 
-              value={`http://${ipAddress}:3000/upload`}
-              fgColor="rgb(55, 117, 117)"
-              size={64}
-            />
-            <p>QR코드를 인식해서 사진을 선택해주세요</p>
+            <QR pathname='upload' />
+            <p onClick={() => navigate('/upload')}>QR코드를 인식해서 사진을 선택해주세요</p>
           </>
         )}
-
-        <button onClick={()=>navigate('/result')}>
-          인물 이미지 생성
-        </button>
-        <button onClick={()=>{
-          navigate('/result');
-        }}>
-          풍경 이미지 생성
-        </button>
       </div>
+      <div className="main-next">
+        <p
+          className="main-next"
+          onClick={() => navigate('/result')}
+        >
+          <FaArrowRight /> 이미지 업로드 완료
+        </p>
+      </div>
+
     </div>
   );
 }
