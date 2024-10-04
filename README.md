@@ -34,7 +34,7 @@ python app.py
 ```
 "host": "192.168.46.155:5000", //backend/swagger.json에서 현재 노트북 IP로 수정
 ```
-backend 서버 실행 후 http://192.168.46.155:5000/apidocs로 접속
+backend 서버 실행 후 http://호스트:5000/apidocs로 접속
 
 ### frontend 서버 실행
 
