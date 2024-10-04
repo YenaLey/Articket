@@ -4,11 +4,10 @@ import "./App.css";
 import QR from "./page/qr";
 import Main from "./page/main";
 import Result from "./page/result";
-import Upload from './page/upload'; 
+import Upload from "./page/upload";
 import Save from "./page/save";
 
 function App() {
-  
   return (
     <Router>
       <div className="App">
