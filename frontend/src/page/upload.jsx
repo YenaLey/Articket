@@ -13,7 +13,7 @@ export default function Upload() {
     const [ipAddress, setIpAddress] = useState("");
 
     useEffect(() => {
-        setIpAddress(localIp); // 수정된 부분
+        setIpAddress(localIp); // IP 주소 설정
     }, []);
 
     // 파일 선택 핸들러
@@ -49,36 +49,15 @@ export default function Upload() {
         setError(null); // 에러 초기화
 
         try {
-            const response = await axios.post(`http://localhost:5000/upload-image`, formData, {
+            const response = await axios.post(`http://${ipAddress}:5000/upload-image`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }
             });
             console.log('이미지 업로드 성공:', response.data);
-
-            // 이미지 생성 함수 호출
-            await generateImage();
         } catch (error) {
             console.error('이미지 업로드 실패:', error);
             setError("이미지 업로드에 실패했습니다."); // 에러 메시지 설정
-        } finally {
-            setUploading(false); // 업로드 완료
-        }
-    };
-
-    // 이미지 생성 함수
-    const generateImage = async () => {
-        setUploading(true); // 업로드 상태를 생성 중으로 변경
-        setError(null); // 에러 초기화
-
-        try {
-            const style = 'landscape'; // 스타일을 필요에 따라 수정
-            const response = await axios.post(`http://localhost:5000/generate-images/${style}`);
-            console.log('이미지 생성 성공:', response.data);
-            // 여기에서 생성된 이미지를 처리하거나 결과를 보여줄 수 있습니다.
-        } catch (error) {
-            console.error('이미지 생성 실패:', error);
-            setError("이미지 생성에 실패했습니다."); // 에러 메시지 설정
         } finally {
             setUploading(false); // 업로드 완료
         }
