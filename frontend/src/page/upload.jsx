@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import '../style/upload.css';
+import "../style/upload.css";
 import { ImFilePicture } from "react-icons/im";
 import { localIp } from "./qr";
 
@@ -11,6 +11,8 @@ export default function Upload() {
     const [uploading, setUploading] = useState(false); // 업로드 상태
     const [error, setError] = useState(null); // 에러 메시지 상태
     const [ipAddress, setIpAddress] = useState("");
+  
+    const BASE_URL = process.env.REACT_APP_HOST;
 
     useEffect(() => {
         setIpAddress(localIp); // IP 주소 설정
@@ -49,7 +51,7 @@ export default function Upload() {
         setError(null); // 에러 초기화
 
         try {
-            const response = await axios.post(`http://${ipAddress}:5000/upload-image`, formData, {
+            const response = await axios.post(`http://${BASE_URL}:5000/upload-image`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }
@@ -104,5 +106,10 @@ export default function Upload() {
                 {error && <div className="error-message">{error}</div>}
             </div>
         </div>
-    );
+
+        {/* 에러 메시지 표시 */}
+        {error && <div className="error-message">{error}</div>}
+      </div>
+    </div>
+  );
 }

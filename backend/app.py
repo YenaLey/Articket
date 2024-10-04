@@ -9,7 +9,7 @@ import asyncio
 from flasgger import Swagger
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path='../frontend/.env')
 
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +20,8 @@ def index():
 
 swagger = Swagger(app, template_file='./static/swagger.json')
 
-HOST = os.getenv('HOST')
+REACT_APP_HOST = os.getenv('REACT_APP_HOST')
+print('host', REACT_APP_HOST)
 PORT = 5000
 WEBUI_URL = os.getenv('WEBUI_URL')
 DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER')
@@ -222,9 +223,9 @@ def get_generated_images():
 
 if __name__ == '__main__':
     try:
-        backend_url = f"http://{HOST}:{PORT}"
+        backend_url = f"http://{REACT_APP_HOST}:{PORT}"
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
-        app.run(debug=True, host=HOST, port=PORT)
+        app.run(debug=True, host=REACT_APP_HOST, port=PORT)
     except Exception as e:
         print(f"Flask 서버 실행 중 오류 발생: {e}")
