@@ -130,9 +130,9 @@ async def generate_style_images(style):
 
     if style == 'portrait':
         modifiers = [
-            ('oil painting, style of Paul Cezanne,<lora:Paul_Cezanne:1.0>, masterpiece, best quality', '세잔'), 
-            ('painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality', '고흐'), 
-            ('painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality', '모네')
+            ('illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait', '피카소'), 
+            ('oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait', '르누아르'), 
+            ('oil painging,style of Auguste Rembrandt, <lora:rembrandt:1>,masterpiece,best quality, portrait', '렘브란트')
         ]
     elif style == 'landscape':
         modifiers = [
@@ -155,9 +155,9 @@ async def generate_style_images(style):
         data = {
             "init_images": [f"data:image/png;base64,{image_base64}"],
             "prompt": full_prompt,
-            "steps": 20,
-            "cfg_scale": 7,
-            "denoising_strength": 0.7,
+            "steps": 25,
+            "cfg_scale": 9,
+            "denoising_strength": 0.58,
             "sampler_index": "Euler a",
             "batch_size": 1,
             "n_iter": 1
