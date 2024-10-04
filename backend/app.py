@@ -20,6 +20,8 @@ def index():
 
 swagger = Swagger(app, template_file='./static/swagger.json')
 
+HOST = os.getenv('HOST')
+PORT = 5000
 WEBUI_URL = os.getenv('WEBUI_URL')
 DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER')
 
@@ -220,8 +222,9 @@ def get_generated_images():
 
 if __name__ == '__main__':
     try:
-        print("Flask 백엔드 서버가 성공적으로 실행 중입니다: http://localhost:5000")
-        print("Swagger API 문서를 보려면: http://localhost:5000/apidocs")
-        app.run(debug=True, port=5000)
+        backend_url = f"http://{HOST}:{PORT}"
+        print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
+        print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
+        app.run(debug=True, host=HOST, port=PORT)
     except Exception as e:
         print(f"Flask 서버 실행 중 오류 발생: {e}")

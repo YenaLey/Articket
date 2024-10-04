@@ -14,7 +14,10 @@ function QR({ pathname }) {
     <div>
       {ipAddress && (
         <>
-          <QRCodeCanvas value={`http://${ipAddress}:3000/${pathname}`} size={64} />
+          <QRCodeCanvas
+            value={`http://${ipAddress}:3000/${pathname}`}
+            size={64}
+          />
         </>
       )}
     </div>
