@@ -8,7 +8,7 @@ stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 G
 생성된 public URL을 WEBUI_URL의 환경변수로 사용
 ```
 
-### frontend 폴더 안에 .env 파일 추가 (./frotnend/.env)
+### frontend 폴더 안에 .env 파일 추가 (./frontend/.env)
 ```
 # 현재 노트북 IP로 수정
 REACT_APP_HOST=192.168.46.155
