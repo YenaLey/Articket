@@ -8,6 +8,18 @@ stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 G
 생성된 public URL을 WEBUI_URL의 환경변수로 사용
 ```
 
+### frontend 폴더 안에 .env 파일 추가 (./frontend/.env)
+```
+# 현재 노트북 IP로 수정
+REACT_APP_HOST=192.168.46.155
+
+# 현재 stable diffusion webui 서버로 수정
+WEBUI_URL=https://1d3aebaf1cccc35cd9.gradio.live/
+
+# 모든 사진 보관 폴더 지정(설정 안해도 됨 그럴 경우 주석처리)
+# DESKTOP_FOLDER='/Users/leeyena/Desktop'
+```
+
 ### backend 서버 실행
 
 ```
@@ -15,11 +27,6 @@ cd backend
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-.env 파일 추가
-WEBUI_URL=https://5279210f23e5270644.gradio.live/ # 예시
-DESKTOP_FOLDER='/Users/leeyena/Desktop/stable-diffusion-images' # 업로드한 이미지와 생성된 이미지들을 로컬에 자동 저장되도록 하는 폴더 경로 (생략 가능)
-
 python app.py
 ```
 
