@@ -18,16 +18,14 @@ CORS(app)
 def index():
     return 'CORS 설정 완료'
 
-swagger = Swagger(app, template_file='./static/swagger.json')
 
 REACT_APP_HOST = os.getenv('REACT_APP_HOST')
-print('host', REACT_APP_HOST)
 PORT = 5000
 WEBUI_URL = os.getenv('WEBUI_URL')
-DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER')
-
-UPLOAD_FOLDER = './static/uploads'
 DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER', '../archive') # DESKTOP_FOLDER 환경 변수에서 경로를 가져오고 없을 경우 기본 경로 설정
+UPLOAD_FOLDER = './static/uploads'
+
+swagger = Swagger(app, template_file='./static/swagger.json')
 
 # 만약 DESKTOP_FOLDER 경로가 존재하지 않으면 폴더 생성
 if not os.path.exists(DESKTOP_FOLDER):
