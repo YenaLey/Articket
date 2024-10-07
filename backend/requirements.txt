@@ -4,3 +4,4 @@ qrcode
 flasgger
 python-dotenv
 pytz
+flask_cors
