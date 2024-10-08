@@ -27,7 +27,7 @@
       "post": {
         "tags": ["이미지 업로드"],
         "summary": "이미지 업로드",
-        "description": "사용자가 이미지를 업로드합니다. 업로드된 이미지는 서버에 저장되며, 변환 작업을 수행할 준비가 됩니다.",
+        "description": "사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다",
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
@@ -67,7 +67,7 @@
       "post": {
         "tags": ["성격 테스트 결과 전송"],
         "summary": "성격 테스트 결과",
-        "description": "사용자의 선택을 바탕으로 예술가 유형과 해당 화가의 이름을 반환합니다.",
+        "description": "사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름을 반환합니다.",
         "parameters": [
           {
             "in": "path",
@@ -110,7 +110,7 @@
               "properties": {
                 "user_name": { "type": "string" },
                 "artist": { "type": "string" },
-                "generated_images": {
+                "generated_image": {
                   "type": "array",
                   "items": { "type": "string" }
                 }
