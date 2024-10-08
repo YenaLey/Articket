@@ -52,7 +52,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "status": { "type": "string" },
                 "image_path": { "type": "string" }
               }
             }

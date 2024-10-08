@@ -141,7 +141,7 @@ def upload_image(name):
 
     file_path_for_url = backend_url + '/' + file_path.replace('./', '')
     
-    return jsonify({"status": "image uploaded successfully", "image_path": file_path_for_url}), 200
+    return jsonify({"image_path": file_path_for_url}), 200
 
 '''
 성격 테스트 결과 전송 API
