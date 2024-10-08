@@ -5,8 +5,10 @@ on:
     branches:
       - main
 
-  frontend:
+jobs:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -29,4 +31,5 @@ on:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.ARTICKET_TOKEN }}
-          publish_dir: ./frontend/build
+          publish_dir: frontend/build
+          branch: gh-pages
