@@ -234,7 +234,7 @@ async def generate_style_images():
 
     count += 1
 
-    return jsonify({"user_name": user_name, "artist": adorned_artist, "generated_image": generated_image_url}), 200
+    return jsonify({"user_name": user_name, "artist": adorned_artist, "generated_image": generated_image_url, "qr_image": backend_url + '/static/personality-result-qr.png'}), 200
 
 if __name__ == '__main__':
     try:

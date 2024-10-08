@@ -109,10 +109,8 @@
               "properties": {
                 "user_name": { "type": "string" },
                 "artist": { "type": "string" },
-                "generated_image": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                }
+                "generated_image": { "type": "string" },
+                "qr_image": { "type": "string" }
               }
             }
           },
