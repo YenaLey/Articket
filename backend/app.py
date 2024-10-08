@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
 import os
 import shutil
@@ -18,16 +18,16 @@ CORS(app)
 def index():
     return 'CORS 설정 완료'
 
-
 REACT_APP_HOST = os.getenv('REACT_APP_HOST')
 PORT = 5000
+backend_url = f"http://{REACT_APP_HOST}:{PORT}"
+
 WEBUI_URL = os.getenv('WEBUI_URL')
-DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER', '../archive') # DESKTOP_FOLDER 환경 변수에서 경로를 가져오고 없을 경우 기본 경로 설정
+DESKTOP_FOLDER = os.getenv('DESKTOP_FOLDER', '../archive')  # DESKTOP_FOLDER 환경 변수에서 경로를 가져오고 없을 경우 기본 경로 설정
 UPLOAD_FOLDER = './static/uploads'
 
 swagger = Swagger(app, template_file='./static/swagger.json')
 
-# 만약 DESKTOP_FOLDER 경로가 존재하지 않으면 폴더 생성
 if not os.path.exists(DESKTOP_FOLDER):
     os.makedirs(DESKTOP_FOLDER)
 
@@ -36,12 +36,13 @@ GENERATED_FOLDER = './static/generated'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GENERATED_FOLDER'] = GENERATED_FOLDER
 
-# UPLOAD_FOLDER, GENERATED_FOLDER도 폴더가 없으면 생성
 for folder in [UPLOAD_FOLDER, GENERATED_FOLDER]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
 selected_artists = {}
+user_name = ''
+result_artist = ''
 
 # 특정 폴더 내의 파일들을 삭제하는 함수
 def clear_folder(folder_path):
@@ -69,10 +70,13 @@ def save_to_desktop(image_path, filename):
     shutil.copy(image_path, desktop_path)
     return desktop_path
 
-# 이미지 업로드
-@app.route('/upload-image', methods=['POST'])
-def upload_image():
-    global count
+### 이미지 업로드
+@app.route('/upload-image/<name>', methods=['POST'])
+def upload_image(name):
+    global user_name, count
+    if not name:
+        return jsonify({"error": "Missing user name"}), 400  # user_name 없을 때 에러 반환
+    user_name = name 
     if 'image' not in request.files:
         return jsonify({"error": "No image file found"}), 400
     file = request.files['image']
@@ -82,7 +86,7 @@ def upload_image():
 
     count = get_latest_count_from_desktop()
 
-    fixed_filename = f"{count}_original.png"
+    fixed_filename = f"{count}_{user_name}.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], fixed_filename)
     
     file.save(file_path)
@@ -90,8 +94,28 @@ def upload_image():
     
     selected_artists['image_path'] = file_path
     selected_artists['count'] = count
+
+    file_path_for_url = backend_url + '/' + file_path.replace('./', '')
     
-    return jsonify({"status": "image uploaded successfully", "image_path": file_path}), 200
+    return jsonify({"status": "image uploaded successfully", "image_path": file_path_for_url}), 200
+
+### 성격 테스트 결과를 저장
+@app.route('/get-personality-result/<options>', methods=['POST'])
+def test_result(options):
+    global result_artist
+    if not options:
+        return jsonify({"error": "Missing options"}), 400  # options가 없을 때 에러 반환
+
+    if options.count('A') >= 4:
+        result_artist = '고흐'
+    elif options.count('B') >= 4:
+        result_artist = '피카소'
+    elif options.count('A') >= 3 and options.count('B') <= 2:
+        result_artist = '모네'
+    else:
+        result_artist = '폴록'
+
+    return jsonify({"artist": result_artist}), 200
 
 # 이미지 파일을 base64로 인코딩하는 함수
 def encode_image_to_base64(image_path):
@@ -116,10 +140,14 @@ def clip_interrogate(image_path, clip_skip_level=1):
         return None
     return response.json().get('caption', '')
 
-# 이미지 생성 및 저장
-@app.route('/generate-images/<style>', methods=['POST'])
-async def generate_style_images(style):
-    global count
+### 이미지 생성 및 이미지 경로 전송
+@app.route('/get-generated-images', methods=['POST'])
+async def generate_style_images():
+    global count, result_artist
+
+    if not result_artist:
+        return jsonify({"error": "Missing result artist"}), 400  # result_artist가 없을 때 에러 반환
+
     image_path = selected_artists.get('image_path')
 
     if not image_path:
@@ -129,27 +157,19 @@ async def generate_style_images(style):
     if not prompt:
         return jsonify({"error": "Failed to interrogate image"}), 500
 
-    if style == 'portrait':
-        modifiers = [
-            ('illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait', '피카소'), 
-            ('oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait', '르누아르'), 
-            ('oil painging,style of Auguste Rembrandt, <lora:rembrandt:1>,masterpiece,best quality, portrait', '렘브란트')
-        ]
-    elif style == 'landscape':
-        modifiers = [
-            ('oil painting, style of Paul Cezanne,<lora:Paul_Cezanne:1.0>, masterpiece, best quality', '세잔'),
-            ('painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality', '고흐'),
-            ('painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality', '모네')
-        ]
-    else:
-        return jsonify({"error": "Invalid style"}), 400
+    modifiers = [
+        ('painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality', '고흐'),
+        ('illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait', '피카소'), 
+        ('painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality', '모네'),
+        ('oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait', '폴록')
+    ]
 
     current_count = selected_artists.get('count')
     generated_images = []
     image_base64 = encode_image_to_base64(image_path)
 
     # 이미지 생성 함수
-    async def generate_image(modifier, artist_name):
+    async def generate_image(modifier):
         full_prompt = f"{modifier}, {prompt}"
         url = f"{WEBUI_URL}/sdapi/v1/img2img"
         headers = {"Content-Type": "application/json"}
@@ -174,54 +194,28 @@ async def generate_style_images(style):
 
         result = response.json()
 
-        image_filename = f"{current_count}_{artist_name}.png"
+        image_filename = f"{current_count}_{user_name}_result.png"
         generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
         with open(generated_path, "wb") as f:
             f.write(base64.b64decode(result['images'][0]))
 
         save_to_desktop(generated_path, image_filename)
 
-        return generated_path
+        file_path_for_url = backend_url + '/' + generated_path.replace('./', '')
 
-    tasks = [generate_image(modifier, artist_name) for modifier, artist_name in modifiers]
+        return file_path_for_url
+
+    # result_artist에 해당하는 스타일로만 이미지 생성
+    tasks = [generate_image(modifier) for modifier, artist in modifiers if artist == result_artist]
     generated_images = await asyncio.gather(*tasks)
 
     count += 1
 
-    return jsonify({"generated_images": generated_images}), 200
+    return jsonify({"user_name": user_name, "artist": result_artist, "generated_images": generated_images}), 200
 
-# 생성된 이미지 및 업로드된 이미지 목록을 프론트엔드로 전송 (base64로 인코딩하여 JSON으로 전송)
-@app.route('/get-generated-images', methods=['GET'])
-def get_generated_images():
-    uploaded_files = os.listdir(app.config['UPLOAD_FOLDER'])
-    image_files = os.listdir(app.config['GENERATED_FOLDER'])
-    image_data = []
-
-    for img in uploaded_files:
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], img)
-        with open(image_path, "rb") as image_file:
-            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-            image_data.append({
-                "filename": img,
-                "image_base64": encoded_image,
-                "type": "uploaded"
-            })
-
-    for img in image_files:
-        image_path = os.path.join(app.config['GENERATED_FOLDER'], img)
-        with open(image_path, "rb") as image_file:
-            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-            image_data.append({
-                "filename": img,
-                "image_base64": encoded_image,
-                "type": "generated"
-            })
-    
-    return jsonify({"images": image_data}), 200
 
 if __name__ == '__main__':
     try:
-        backend_url = f"http://{REACT_APP_HOST}:{PORT}"
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
         app.run(debug=True, host=REACT_APP_HOST, port=PORT)
