@@ -1,11 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
-import QR from "./page/qr";
 import Main from "./page/main";
 import Result from "./page/result";
 import Upload from "./page/upload";
 import Save from "./page/save";
+import TotalResult from "./page/personality_result/total_result";
 
 function App() {
   return (
@@ -24,6 +24,8 @@ function App() {
 
             {/* 사진 저장 페이지 경로 */}
             <Route path="/save" element={<Save />} />
+
+            <Route path="/total-result" element={<TotalResult />} />
           </Routes>
 
           {/* 링크로 페이지 이동 */}

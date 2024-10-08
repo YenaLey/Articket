@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import PropTypes from "prop-types";
 
-export const localIp = "10.0.28.91"; // 현재 노트북의 IP 주소 (연결된 네트워크에 따라 달라짐)
+export const localIp = "10.0.28.91";
 
 function QR({ pathname }) {
   const [ipAddress, setIpAddress] = useState("");
@@ -23,5 +24,9 @@ function QR({ pathname }) {
     </div>
   );
 }
+
+QR.propTypes = {
+  pathname: PropTypes.string.isRequired,
+};
 
 export default QR;
