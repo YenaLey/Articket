@@ -20,7 +20,7 @@ def index():
 
 swagger = Swagger(app, template_file='./static/swagger.json')
 
-REACT_APP_HOST = os.getenv('REACT_APP_HOST')
+REACT_APP_HOST = os.getenv('HOST')
 PORT = 5000
 backend_url = f"http://{REACT_APP_HOST}:{PORT}"
 WEBUI_URL = os.getenv('WEBUI_URL')
