@@ -12,6 +12,7 @@ stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 G
 
 ```
 # 현재 노트북 IP로 설정
+# IP를 바꿀 때는 여기 있는 HOST와 swagger.json의 host를 바꿔야 함
 HOST=192.168.35.2
 REACT_APP_HOST=$HOST
 PORT=3000
