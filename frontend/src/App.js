@@ -2,10 +2,9 @@ import React from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Main from "./page/main";
-import Result from "./page/result";
 import Upload from "./page/upload";
-import Save from "./page/save";
-import TotalResult from "./page/personality_result/total_result";
+import TotalResult from "./page/personality/total_result";
+import Test from "./page/personality/test";
 
 function App() {
   return (
@@ -19,19 +18,13 @@ function App() {
             {/* QR 코드 페이지 경로 */}
             <Route path="/upload" element={<Upload />} />
 
-            {/* 결과 페이지 경로 */}
-            <Route path="/result" element={<Result />} />
+            {/* 성격 검사 페이지 경로 */}
+            <Route path="/test" element={<Test />} />
 
-            {/* 사진 저장 페이지 경로 */}
-            <Route path="/save" element={<Save />} />
-
+            {/* 유형 설명 페이지 경로 */}
             <Route path="/total-result" element={<TotalResult />} />
-          </Routes>
 
-          {/* 링크로 페이지 이동 */}
-          {/* <nav>
-            <Link to="/">Home</Link> | <Link to="/qr">QR Code</Link>
-          </nav> */}
+          </Routes>
         </header>
       </div>
     </Router>

@@ -40,27 +40,29 @@ user_name = ''
 result_artist = ''
 
 ARTISTS = {
-    '고흐': {
-        'description': '창의적이고 감정적으로 풍부한 고흐',
-        'modifier': 'painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality',
-        'condition': lambda a, b: a > 4
+    '달리': { 
+        'description': '탐구적이고 비범한 달리', 
+        'modifier': 'painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality',
+        'condition': lambda a, b: (a == 2 and b in [2, 3]) or (a in [3, 4] and b in [2, 3, 4])  # abab, abbb, bbab, bbbb
+    },
+    '르누아르': { 
+        'description': '감성적이고 온화한 르누아르', 
+        'modifier': 'oil painting, style of Auguste Renoir,<lora:renoir:1>, masterpiece, best quality, portrait',
+        'condition': lambda a, b: (a in [3, 4] and b in [1, 2])  # aaaa, aaab, abaa, abba
     },
     '피카소': {
         'description': '강력하고 리더십이 있는 피카소',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait',
-        'condition': lambda a, b: b > 4
+        'modifier': 'illustration, style of Pablo Picasso,<lora:picasso:1>, masterpiece, best quality, portrait',
+        'condition': lambda a, b: (a + b) in [4, 5]  # baaa, baba, bbaa, bbba
     },
-    '모네': {
-        'description': '안정적이고 배려 깊은 모네',
-        'modifier': 'painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality',
-        'condition': lambda a, b: a == 4 and b == 2 or a == 3 and b == 3
+    '고흐': {
+        'description': '열정적이고 직관적인 고흐', 
+        'modifier': 'painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality',
+        'condition': lambda a, b: (a + b) in [4, 5]  # aaba, aabb, baab, babb
     },
-    '폴록': {
-        'description': '역동적이고 즉흥적인 폴록',
-        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait',
-        'condition': lambda a, b: a == 2 and b == 4
-    }
 }
+
+
 
 # 특정 폴더 내의 파일들을 삭제하는 함수
 def clear_folder(folder_path):
@@ -153,19 +155,24 @@ def test_result(options):
     if not options:
         return jsonify({"error": "Missing options"}), 400
 
-    a_count = options.count('A')
-    b_count = options.count('B')
+    a_count = options.count('a')
+    b_count = options.count('b')
+
+    matched_artists = []  # 조건을 만족하는 화가 리스트
 
     for artist_name, artist_info in ARTISTS.items():
         condition = artist_info['condition']
         if condition(a_count, b_count):
-            result_artist = artist_name
-            break
+            matched_artists.append(artist_name)  # 조건을 만족하는 화가 추가
 
-    if not result_artist:
+    if not matched_artists:
         return jsonify({"error": "No matching artist found"}), 400
 
+    result_artist = matched_artists[0]  # 혹은 다른 로직으로 선택
+
     return jsonify({"artist": result_artist}), 200
+
+
 
 '''
 이미지 생성 및 이미지 경로 전송 API
