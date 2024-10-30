@@ -40,26 +40,26 @@ user_name = ''
 result_artist = ''
 
 ARTISTS = {
-    '달리': { 
-        'description': '탐구적이고 비범한 달리', 
-        'modifier': 'painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality',
-        'condition': lambda a, b: (a == 2 and b in [2, 3]) or (a in [3, 4] and b in [2, 3, 4])  # abab, abbb, bbab, bbbb
-    },
-    '르누아르': { 
-        'description': '감성적이고 온화한 르누아르', 
-        'modifier': 'oil painting, style of Auguste Renoir,<lora:renoir:1>, masterpiece, best quality, portrait',
-        'condition': lambda a, b: (a in [3, 4] and b in [1, 2])  # aaaa, aaab, abaa, abba
-    },
-    '피카소': {
-        'description': '강력하고 리더십이 있는 피카소',
-        'modifier': 'illustration, style of Pablo Picasso,<lora:picasso:1>, masterpiece, best quality, portrait',
-        'condition': lambda a, b: (a + b) in [4, 5]  # baaa, baba, bbaa, bbba
+    '앤디 워홀': {
+        'description': '세련된 일상의 앤디워홀',
+        'modifier': 'painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality',
+        'condition': lambda a, b: a > 4
     },
     '고흐': {
-        'description': '열정적이고 직관적인 고흐', 
-        'modifier': 'painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality',
-        'condition': lambda a, b: (a + b) in [4, 5]  # aaba, aabb, baab, babb
+        'description': '감정과 열정의 섬세한 고흐',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait',
+        'condition': lambda a, b: b > 4
     },
+    '피카소': {
+        'description': '대담하고 창의적인 피카소',
+        'modifier': 'painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality',
+        'condition': lambda a, b: a == 4 and b == 2 or a == 3 and b == 3
+    },
+    '르누아르': {
+        'description': '낙천적이고 따뜻한 르누아르',
+        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait',
+        'condition': lambda a, b: a == 2 and b == 4
+    }
 }
 
 
