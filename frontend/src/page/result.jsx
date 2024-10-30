@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../style/result.css";
 import HashLoader from "react-spinners/HashLoader";
-import QR from "./qr"; // localIp를 가져오지 않음, 필요시 가져오세요.
+import QR from "./qr";
 
+// eslint-disable-next-line no-undef
 const BASE_URL = process.env.REACT_APP_HOST;
 
 export default function Result() {
