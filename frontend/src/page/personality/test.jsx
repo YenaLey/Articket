@@ -6,6 +6,8 @@ export default function Test() {
     const [result, setResult] = useState("");
     const [artist, setArtist] = useState("");
     const [error, setError] = useState("");
+    
+    // eslint-disable-next-line no-undef
     const BASE_URL = process.env.REACT_APP_HOST;
 
     const questions = [
