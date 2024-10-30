@@ -18,13 +18,34 @@
     background-color: white;
     display: flex;
     flex-direction: column;
-    gap: 10vh;
+    gap: 7vh;
 
     & h1 {
         margin-bottom: 0;
         font-family: 'Merriweather';
     }
 }
+
+.upload-name {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1vh;
+
+    & p {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    & input {
+        width: 30%;
+        font-size: 1rem;
+    }
+}
+
 
 .upload-image {
     align-self: center;
@@ -98,6 +119,5 @@
     font-size: 1.1rem;
     color: black;
     position: relative;
-    bottom: 10vh;
-
+    bottom: 6vh;
 }

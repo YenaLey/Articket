@@ -5,7 +5,7 @@
     "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지의 경로를 받을 수 있는 API입니다.",
     "version": "1.0.0"
   },
-  "host": "192.168.67.155:5000",
+  "host": "10.0.18.137:5000",
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
@@ -36,7 +36,7 @@
             "type": "string",
             "description": "사용자가 업로드할 이미지의 이름",
             "required": true,
-            "default": "기몌영"
+            "default": "리례나"
           },
           {
             "in": "formData",
@@ -77,7 +77,7 @@
             "items": {
               "type": "string"
             },
-            "default": ["A", "A", "B", "B", "A", "A"]
+            "default": ["a", "b", "a", "b"]
           }
         ],
         "responses": {

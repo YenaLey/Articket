@@ -1,0 +1,48 @@
+.test {
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: grey;
+    font-family: 'Nanum Gothic';
+}
+
+.test-container {
+    width: 100%;
+    max-width: 900px;
+    height: fit-content;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+
+    & h1 {
+        margin-bottom: 0;
+        font-family: 'Merriweather';
+    }
+}
+
+.test-title {
+    margin-bottom: 5vh;
+}
+
+.test-test {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+}
+
+.test-box {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 2px solid grey;
+    border-radius: 10px;
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import PropTypes from "prop-types";
 
-export const localIp = "10.0.28.91";
+export const localIp = "10.0.18.137";
 
 function QR({ pathname }) {
   const [ipAddress, setIpAddress] = useState("");
