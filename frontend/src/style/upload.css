@@ -7,7 +7,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: grey;
+    background-color: white;
     font-family: 'Nanum Gothic';
 }
 
@@ -15,7 +15,7 @@
     width: 100%;
     max-width: 900px;
     height: 100vh;
-    background-color: white;
+    background: radial-gradient(circle, #9000FF, #2E008B);
     display: flex;
     flex-direction: column;
     gap: 7vh;
@@ -23,6 +23,7 @@
     & h1 {
         margin-bottom: 0;
         font-family: 'Merriweather';
+        color: white;
     }
 }
 
@@ -38,11 +39,15 @@
         margin: 0;
         font-size: 1rem;
         font-weight: 700;
+        color: white;
     }
 
     & input {
-        width: 30%;
+        padding: 10px 3px;
         font-size: 1rem;
+        border: none;
+        border-radius: 15px;
+        text-align: center;
     }
 }
 
