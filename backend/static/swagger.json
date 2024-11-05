@@ -5,7 +5,7 @@
     "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지의 경로를 받을 수 있는 API입니다.",
     "version": "1.0.0"
   },
-  "host": "10.0.18.137:5000",
+  "host": "192.168.253.155:5000",
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
@@ -27,16 +27,16 @@
       "post": {
         "tags": ["이미지 업로드"],
         "summary": "이미지 업로드",
-        "description": "사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다",
+        "description": "사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다.",
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
             "in": "path",
             "name": "name",
             "type": "string",
-            "description": "사용자가 업로드할 이미지의 이름",
+            "description": "사용자의 이름",
             "required": true,
-            "default": "리례나"
+            "default": "홍길동"
           },
           {
             "in": "formData",
@@ -57,7 +57,7 @@
             }
           },
           "400": {
-            "description": "이미지 파일이 없습니다."
+            "description": "이미지 파일이 없거나 이름이 누락되었습니다."
           }
         }
       }
@@ -66,18 +66,15 @@
       "post": {
         "tags": ["성격 테스트 결과 전송"],
         "summary": "성격 테스트 결과",
-        "description": "사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름을 반환합니다.",
+        "description": "사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름과 MBTI 유형을 반환합니다.",
         "parameters": [
           {
             "in": "path",
             "name": "options",
-            "description": "사용자의 선택 리스트 (A와 B 값의 배열)",
+            "description": "사용자의 선택 리스트 (A와 B로 이루어진 8글자의 문자열, 예: 'ABABABAB')",
             "required": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": ["a", "b", "a", "b"]
+            "type": "string",
+            "default": "ABABABAB"
           }
         ],
         "responses": {
@@ -86,12 +83,13 @@
             "schema": {
               "type": "object",
               "properties": {
-                "artist": { "type": "string" }
+                "artist": { "type": "string" },
+                "mbti": { "type": "string" }
               }
             }
           },
           "400": {
-            "description": "선택 사항이 누락되었습니다."
+            "description": "선택 사항이 누락되었거나 형식이 올바르지 않습니다."
           }
         }
       }
@@ -100,7 +98,7 @@
       "post": {
         "tags": ["이미지 변환 및 전송"],
         "summary": "이미지 생성 및 이미지 경로 전송",
-        "description": "사용자가 업로드한 이미지를 지정된 화가 스타일로 변환하고 경로를 반환합니다. 변환된 이미지는 원본 이미지와 함께 저장됩니다.",
+        "description": "사용자가 업로드한 이미지를 지정된 화가 스타일로 변환하고 경로를 반환합니다.",
         "responses": {
           "200": {
             "description": "이미지 변환 성공",
@@ -115,7 +113,7 @@
             }
           },
           "400": {
-            "description": "이미지 또는 화가 스타일 정보 누락"
+            "description": "이미지 또는 화가 정보가 누락되었습니다."
           },
           "500": {
             "description": "이미지 생성 실패"

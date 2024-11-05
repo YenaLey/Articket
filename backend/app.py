@@ -39,30 +39,82 @@ selected_artists = {}
 user_name = ''
 result_artist = ''
 
+def calculate_mbti(options_list):
+    E, I = 0, 0
+    N, S = 0, 0
+    T, F = 0, 0
+    J, P = 0, 0
+
+    # E/I
+    if options_list[0].upper() == 'A':
+        E += 1
+    else:
+        I += 1
+    if options_list[4].upper() == 'A':
+        E += 1
+    else:
+        I += 1
+
+    # N/S
+    if options_list[1].upper() == 'A':
+        N += 1
+    else:
+        S += 1
+    if options_list[5].upper() == 'A':
+        N += 1
+    else:
+        S += 1
+
+    # T/F
+    if options_list[2].upper() == 'A':
+        T += 1
+    else:
+        F += 1
+    if options_list[6].upper() == 'A':
+        T += 1
+    else:
+        F += 1
+
+    # J/P
+    if options_list[3].upper() == 'A':
+        J += 1
+    else:
+        P += 1
+    if options_list[7].upper() == 'A':
+        J += 1
+    else:
+        P += 1
+
+    mbti = ''
+    mbti += 'E' if E >= I else 'I'
+    mbti += 'N' if N >= S else 'S'
+    mbti += 'T' if T >= F else 'F'
+    mbti += 'J' if J >= P else 'P'
+
+    return mbti
+
 ARTISTS = {
     '앤디 워홀': {
         'description': '세련된 일상의 앤디워홀',
-        'modifier': 'painting, style of Van Gogh,<lora:van_gogh:1>, masterpiece, best quality',
-        'condition': lambda a, b: a > 4
+        'modifier': 'painting, style of Andy Warhol,<lora:andy_warhol:1>, masterpiece, best quality',
+        'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ENTP", "ESFP", "ESTP"]
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso:1>,masterpiece,best quality, portrait',
-        'condition': lambda a, b: b > 4
+        'modifier': 'illustration, style of Vincent van Gogh,<lora:van_gogh:1>, masterpiece, best quality, portrait',
+        'condition': lambda options_list: calculate_mbti(options_list) in ["INTJ", "INFJ", "ISTJ", "ISFJ"]
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'painting, style of Claude Monet,<lora:monet:1>, masterpiece, best quality',
-        'condition': lambda a, b: a == 4 and b == 2 or a == 3 and b == 3
+        'modifier': 'painting, style of Pablo Picasso,<lora:picasso:1>, masterpiece, best quality',
+        'condition': lambda options_list: calculate_mbti(options_list) in ["ENTJ", "ENFJ", "ESTJ", "ESFJ"]
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir:1>,masterpiece,best quality, portrait',
-        'condition': lambda a, b: a == 2 and b == 4
+        'modifier': 'oil painting, style of Auguste Renoir,<lora:renoir:1>, masterpiece, best quality, portrait',
+        'condition': lambda options_list: calculate_mbti(options_list) in ["INFP", "INTP", "ISFP", "ISTP"]
     }
 }
-
-
 
 # 특정 폴더 내의 파일들을 삭제하는 함수
 def clear_folder(folder_path):
@@ -155,24 +207,26 @@ def test_result(options):
     if not options:
         return jsonify({"error": "Missing options"}), 400
 
-    a_count = options.count('a')
-    b_count = options.count('b')
+    options_list = list(options.upper())
+    if len(options_list) != 8:
+        return jsonify({"error": "Invalid number of options"}), 400
 
-    matched_artists = []  # 조건을 만족하는 화가 리스트
+    mbti = calculate_mbti(options_list)
+    print(f"Calculated MBTI: {mbti}")
+
+    matched_artists = []
 
     for artist_name, artist_info in ARTISTS.items():
         condition = artist_info['condition']
-        if condition(a_count, b_count):
-            matched_artists.append(artist_name)  # 조건을 만족하는 화가 추가
+        if condition(options_list):
+            matched_artists.append(artist_name)
 
     if not matched_artists:
         return jsonify({"error": "No matching artist found"}), 400
 
-    result_artist = matched_artists[0]  # 혹은 다른 로직으로 선택
+    result_artist = matched_artists[0]
 
-    return jsonify({"artist": result_artist}), 200
-
-
+    return jsonify({"artist": result_artist, "mbti": mbti}), 200
 
 '''
 이미지 생성 및 이미지 경로 전송 API
