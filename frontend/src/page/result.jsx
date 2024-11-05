@@ -1,60 +1,48 @@
+/* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "../style/result.css";
 import HashLoader from "react-spinners/HashLoader";
-import QR from "./qr";
-
-// eslint-disable-next-line no-undef
-const BASE_URL = process.env.REACT_APP_HOST;
 
 export default function Result() {
   const navigate = useNavigate();
-  const [generatedImages, setGeneratedImages] = useState([]);
-  const [loading, setLoading] = useState(false); // 로딩 상태 추가
-  const imgSample = [
-    {
-      name: "요시모토 나라",
-      src: "/img/nara.png",
-    },
-    {
-      name: "피카소",
-      src: "/img/picasso.png",
-    },
-    {
-      name: "르누아르",
-      src: "/img/renoir.png",
-    },
-    {
-      name: "렘브란트",
-      src: "/img/rem.png",
-    },
-  ];
+  const [userName, setUserName] = useState(""); // 사용자 이름
+  const [artist, setArtist] = useState(""); // 추천된 화가
+  const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // 생성된 이미지 URL
+  const [qrImageUrl, setQrImageUrl] = useState(null); // QR 코드 이미지 URL
+  const [loading, setLoading] = useState(true);
 
-  // 생성된 이미지 가져오기
+  // 생성된 이미지와 기타 데이터 가져오기
   const getGeneratedImages = async () => {
-    setLoading(true); // 로딩 시작
     try {
-      const response = await axios.get(
-        `http://${BASE_URL}:5000/get-generated-images`
-      ); // localIp를 사용
-      console.log("생성된 이미지 가져오기 성공:", response.data.images);
+      const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/get-generated-images`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // image_base64를 사용하여 이미지 URL 생성
-      const imagesWithBase64 = response.data.images.map((image) => ({
-        ...image,
-        imageSrc: `data:image/png;base64,${image.image_base64}`, // Base64 문자열을 URL 형식으로 변환
-      }));
+      if (!response.ok) {
+        throw new Error('Failed to fetch generated images');
+      }
 
-      setGeneratedImages(imagesWithBase64);
+      const generatedResult = await response.json();
+      const { user_name, artist, generated_image, qr_image } = generatedResult;
+
+      setUserName(user_name);
+      setArtist(artist);
+      setGeneratedImageUrl(generated_image);
+      setQrImageUrl(qr_image);
+
     } catch (error) {
-      console.error("이미지 가져오기 실패:", error);
+      console.error(error);
+      alert('An error occurred while fetching generated images. Please try again.');
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
-  // 컴포넌트가 마운트될 때 생성된 이미지 가져오기
+  // 컴포넌트가 마운트될 때 API 호출
   useEffect(() => {
     getGeneratedImages();
   }, []);
@@ -63,49 +51,37 @@ export default function Result() {
     <div className="result-container">
       <h1 onClick={() => navigate("/")}>ARTPICS</h1>
 
-      {/* 로딩 중일 때 */}
       {loading ? (
         <div className="loading-container">
-          <div className="loading-img-container">
-            {imgSample.map((element, index) => (
-              <div className="loading-img" key={index}>
-                <img src={element.src} alt={element.name} />
-                <p>{element.name}</p>
-              </div>
-            ))}
-          </div>
-
           <div className="loading-loading">
-            <p>아트픽스가 해당 작가 화풍으로 바꾸는 중이에요</p>
+            <img src={process.env.PUBLIC_URL + '/img/nara.png'} alt="나라" />
+            <p>아트픽스가 이미지를 생성하는 중이에요</p>
             <HashLoader color="#D8D8D8" size={50} />
           </div>
         </div>
       ) : (
         <div className="result-result">
           <div className="result-img-container">
-            {/* 이미지가 있을 때 */}
-            {generatedImages.length > 0 ? (
-              generatedImages.map((image, index) => (
-                <div className="result-img" key={index}>
-                  <img src={image.imageSrc} alt={`generated-${index}`} />{" "}
-                  {/* imageSrc 사용 */}
-                  <p>{imgSample[index]?.name}</p>{" "}
-                  {/* Safe navigation operator 사용 */}
-                </div>
-              ))
+            {generatedImageUrl ? (
+              <div className="result-img">
+                <img src={generatedImageUrl} alt="generated" />
+              </div>
             ) : (
               <p>생성된 이미지가 없습니다.</p>
             )}
           </div>
-          {generatedImages.length > 0 && (
-            <React.Fragment>
-              <div className="result-qr">
-                <p>QR코드를 인식해서 사진을 저장해보세요!</p>
-                <QR pathname="save" />
-                <h4 onClick={() => navigate("/")}>메인 화면으로 가기</h4>
+          <div className="result-details">
+            <p><strong>사용자 이름:</strong> {userName}</p>
+            <p><strong>추천 화가:</strong> {artist}</p>
+          </div>
+          <div className="qr-container">
+            {qrImageUrl && (
+              <div className="qr-image">
+                <img src={qrImageUrl} alt="QR code"/>
+                <p>QR 코드를 스캔하여 성격 테스트 결과를 확인하세요</p>
               </div>
-            </React.Fragment>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>

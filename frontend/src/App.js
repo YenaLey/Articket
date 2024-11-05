@@ -5,6 +5,7 @@ import Main from "./page/main";
 import Upload from "./page/upload";
 import TotalResult from "./page/personality/total_result";
 import Test from "./page/personality/test";
+import Result from "./page/result";
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
 
             {/* 유형 설명 페이지 경로 */}
             <Route path="/total-result" element={<TotalResult />} />
+
+            {/* 결과 페이지 경로 */}
+            <Route path="/result" element={<Result />} />
 
           </Routes>
         </header>

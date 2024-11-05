@@ -1,15 +1,23 @@
 .main-container {
-    width: 100%;
-    max-width: 1500px;
+    width: 100vw;
+    height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 30vh;
+    background: 
+        radial-gradient(circle, rgba(144, 0, 255, 0.8), rgba(46, 0, 139, 0.8)),
+        url('../../public/img/background.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    gap: 10vh;
     font-family: 'Nanum Gothic';
 }
+
+
 
 .main-title {
     width: fit-content;
@@ -17,6 +25,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    color: white;
 
     & p {
         font-size: 1rem;
@@ -31,42 +40,42 @@
 
     }
 
-    .main-title-top {
-        align-self: flex-start;
-    }
 }
 
 .main-qr {
     width: fit-content;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
 
     & p {
+        margin-bottom: 3rem;
         font-size: 1rem;
         font-weight: bold;
+        color: white;
     }
+
 }
 
 .main-next {
     width: fit-content;
     cursor: pointer;
     font-size: 1.1rem;
-    padding: 2px;
+    padding: 0.7rem 2.5rem;
+    line-height: 1.2;
     text-decoration: none;
-    position: fixed;
-    bottom: 5vh;
-    right: 5vw;
     font-weight: bold;
-
-    & svg {
-        position: relative;
-        top: 2px;
-    }
-
+    background-color: white;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    
     &:hover {
-        color: grey;
+        background-color: #b89cff
+    }
+    
+    & p {
+        color: black;
+        margin: 0;
     }
 }

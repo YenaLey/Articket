@@ -1,19 +1,25 @@
 .result-container {
-    width: 100%;
-    max-width: 1500px;
+    width: 100vw;
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    background:
+        radial-gradient(circle, rgba(144, 0, 255, 0.8), rgba(46, 0, 139, 0.8)),
+        url('../../public/img/background.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
     font-family: 'Nanum Gothic';
-    
+
     & h1 {
         cursor: pointer;
         align-self: flex-start;
-        margin-bottom: 0;
+        margin: 15px auto 0 10%;
         font-family: 'Merriweather';
         font-size: 1.5rem;
+        color: white;
     }
 }
 
@@ -34,6 +40,7 @@
     justify-content: center;
     align-items: center;
     gap: 5%;
+    color: white;
 }
 
 .loading-img,
@@ -49,10 +56,11 @@
         border-radius: 10px;
         object-fit: cover;
     }
-    
+
     & p {
         font-size: 1.2rem;
         font-weight: 600;
+        color: white;
     }
 }
 
@@ -61,16 +69,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
     & p {
         font-size: 1.2rem;
         font-weight: 600;
+        color: white;
     }
+
 }
 
 .result-qr {
     margin-top: 5vh;
 
-    & p{
+    & p {
         font-size: 1.2rem;
         font-weight: 600;
     }
@@ -88,7 +99,14 @@
 
         &:hover {
             color: #585858;
-            background-color: #D6D6D6;    
+            background-color: #D6D6D6;
         }
+    }
+}
+
+.qr-image {
+    & img {
+        width: 100px;
+        aspect-ratio: 1/1;
     }
 }

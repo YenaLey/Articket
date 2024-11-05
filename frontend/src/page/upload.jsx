@@ -12,6 +12,7 @@ export default function Upload() {
   const [userName, setUserName] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false); // 업로드 성공 상태
 
+  // eslint-disable-next-line no-undef
   const BASE_URL = process.env.REACT_APP_HOST;
 
   // 파일 선택 핸들러
