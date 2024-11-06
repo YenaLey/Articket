@@ -11,6 +11,24 @@ export default function Result() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // 생성된 이미지 URL
   const [qrImageUrl, setQrImageUrl] = useState(null); // QR 코드 이미지 URL
   const [loading, setLoading] = useState(true);
+  const imgSample = [
+    {
+      src: "/img/피카소.png",
+      artist: "피카소"
+    },
+    {
+      src: "/img/리히텐슈타인.png",
+      artist: "리히텐슈타인"
+    },
+    {
+      src: "/img/고흐.png",
+      artist: "고흐"
+    },
+    {
+      src: "/img/르누아르.png",
+      artist: "르누아르"
+    }
+  ]
 
   // 생성된 이미지와 기타 데이터 가져오기
   const getGeneratedImages = async () => {
@@ -38,7 +56,7 @@ export default function Result() {
       console.error(error);
       alert('An error occurred while fetching generated images. Please try again.');
     } finally {
-      setLoading(false);
+      setLoading(true);
     }
   };
 
@@ -53,9 +71,16 @@ export default function Result() {
 
       {loading ? (
         <div className="loading-container">
+          <div className="loading-img-container">
+            {imgSample.map((element, index) => (
+              <div className="loading-img" key={index}>
+                <img src={process.env.PUBLIC_URL + element.src} alt={element.artist} />
+                <p>{element.artist}</p>
+              </div>
+            ))}
+          </div>
           <div className="loading-loading">
-            <img src={process.env.PUBLIC_URL + '/img/nara.png'} alt="나라" />
-            <p>아트픽스가 이미지를 생성하는 중이에요</p>
+            <p>성격 유형을 분석하여 해당 화가 스타일로 이미지를 변환 중이에요</p>
             <HashLoader color="#D8D8D8" size={50} />
           </div>
         </div>

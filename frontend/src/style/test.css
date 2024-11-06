@@ -6,7 +6,11 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: #5E6CBA;
+    background: radial-gradient(circle, rgba(94, 108, 186, 0.9) 0%, rgba(94, 108, 186, 0.8) 90%), 
+    url('../../public/img/background.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
     font-family: 'Nanum Gothic';
 }
 
@@ -23,7 +27,7 @@
     width: 84vw;
     height: 10px;
     align-self: center;
-    background-color: #310057;
+    background-color: #2e40a4;
     border-radius: 10px;
 }
 
@@ -55,7 +59,7 @@
     font-size: 2.5rem;
     color: #5E6CBA;
 
-    & span{
+    & span {
         position: relative;
         bottom: 0.2rem;
     }
@@ -72,10 +76,16 @@
 
     & p {
         font-size: 1.5rem;
+        margin: 0;
     }
 
     & h1 {
+        width: 50%;
+        align-self: center;
         font-size: 2rem;
+        font-weight: 500;
+        word-break: keep-all;
+        margin-bottom: 5vh;
     }
 }
 
@@ -86,24 +96,25 @@
 
 .checkbox-label {
     align-self: center;
-    width: 30%;
+    width: 60%;
     display: inline-block;
     padding: 10px 20px;
-    margin: 5px;
+    margin: 10px;
     border-radius: 20px;
     background-color: #f0f0f0;
+    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
     color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 600;
     text-align: center;
     word-break: keep-all;
 }
 
 .checkbox-label:hover {
-    background-color: #310057;
-    color: white;
+    background-color: #b89cff;
+    color: black;
 }
 
 .checkbox-label.checked {
@@ -112,3 +123,66 @@
 }
 
 /*  */
+.test-navigation {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.test-previous,
+.test-next {
+    position: fixed;
+    top: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    & svg {
+        font-size: 50px;
+        color: white;
+        padding: 2px;
+        border-radius: 100%;
+        transition: all 0.2s ease;
+    }
+
+    &:not(:disabled):hover svg {
+        color: #6a3792;
+        background-color: white;
+        box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.test-previous {
+    left: 7%;
+
+    &:disabled svg {
+        color: rgba(255, 255, 255, 0.32);
+    }
+}
+
+.test-next {
+    right: 7%;
+}
+
+.test-nextpage {
+    width: 20%;
+    margin: 0;
+    padding: 0.7rem;
+    align-self: center;
+    position: relative;
+    top: 10vh;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+
+    font-size: 1.5rem;
+    font-family: 'Nanum Gothic';
+    font-weight: bold;
+
+    &:hover {
+        background-color: #6a3792;
+        color: white;
+    }
+}

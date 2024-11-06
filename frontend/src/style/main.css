@@ -7,9 +7,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: 
-        radial-gradient(circle, rgba(144, 0, 255, 0.8), rgba(46, 0, 139, 0.8)),
-        url('../../public/img/background.png');
+    background: radial-gradient(circle, rgba(21, 0, 80, 0.9) 0%, rgba(21, 0, 80, 0.8) 90%), 
+    url('../../public/img/background.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -69,13 +68,19 @@
     background-color: white;
     border-radius: 30px;
     transition: all 0.3s ease;
-    
+
     &:hover {
         background-color: #b89cff
     }
-    
+
     & p {
         color: black;
         margin: 0;
     }
+}
+
+.main-upload {
+    position: fixed;
+    bottom: 5%;
+    color: white;
 }

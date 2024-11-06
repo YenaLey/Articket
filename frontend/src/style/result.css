@@ -5,9 +5,7 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    background:
-        radial-gradient(circle, rgba(144, 0, 255, 0.8), rgba(46, 0, 139, 0.8)),
-        url('../../public/img/background.png');
+    background-color: #150050;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -16,7 +14,7 @@
     & h1 {
         cursor: pointer;
         align-self: flex-start;
-        margin: 15px auto 0 10%;
+        margin: 20px auto 0 5%;
         font-family: 'Merriweather';
         font-size: 1.5rem;
         color: white;

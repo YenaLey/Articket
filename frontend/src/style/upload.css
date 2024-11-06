@@ -15,7 +15,7 @@
     width: 100%;
     max-width: 900px;
     height: 100vh;
-    background: radial-gradient(circle, #9000FF, #2E008B);
+    background-color: #150050;
     display: flex;
     flex-direction: column;
     gap: 7vh;
@@ -48,6 +48,7 @@
         border: none;
         border-radius: 15px;
         text-align: center;
+        background-color: #cdd5ff;
     }
 }
 
@@ -59,7 +60,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #D6D6D6;
+    background-color: #cdd5ff;
     border-radius: 10px;
 
     & img {
@@ -90,15 +91,14 @@
         padding: 7px 0 10px 0;
         text-align: center;
         font-size: 1.1rem;
-        color: white;
-        background-color: black;
+        color: black;
+        background-color: #cdd5ff;
         border: none;
         border-radius: 10px;
         transition: all 0.5s ease;
 
-        &:hover {
-            color: #585858;
-            background-color: #D6D6D6;
+        &:not(:disabled):hover {
+            color: #cdd5ff;
         }
     }
 }
@@ -109,20 +109,22 @@
     padding: 7px 0 10px 0;
     text-align: center;
     font-size: 1.1rem;
-    color: #585858;
-    background-color: #D6D6D6;
+    color: black;
+    background-color: white;
     border-radius: 10px;
     transition: all 0.5s ease;
     
     &:hover {
-        color: white;
-        background-color: black;
+        background-color: #cdd5ff;
     }
 }
 
 .file-selected {
     font-size: 1.1rem;
-    color: black;
+    color: white;
+    padding: 3px;
+    border-top: 1.5px solid white;
+    border-bottom: 1.5px solid white;
     position: relative;
     bottom: 6vh;
 }
