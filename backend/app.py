@@ -98,24 +98,40 @@ def calculate_mbti(options_list):
     return mbti
 
 ARTISTS = {
-    '앤디 워홀': {
-        'description': '세련된 일상의 앤디워홀',
-        'modifier': 'pop art,<lora:andy_xl-000013:1>, masterpiece,best quality, background with a dotted halftone pattern,portrait,',
+    '리히텐슈타인': {
+        'description': '세련된 일상의 리히텐슈타인',
+        'modifier': 'pop art, <lora:loy_xl-000013:1>, masterpiece,best quality, background with a dotted halftone pattern,portrait, ',
+        'negative_prompt': 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+        'steps': 150,
+        'denoising_strength': 0.73,
+        'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ENTP", "ESFP", "ESTP"]
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'painging,style of Van gogh,<lora:gogh_xl:1>,masterpiece,best quality, portrait,',
+        'modifier': 'painging, <lora:gogh_xl-000011:1>,masterpiece,best quality,Starry Night, portrait,',
+        'negative_prompt': 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face,',
+        'steps': 100,
+        'denoising_strength': 0.75,
+        'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["INTJ", "INFJ", "ISTJ", "ISFJ"]
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl-000008:1>,masterpiece,best quality, portrait,',
+        'modifier': 'illustration,style of Pablo Picasso, <lora:picasso_xl-000008:1>, masterpiece,best quality, portrait,',
+        'negative_prompt': 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+        'steps': 100,
+        'denoising_strength': 0.75,
+        'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENTJ", "ENFJ", "ESTJ", "ESFJ"]
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
         'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir_70_40_4:1>,masterpiece,best quality, portrait,',
+        'negative_prompt': 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+        'steps': 100,
+        'denoising_strength': 0.73,
+        'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["INFP", "INTP", "ISFP", "ISTP"]
     }
 }
@@ -262,6 +278,10 @@ async def generate_style_images():
 
     adorned_artist = artist_info['description']
     modifier = artist_info['modifier']
+    negative_prompt = artist_info.get('negative_prompt')
+    steps = artist_info.get('steps')
+    denoising_strength = artist_info.get('denoising_strength')
+    cfg_scale = artist_info.get('cfg_scale')
 
     image_path = selected_artists.get('image_path')
 
@@ -275,8 +295,7 @@ async def generate_style_images():
     current_count = selected_artists.get('count')
     image_base64 = encode_image_to_base64(image_path)
 
-    async def generate_image(modifier):
-        negative_prompt = 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,'
+    async def generate_image(modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt):
         full_prompt = f"{modifier}, {prompt}"
         url = f"{WEBUI_URL}/sdapi/v1/img2img"
         headers = {"Content-Type": "application/json"}
@@ -284,9 +303,9 @@ async def generate_style_images():
             "init_images": [f"data:image/png;base64,{image_base64}"],
             "prompt": full_prompt,
             "negative_prompt": negative_prompt,
-            "steps": 25,
-            "cfg_scale": 9,
-            "denoising_strength": 0.58,
+            "steps": steps,
+            "cfg_scale": cfg_scale,
+            "denoising_strength": denoising_strength,
             "sampler_index": "Euler a",
             "batch_size": 1,
             "n_iter": 1
@@ -313,11 +332,16 @@ async def generate_style_images():
 
         return file_path_for_url
 
-    generated_image_url = await generate_image(modifier)
+    generated_image_url = await generate_image(modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt)
 
     count += 1
 
-    return jsonify({"user_name": user_name, "artist": adorned_artist, "generated_image": generated_image_url, "qr_image": backend_url + '/static/personality-result-qr.png'}), 200
+    return jsonify({
+        "user_name": user_name,
+        "artist": adorned_artist,
+        "generated_image": generated_image_url,
+        "qr_image": backend_url + '/static/personality-result-qr.png'
+    }), 200
 
 if __name__ == '__main__':
     try:
