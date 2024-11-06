@@ -8,7 +8,6 @@ export default function Upload() {
   const [fileName, setFileName] = useState("사진 선택하기");
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
   const [userName, setUserName] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false); // 업로드 성공 상태
 
@@ -21,7 +20,7 @@ export default function Upload() {
 
     if (file) {
       if (!file.type.startsWith("image/")) {
-        setError("이미지 파일만 업로드할 수 있습니다.");
+        alert("이미지 파일만 업로드할 수 있습니다.");
         return;
       }
       setFileName(file.name);
@@ -30,7 +29,6 @@ export default function Upload() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImgPreview(reader.result);
-        setError(null);
       };
       reader.readAsDataURL(file);
     }
@@ -39,7 +37,7 @@ export default function Upload() {
   // 이미지 업로드 함수
   const uploadImage = async () => {
     if (!image || !userName) {
-      setError("사용자 이름이 입력되지 않았습니다.");
+      alert("사용자 이름이 입력되지 않았습니다.");
       return;
     }
 
@@ -47,7 +45,6 @@ export default function Upload() {
     formData.append("image", image);
 
     setUploading(true);
-    setError(null);
     setUploadSuccess(false); // 업로드 성공 상태 초기화
 
     try {
@@ -61,14 +58,28 @@ export default function Upload() {
         }
       );
       console.log("이미지 업로드 성공:", response.data);
+      alert("이미지 업로드가 완료되었습니다.")
+      updateUploadStatus();
       setUploadSuccess(true); // 업로드 성공 상태 업데이트
     } catch (error) {
       console.error("이미지 업로드 실패:", error);
-      setError("이미지 업로드에 실패했습니다.");
+      alert("이미지 업로드에 실패했습니다.");
     } finally {
       setUploading(false);
     }
   };
+
+  // 업로드 상태 업데이트 함수
+  async function updateUploadStatus() {
+    try {
+      const response = await axios.get('http://your_backend_url/upload-image-status');
+      if (response.status === 200) {
+        console.log("Upload Status:", response.data);
+      }
+    } catch (error) {
+      console.error("Error checking upload status", error);
+    }
+  }
 
   return (
     <div className="upload">
@@ -112,19 +123,17 @@ export default function Upload() {
           />
 
           {imgPreview && (
-            <button onClick={uploadImage} disabled={uploading}>
+            <button onClick={uploadImage} disabled={uploading || uploadSuccess}>
               {uploading
                 ? "업로드 중..."
                 : uploadSuccess
-                ? "업로드 완료"
-                : "이미지 업로드"}
+                  ? "업로드 완료"
+                  : "이미지 업로드"}
             </button>
           )}
 
         </div>
 
-        {/* 에러 메시지 표시 */}
-        {error && <div className="error-message">{error}</div>}
       </div>
     </div>
   );

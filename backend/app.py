@@ -38,6 +38,10 @@ for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, DESKTOP_FOLDER]:
 selected_artists = {}
 user_name = ''
 result_artist = ''
+upload_status = {
+    'status': 'idle',
+    'message': ''
+}
 
 def calculate_mbti(options_list):
     E, I = 0, 0
@@ -171,12 +175,17 @@ def clip_interrogate(image_path, clip_skip_level=1):
 '''
 @app.route('/upload-image/<name>', methods=['POST'])
 def upload_image(name):
-    global user_name, count
+    global user_name, count, upload_status
     if not name:
         return jsonify({"error": "Missing user name"}), 400
     user_name = name 
     if 'image' not in request.files:
         return jsonify({"error": "No image file found"}), 400
+    
+    # 업로드 상태 초기화
+    upload_status['status'] = 'uploading'
+    upload_status['message'] = '이미지 업로드 중...'
+
     file = request.files['image']
 
     clear_folder(UPLOAD_FOLDER)
@@ -194,8 +203,19 @@ def upload_image(name):
     selected_artists['count'] = count
 
     file_path_for_url = backend_url + '/' + file_path.replace('./', '')
+
+    # 업로드 완료 상태로 변경
+    upload_status['status'] = 'completed'
+    upload_status['message'] = '이미지 업로드 완료'
     
     return jsonify({"image_path": file_path_for_url}), 200
+
+'''
+클라이언트에서 이미지 업로드 상태를 확인하는 API.
+'''
+@app.route('/upload-image-status', methods=['GET'])
+def get_upload_status():
+    return jsonify(upload_status), 200
 
 '''
 성격 테스트 결과 전송 API

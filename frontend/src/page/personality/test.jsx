@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "../../style/test.css";
+import { FaArrowCircleLeft } from "react-icons/fa";
+import { FaArrowCircleRight } from "react-icons/fa";
 
 export default function Test() {
     const [selectedOptions, setSelectedOptions] = useState(Array(6).fill(null));
@@ -108,19 +110,19 @@ export default function Test() {
                 </div>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="test-error-message">{error}</div>}
 
             <div className="test-navigation">
-                <button onClick={handlePrevious} disabled={currentQuestion === 0}>이전 질문</button>
+                <button className="test-previous" onClick={handlePrevious} disabled={currentQuestion === 0}><FaArrowCircleLeft /></button>
                 {currentQuestion < questions.length - 1 ? (
-                    <button onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}>다음 질문</button>
+                    <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><FaArrowCircleRight /></button>
                 ) : (
-                    <button onClick={handleSubmit} disabled={selectedOptions[currentQuestion] === null}>결과 확인</button>
+                    <button className="test-nextpage" onClick={handleSubmit} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
                 )}
             </div>
 
-            {result && <div className="result">결과: {result}</div>}
-            {artist && <div className="artist">아티스트: {artist}</div>}
+            {result && <div className="test-result">결과: {result}</div>}
+            {artist && <div className="test-artist">아티스트: {artist}</div>}
         </div>
     );
 }
