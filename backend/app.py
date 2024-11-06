@@ -96,22 +96,22 @@ def calculate_mbti(options_list):
 ARTISTS = {
     '앤디 워홀': {
         'description': '세련된 일상의 앤디워홀',
-        'modifier': 'painting, style of Andy Warhol,<lora:andy_warhol:1>, masterpiece, best quality',
+        'modifier': 'pop art,<lora:andy_xl-000013:1>, masterpiece,best quality, background with a dotted halftone pattern,portrait,',
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ENTP", "ESFP", "ESTP"]
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'illustration, style of Vincent van Gogh,<lora:van_gogh:1>, masterpiece, best quality, portrait',
+        'modifier': 'painging,style of Van gogh,<lora:gogh_xl:1>,masterpiece,best quality, portrait,',
         'condition': lambda options_list: calculate_mbti(options_list) in ["INTJ", "INFJ", "ISTJ", "ISFJ"]
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'painting, style of Pablo Picasso,<lora:picasso:1>, masterpiece, best quality',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl-000008:1>,masterpiece,best quality, portrait,',
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENTJ", "ENFJ", "ESTJ", "ESFJ"]
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painting, style of Auguste Renoir,<lora:renoir:1>, masterpiece, best quality, portrait',
+        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir_70_40_4:1>,masterpiece,best quality, portrait,',
         'condition': lambda options_list: calculate_mbti(options_list) in ["INFP", "INTP", "ISFP", "ISTP"]
     }
 }
@@ -256,12 +256,14 @@ async def generate_style_images():
     image_base64 = encode_image_to_base64(image_path)
 
     async def generate_image(modifier):
+        negative_prompt = 'lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,'
         full_prompt = f"{modifier}, {prompt}"
         url = f"{WEBUI_URL}/sdapi/v1/img2img"
         headers = {"Content-Type": "application/json"}
         data = {
             "init_images": [f"data:image/png;base64,{image_base64}"],
             "prompt": full_prompt,
+            "negative_prompt": negative_prompt,
             "steps": 25,
             "cfg_scale": 9,
             "denoising_strength": 0.58,
