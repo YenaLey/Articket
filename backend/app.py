@@ -49,6 +49,7 @@ upload_status = {
     'status': 'idle',
     'message': ''
 }
+current_count = 0
 
 def calculate_mbti(options_list):
     E, I, N, S, T, F, J, P = 0, 0, 0, 0, 0, 0, 0, 0
@@ -160,7 +161,7 @@ def blip_interrogate(image_path):
     return response.json().get('caption', '') if response.status_code == 200 else None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number):
-    current_count = get_latest_count_from_desktop()
+    global current_count
     data = {
         "init_images": [f"data:image/png;base64, {image_base64}"],
         "prompt": f"{modifier}, {prompt}",
@@ -187,19 +188,18 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
 '''
 @app.route('/upload-image/<name>', methods=['POST'])
 def upload_image(name):
-    global user_name
+    global user_name, current_count
     if not name or 'image' not in request.files:
         return jsonify({"error": "Missing user name or image file"}), 400
     user_name = name
     file = request.files['image']
     clear_folder(UPLOAD_FOLDER)
     clear_folder(GENERATED_FOLDER)
-    count = get_latest_count_from_desktop()
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{count}_{user_name}_original.png")
+    current_count = get_latest_count_from_desktop()
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
     file.save(file_path)
-    save_to_desktop(file_path, f"{count}_{user_name}_original.png")
+    save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
-    selected_artists['count'] = count
     upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
     socketio.emit('operation_status', {'success': True})
     return jsonify({"image_path": backend_url + '/' + file_path.replace('./', '')}), 200
@@ -236,7 +236,7 @@ def test_result(options):
 '''
 @app.route('/get-generated-images', methods=['POST'])
 def generate_style_images():
-    global count, result_artist
+    global result_artist
     if not (image_path := selected_artists.get('image_path')) or not (artist_info := ARTISTS.get(result_artist)):
         return jsonify({"error": "Missing image or result artist"}), 400
 
@@ -246,12 +246,25 @@ def generate_style_images():
         return jsonify({"error": "Failed to interrogate image"}), 500
 
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
-    urls = []
+    urls = [None] * len(matching_artists)
 
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(generate_image, image_base64, ARTISTS[artist]['modifier'], ARTISTS[artist]['negative_prompt'], ARTISTS[artist]['steps'], ARTISTS[artist]['denoising_strength'], ARTISTS[artist]['cfg_scale'], prompt, idx + 1) for idx, artist in enumerate(matching_artists)]
+        futures = {
+            executor.submit(
+                generate_image,
+                image_base64,
+                ARTISTS[artist]['modifier'],
+                ARTISTS[artist]['negative_prompt'],
+                ARTISTS[artist]['steps'],
+                ARTISTS[artist]['denoising_strength'],
+                ARTISTS[artist]['cfg_scale'],
+                prompt,
+                idx + 1
+            ): idx for idx, artist in enumerate(matching_artists)
+        }
         for future in as_completed(futures):
-            urls.append(future.result())
+            idx = futures[future]
+            urls[idx] = future.result() 
 
     socketio.emit('operation_status', {'success': True})
     return jsonify({"user_name": user_name, "artist": artist_info['description'], "generated_image": urls, "qr_image": backend_url + '/static/personality-result-qr.png'}), 200
