@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../style/test.css";
-import { FaArrowCircleLeft } from "react-icons/fa";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { IoIosArrowDroprightCircle } from "react-icons/io";
+import { IoIosArrowDropleftCircle } from "react-icons/io";
 
 export default function Test() {
+    const navigate = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState(Array(6).fill(null));
     const [result, setResult] = useState("");
     const [artist, setArtist] = useState("");
@@ -14,15 +16,16 @@ export default function Test() {
     const BASE_URL = process.env.REACT_APP_HOST;
 
     const questions = [
-        { question: "친구와 함께 시간을 보내는 것과 혼자만의 시간을 갖는 것 중 어떤 것을 더 선호하시나요?", optionA: "a. 친구들과 어울리는 걸 좋아해요.", optionB: "b. 혼자만의 시간이 더 편해요." },
-        { question: "새로운 경험이나 변화를 추구하는 편인가요, 아니면 익숙한 환경이 더 좋으신가요?", optionA: "a. 새로운 걸 시도하고 변화하는 걸 좋아해요.", optionB: "b. 익숙한 환경과 안정감을 선호해요." },
-        { question: "기분이나 생각을 표현할 때, 어떤 방식이 더 편한가요?", optionA: "a. 솔직하게 감정을 드러내고 표현해요.", optionB: "b. 감정을 잘 드러내지 않고 차분하게 표현하는 편이에요." },
-        { question: "아침에 일어나 가장 먼저 하고 싶은 것은?", optionA: "a. 기분 좋게 음악을 들어요.", optionB: "b. 오늘의 계획을 세워요." },
-        { question: "어떤 스타일의 영화를 좋아하나요?", optionA: "a. 다채롭고 화려한 뮤지컬이나 코미디를 좋아해요.", optionB: "b. 심오하고 철학적인 영화를 좋아해요." },
-        { question: "주말을 보낼 때 가장 하고 싶은 일은?", optionA: "a. 야외에서 사람들과 소통하며 액티비티를 즐겨요.", optionB: "b. 실내에서 편안하게 쉬면서 재충전해요." },
-        { question: "2주말을 보낼 때 가장 하고 싶은 일은?", optionA: "a. 야외에서 사람들과 소통하며 액티비티를 즐겨요.", optionB: "b. 실내에서 편안하게 쉬면서 재충전해요." },
-        { question: "3주말을 보낼 때 가장 하고 싶은 일은?", optionA: "a. 야외에서 사람들과 소통하며 액티비티를 즐겨요.", optionB: "b. 실내에서 편안하게 쉬면서 재충전해요." },
+        { question: "당신은 미술관에 방문했습니다. 누구와 함께 왔나요?👥", optionA: "친구나 가족이랑 함께 관람하러 왔어요.", optionB: "혼자서 조용히 작품을 감상하러 왔어요." },
+        { question: "미술관에 도착했을 때, 가장 먼저 하고 싶은 것은 무엇인가요?🏛️", optionA: "안내 책자를 살펴보며 전시관의 흐름을 계획할래요.", optionB: "자유롭게 돌아다니며 눈길 가는 작품을 즉흥적으로 감상할래요." },
+        { question: "어떤 종류의 작품이 당신의 눈길을 끌었나요?🖼️👀", optionA: "상상력을 자극하는 추상적인 작품이 좋아요.", optionB: "현실을 그대로 표현한 구체적인 작품이 좋아요." },
+        { question: "저기 도슨트💁‍♀️가 작품을 차례차례 설명하고 있네요!", optionA: "도슨트의 자세한 설명을 들어볼래요. 작품을 깊이 있게 이해하고 싶어요.", optionB: "나만의 방식으로 작품을 감상하며, 스스로 느껴보고 싶어요." },
+        { question: "미술관에서 생각지 못한 감동을 받았어요.🥺 당신의 반응은?", optionA: "왜 그런 감정을 느꼈는지 이유를 논리적으로 분석해봐요.", optionB: "그 감정을 마음속에 담아 두고 여운을 음미해요." },
+        { question: "기념품샵에 왔어요! 볼거리가 많아 보여요.😊🎵", optionA: "가격과 품질을 비교하고 신중하게 결정해요.", optionB: "마음에 드는 것이 있으면 바로 구매해요." },
+        { question: "전시를 보고 나오는 길이에요. 이 경험을 어떻게 간직하고 싶나요?📝", optionA: "SNS에 후기를 올려 다른 사람들과 공유할래요.", optionB: "조용히 혼자만의 추억으로 간직하고 싶어요." },
+        { question: "친구가 전시가 어땠냐고 물어보네요. 당신은 어떻게 대답할까요?", optionA: "작품의 내용이나 작가의 배경 등 흥미로운 정보를 중심으로 설명해요.", optionB: "전시를 통해 느꼈던 감정과 분위기를 중심으로 설명해요." }
     ];
+    
 
     const handleOptionChange = (index, value) => {
         const newSelectedOptions = [...selectedOptions];
@@ -113,11 +116,11 @@ export default function Test() {
             {error && <div className="test-error-message">{error}</div>}
 
             <div className="test-navigation">
-                <button className="test-previous" onClick={handlePrevious} disabled={currentQuestion === 0}><FaArrowCircleLeft /></button>
+                <button className="test-previous" onClick={handlePrevious} disabled={currentQuestion === 0}><IoIosArrowDropleftCircle /></button>
                 {currentQuestion < questions.length - 1 ? (
-                    <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><FaArrowCircleRight /></button>
+                    <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><IoIosArrowDroprightCircle /></button>
                 ) : (
-                    <button className="test-nextpage" onClick={handleSubmit} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
+                    <button className="test-nextpage" onClick={()=>{handleSubmit(); navigate('/result')}} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
                 )}
             </div>
 

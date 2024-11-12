@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState } from "react";
 import axios from "axios";
 import "../style/upload.css";
@@ -72,7 +73,7 @@ export default function Upload() {
   // 업로드 상태 업데이트 함수
   async function updateUploadStatus() {
     try {
-      const response = await axios.get('http://your_backend_url/upload-image-status');
+      const response = await axios.get(`http://${process.env.REACT_APP_HOST}:5000/upload-image-status`);
       if (response.status === 200) {
         console.log("Upload Status:", response.data);
       }
@@ -84,7 +85,8 @@ export default function Upload() {
   return (
     <div className="upload">
       <div className="upload-container">
-        <h1>ARTPICS</h1>
+        
+        <h1><h3>ATOO</h3>ARTICKET</h1>
 
         {/* 사용자 이름 입력 */}
         <div className="upload-name">
