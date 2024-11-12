@@ -223,6 +223,7 @@ def upload_image(name):
     selected_artists['image_path'] = file_path
     upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
     socketio.emit('operation_status', {'success': True})
+    print("operation_status 이벤트 전송 완료")
     return jsonify({"image_path": backend_url + '/' + file_path.replace('./', '')}), 200
 
 

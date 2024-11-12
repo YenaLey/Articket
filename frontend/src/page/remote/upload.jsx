@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useState } from "react";
-import { useSocket } from "../context/SocketContext"; // socketContext 사용
-import "../style/upload.css";
+import { useSocket } from "../../context/SocketContext"; // socketContext 사용
+import "../../style/upload.css";
 import { ImFilePicture } from "react-icons/im";
 import axios from 'axios';
 

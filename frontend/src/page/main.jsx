@@ -11,8 +11,9 @@ export default function Main() {
   useEffect(() => {
     if (uploadStatus) {
       console.log("업로드 성공 상태가 true로 변경됨!");
+      navigate('/test');
     }
-  }, [uploadStatus]);
+  }, [uploadStatus, navigate]);
 
   return (
     <div className="main-container">
@@ -33,7 +34,7 @@ export default function Main() {
       </div>
 
       {uploadStatus ? (
-        <button>업로드 완료</button> // 업로드 성공 시 버튼 출력
+        <p>업로드 완료</p> // 업로드 성공 시 버튼 출력
       ) : (
         <p>업로드 대기 중...</p>
       )}
