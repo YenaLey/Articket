@@ -149,16 +149,28 @@ def encode_image_to_base64(image_path):
 
 # BLIP으로 이미지를 텍스트로 변환하는 함수
 def blip_interrogate(image_path):
-    image_base64 = encode_image_to_base64(image_path)
 
-    # interrogate_url = f"{BLIP_URL}/api/v1/blip"
-    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}"}
+    ## clip
+    # image_base64 = encode_image_to_base64(image_path)
+    # interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
+    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
+    # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
+    # if response.status_code == 200:
+    #     print("CLIP interrogate request successful!")
+    #     return response.json().get('caption', '')
+    # else:
+    #     print(f"CLIP interrogate request failed with status code: {response.status_code}")
+    #     return None
 
-    interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
-    interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
-
-    response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
-    return response.json().get('caption', '') if response.status_code == 200 else None
+    ## blip
+    interrogate_url = f"{BLIP_URL}/generate_caption"
+    response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    if response.status_code == 200:
+        print("BLIP interrogate request successful!")
+        return response.json().get('caption', '')
+    else:
+        print(f"BLIP interrogate request failed with status code: {response.status_code}")
+        return None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number):
     global current_count
@@ -174,13 +186,22 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "n_iter": 1
     }
     response = requests.post(f"{WEBUI_URL}/sdapi/v1/img2img", json=data, headers={"Content-Type": "application/json"})
-    if response.status_code == 200:
+    
+    print(f"Response Status Code: {response.status_code}")
+    if response.status_code != 200:
+        print("Error in API call:", response.text)
+        return None
+
+    try:
         image_filename = f"{current_count}_{user_name}_result{result_number}.png"
         generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
         with open(generated_path, "wb") as f:
             f.write(base64.b64decode(response.json()['images'][0]))
         save_to_desktop(generated_path, image_filename)
         return backend_url + '/' + generated_path.replace('./', '')
+    except Exception as e:
+        print(f"Error in decoding or saving image: {e}")
+        return None
 
 '''
 이미지 업로드 API
@@ -241,12 +262,14 @@ def generate_style_images():
         return jsonify({"error": "Missing image or result artist"}), 400
 
     prompt = blip_interrogate(image_path)
+    print(prompt)
     image_base64 = encode_image_to_base64(image_path)
     if not prompt:
         return jsonify({"error": "Failed to interrogate image"}), 500
 
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
     urls = [None] * len(matching_artists)
+    error_occurred = False  # 에러 상태를 추적할 변수
 
     with ThreadPoolExecutor() as executor:
         futures = {
@@ -264,10 +287,21 @@ def generate_style_images():
         }
         for future in as_completed(futures):
             idx = futures[future]
-            urls[idx] = future.result() 
+            result = future.result()
+            if result is None:  # 이미지 생성 실패 시
+                error_occurred = True
+            urls[idx] = result
+
+    if error_occurred:  # 이미지 생성 중 에러가 발생했을 때
+        return jsonify({"error": "Failed to generate one or more images"}), 500
 
     socketio.emit('operation_status', {'success': True})
-    return jsonify({"user_name": user_name, "artist": artist_info['description'], "generated_image": urls, "qr_image": backend_url + '/static/personality-result-qr.png'}), 200
+    return jsonify({
+        "user_name": user_name,
+        "artist": artist_info['description'],
+        "generated_image": urls,
+        "qr_image": backend_url + '/static/personality-result-qr.png'
+    }), 200
 
 
 if __name__ == '__main__':
