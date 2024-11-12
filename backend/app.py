@@ -151,26 +151,26 @@ def encode_image_to_base64(image_path):
 def blip_interrogate(image_path):
 
     ## clip
-    # image_base64 = encode_image_to_base64(image_path)
-    # interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
-    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
-    # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
-    # if response.status_code == 200:
-    #     print("CLIP interrogate request successful!")
-    #     return response.json().get('caption', '')
-    # else:
-    #     print(f"CLIP interrogate request failed with status code: {response.status_code}")
-    #     return None
-
-    ## blip
-    interrogate_url = f"{BLIP_URL}/generate_caption"
-    response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    image_base64 = encode_image_to_base64(image_path)
+    interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
+    interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
+    response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
     if response.status_code == 200:
-        print("BLIP interrogate request successful!")
+        print("CLIP interrogate request successful!")
         return response.json().get('caption', '')
     else:
-        print(f"BLIP interrogate request failed with status code: {response.status_code}")
+        print(f"CLIP interrogate request failed with status code: {response.status_code}")
         return None
+
+    ## blip
+    # interrogate_url = f"{BLIP_URL}/generate_caption"
+    # response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    # if response.status_code == 200:
+    #     print("BLIP interrogate request successful!")
+    #     return response.json().get('caption', '')
+    # else:
+    #     print(f"BLIP interrogate request failed with status code: {response.status_code}")
+    #     return None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number):
     global current_count
@@ -233,7 +233,7 @@ def upload_image(name):
 @app.route('/select-option', methods=['GET'])
 def select_option():
     socketio.emit('operation_status', {'success': True})
-    return 200
+    return '', 200
 
 '''
 성격 테스트 결과 전송 API

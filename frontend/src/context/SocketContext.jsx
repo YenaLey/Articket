@@ -20,10 +20,13 @@ export const SocketProvider = ({ children }) => {
             }
         });
 
+        // 컴포넌트가 마운트될 때 한 번만 uploadStatus를 false로 초기화
+        setUploadStatus(false);
+
         return () => {
             newSocket.disconnect();
         };
-    }, []);
+    }, []); // 빈 배열을 사용하여 한 번만 실행되도록 처리
 
     return (
         <SocketContext.Provider value={{ socket, uploadStatus, setUploadStatus }}>
