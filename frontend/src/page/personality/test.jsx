@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+/* eslint-disable no-undef */
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import "../../style/test.css";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { IoIosArrowDropleftCircle } from "react-icons/io";
@@ -12,8 +14,6 @@ export default function Test() {
     const [error, setError] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(0);
 
-    // eslint-disable-next-line no-undef
-    const BASE_URL = process.env.REACT_APP_HOST;
 
     const questions = [
         { question: "당신은 미술관에 방문했습니다. 누구와 함께 왔나요?👥", optionA: "친구나 가족이랑 함께 관람하러 왔어요.", optionB: "혼자서 조용히 작품을 감상하러 왔어요." },
@@ -25,6 +25,22 @@ export default function Test() {
         { question: "전시를 보고 나오는 길이에요. 이 경험을 어떻게 간직하고 싶나요?📝", optionA: "SNS에 후기를 올려 다른 사람들과 공유할래요.", optionB: "조용히 혼자만의 추억으로 간직하고 싶어요." },
         { question: "친구가 전시가 어땠냐고 물어보네요. 당신은 어떻게 대답할까요?", optionA: "작품의 내용이나 작가의 배경 등 흥미로운 정보를 중심으로 설명해요.", optionB: "전시를 통해 느꼈던 감정과 분위기를 중심으로 설명해요." }
     ];
+
+    const socket = io(`http://${process.env.REACT_APP_HOST}:5000`);
+
+    useEffect(() => {
+        // 'operation_status' 이벤트 수신
+        socket.on('operation_status', (data) => {
+            if (data.success) {
+                setUploadStatus(true);
+                navigate("/test");  // 이미지 업로드가 완료되면 /test 페이지로 이동
+            }
+        });
+
+        return () => {
+            socket.off("operation_status");  // 컴포넌트가 unmount될 때 소켓 리스너 해제
+        };
+    }, [socket, navigate]);
     
 
     const handleOptionChange = (index, value) => {
