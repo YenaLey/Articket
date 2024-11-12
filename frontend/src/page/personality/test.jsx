@@ -1,19 +1,17 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
 import "../../style/test.css";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { IoIosArrowDropleftCircle } from "react-icons/io";
+import { useSocket } from "../../context/SocketContext";
 
 export default function Test() {
     const navigate = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState(Array(6).fill(null));
-    const [result, setResult] = useState("");
-    const [artist, setArtist] = useState("");
     const [error, setError] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(0);
-
+    const { uploadStatus, setUploadStatus } = useSocket();
 
     const questions = [
         { question: "당신은 미술관에 방문했습니다. 누구와 함께 왔나요?👥", optionA: "친구나 가족이랑 함께 관람하러 왔어요.", optionB: "혼자서 조용히 작품을 감상하러 왔어요." },
@@ -26,60 +24,21 @@ export default function Test() {
         { question: "친구가 전시가 어땠냐고 물어보네요. 당신은 어떻게 대답할까요?", optionA: "작품의 내용이나 작가의 배경 등 흥미로운 정보를 중심으로 설명해요.", optionB: "전시를 통해 느꼈던 감정과 분위기를 중심으로 설명해요." }
     ];
 
-    const socket = io(`http://${process.env.REACT_APP_HOST}:5000`);
-
     useEffect(() => {
-        // 'operation_status' 이벤트 수신
-        socket.on('operation_status', (data) => {
-            if (data.success) {
-                setUploadStatus(true);
-                navigate("/test");  // 이미지 업로드가 완료되면 /test 페이지로 이동
+        if (uploadStatus) {
+            if (currentQuestion !== 7) {
+                setCurrentQuestion((prev) => prev + 1); // currentQuestion을 증가시킴
+                setUploadStatus(false); // uploadStatus를 false로 초기화
             }
-        });
+        }
+    }, [uploadStatus, setUploadStatus]);
 
-        return () => {
-            socket.off("operation_status");  // 컴포넌트가 unmount될 때 소켓 리스너 해제
-        };
-    }, [socket, navigate]);
-    
 
     const handleOptionChange = (index, value) => {
         const newSelectedOptions = [...selectedOptions];
         newSelectedOptions[index] = value;
         setSelectedOptions(newSelectedOptions);
         setError("");
-    };
-
-    const getPersonalityResult = async (options) => {
-        const response = await fetch(`http://${BASE_URL}:5000/get-personality-result/${options.join("")}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message);
-        }
-
-        return response.json();
-    };
-
-    const handleSubmit = async () => {
-        if (selectedOptions.some(option => option === null)) {
-            setError("모든 질문에 대해 선택지를 체크해야 합니다.");
-            setResult("");
-            return;
-        }
-
-        const resultOptions = selectedOptions.filter(option => option !== null);
-        if (resultOptions.length === selectedOptions.length) {
-            try {
-                const artistData = await getPersonalityResult(resultOptions);
-                setArtist(artistData.artist);
-            } catch (error) {
-                setError("아티스트 정보를 가져오는 데 오류가 발생했습니다.");
-            }
-        }
     };
 
     const handlePrevious = () => {
@@ -96,8 +55,8 @@ export default function Test() {
         <div className="test-container">
             <div className="test-bar">
                 <div className="test-bar-lower" />
-                <div 
-                    className="test-bar-upper" 
+                <div
+                    className="test-bar-upper"
                     style={{ width: progressWidth }}
                 />
             </div>
@@ -107,6 +66,7 @@ export default function Test() {
 
                 <div className="test-box">
                     <p>{currentQuestion + 1}/8</p>
+                    <p>{uploadStatus ? "true" : "false"}</p>
                     <h1>{questions[currentQuestion].question}</h1>
                     <label className={`checkbox-label ${selectedOptions[currentQuestion] === "A" ? "checked" : ""}`}>
                         <input
@@ -136,12 +96,10 @@ export default function Test() {
                 {currentQuestion < questions.length - 1 ? (
                     <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><IoIosArrowDroprightCircle /></button>
                 ) : (
-                    <button className="test-nextpage" onClick={()=>{handleSubmit(); navigate('/result')}} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
+                    <button className="test-nextpage" onClick={() => {navigate('/result')}} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
                 )}
             </div>
 
-            {result && <div className="test-result">결과: {result}</div>}
-            {artist && <div className="test-artist">아티스트: {artist}</div>}
         </div>
     );
 }
