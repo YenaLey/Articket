@@ -13,12 +13,13 @@ stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 G
 ```
 # 현재 노트북 IP로 설정
 # IP를 바꿀 때는 여기 있는 HOST와 swagger.json의 host를 바꿔야 함
-HOST=192.168.35.2
+HOST=192.168.88.155
 REACT_APP_HOST=$HOST
 PORT=3000
 
 # 현재 stable diffusion webui 서버로 수정
-WEBUI_URL=https://8edf8b1210d497ab28.gradio.live/
+WEBUI_URL=https://a26161cb00cf321996.gradio.live
+BLIP_URL=https://zx50bk2xs1lr7a-8001.proxy.runpod.net
 
 # 모든 사진 보관 폴더 지정(설정 안해도 됨 그럴 경우 주석처리)
 # DESKTOP_FOLDER='/Users/leeyena/Desktop/articket'
