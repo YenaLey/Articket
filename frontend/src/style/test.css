@@ -113,12 +113,12 @@
 }
 
 .checkbox-label:hover {
-    background-color: #b89cff;
+    background-color: #cdd5ff;
     color: black;
 }
 
 .checkbox-label.checked {
-    background-color: #310057;
+    background-color: #2e40a4;
     color: white;
 }
 
@@ -141,13 +141,13 @@
     & svg {
         font-size: 50px;
         color: white;
-        padding: 2px;
+        padding: 0;
         border-radius: 100%;
         transition: all 0.2s ease;
     }
 
     &:not(:disabled):hover svg {
-        color: #6a3792;
+        color: #2e40a4;
         background-color: white;
         box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
     }

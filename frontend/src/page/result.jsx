@@ -56,7 +56,7 @@ export default function Result() {
       console.error(error);
       alert('An error occurred while fetching generated images. Please try again.');
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
 
@@ -86,6 +86,10 @@ export default function Result() {
         </div>
       ) : (
         <div className="result-result">
+          <h4>{userName}의 예술가 유형은?</h4>
+          <h2>{artist}</h2>
+          <p>블라블라블라랄랄ㄹ라ㅏ랄라ㅏ라랄</p>
+
           <div className="result-img-container">
             {generatedImageUrl ? (
               <div className="result-img">
@@ -95,10 +99,7 @@ export default function Result() {
               <p>생성된 이미지가 없습니다.</p>
             )}
           </div>
-          <div className="result-details">
-            <p><strong>사용자 이름:</strong> {userName}</p>
-            <p><strong>추천 화가:</strong> {artist}</p>
-          </div>
+
           <div className="qr-container">
             {qrImageUrl && (
               <div className="qr-image">
