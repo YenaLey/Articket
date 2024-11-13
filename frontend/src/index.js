@@ -1,13 +1,28 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// JavaScript 코드 추가
+function updateVH() {
+  // 현재 뷰포트 높이에서 1% 높이 값을 계산
+  let vh = window.innerHeight * 0.01;
+  // `--vh` 변수를 업데이트하여 주소창을 제외한 높이 사용
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+
+// 페이지 로드와 창 크기 변경 시 `updateVH` 함수를 호출
+window.addEventListener("resize", updateVH);
+window.addEventListener("load", updateVH);
+
+// 기본적으로 실행
+updateVH();
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   // <React.StrictMode>
-    <App />
+  <App />
   // </React.StrictMode>
 );
 
