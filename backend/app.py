@@ -50,6 +50,7 @@ upload_status = {
     'message': ''
 }
 current_count = 0
+selected_gender = ''
 
 def calculate_mbti(options_list):
     E, I, N, S, T, F, J, P = 0, 0, 0, 0, 0, 0, 0, 0
@@ -74,7 +75,10 @@ ARTISTS = {
     '리히텐슈타인': {
         'description': '세련된 일상의 리히텐슈타인',
         'modifier': 'pop art, <lora:loy_xl-000013:1>, masterpiece, best quality, background with a dotted halftone pattern, portrait,',
-        'negative_prompt': 'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, nsfw,',
+        'negative_prompt': {
+            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
+            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+        },
         'steps': 150,
         'denoising_strength': 0.73,
         'cfg_scale': 7,
@@ -83,7 +87,10 @@ ARTISTS = {
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
         'modifier': 'painting, <lora:gogh_xl-000011:1>, masterpiece, best quality, Starry Night, portrait,',
-        'negative_prompt': 'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, nsfw, yellow face,',
+        'negative_prompt': {
+            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
+            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+        },
         'steps': 100,
         'denoising_strength': 0.75,
         'cfg_scale': 7,
@@ -92,7 +99,10 @@ ARTISTS = {
     '피카소': {
         'description': '대담하고 창의적인 피카소',
         'modifier': 'illustration, style of Pablo Picasso, <lora:picasso_xl-000008:1>, masterpiece, best quality, portrait,',
-        'negative_prompt': 'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, nsfw,',
+         'negative_prompt': {
+            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
+            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+        },
         'steps': 100,
         'denoising_strength': 0.75,
         'cfg_scale': 7,
@@ -101,7 +111,10 @@ ARTISTS = {
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
         'modifier': 'oil painting, style of Auguste Renoir, <lora:renoir_70_40_4:1>, masterpiece, best quality, portrait,',
-        'negative_prompt': 'lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, nsfw,',
+        'negative_prompt': {
+            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
+            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+        },
         'steps': 100,
         'denoising_strength': 0.73,
         'cfg_scale': 7,
@@ -151,26 +164,26 @@ def encode_image_to_base64(image_path):
 def blip_interrogate(image_path):
 
     ## clip
-    image_base64 = encode_image_to_base64(image_path)
-    interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
-    interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
-    response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
-    if response.status_code == 200:
-        print("CLIP interrogate request successful!")
-        return response.json().get('caption', '')
-    else:
-        print(f"CLIP interrogate request failed with status code: {response.status_code}")
-        return None
-
-    ## blip
-    # interrogate_url = f"{BLIP_URL}/generate_caption"
-    # response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    # image_base64 = encode_image_to_base64(image_path)
+    # interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
+    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
+    # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
     # if response.status_code == 200:
-    #     print("BLIP interrogate request successful!")
+    #     print("CLIP interrogate request successful!")
     #     return response.json().get('caption', '')
     # else:
-    #     print(f"BLIP interrogate request failed with status code: {response.status_code}")
+    #     print(f"CLIP interrogate request failed with status code: {response.status_code}")
     #     return None
+
+    ## blip
+    interrogate_url = f"{BLIP_URL}/generate_caption"
+    response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    if response.status_code == 200:
+        print("BLIP interrogate request successful!")
+        return response.json().get('caption', '')
+    else:
+        print(f"BLIP interrogate request failed with status code: {response.status_code}")
+        return None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number):
     global current_count
@@ -207,23 +220,24 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
 이미지 업로드 API
 사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다.
 '''
-@app.route('/upload-image/<name>', methods=['POST'])
-def upload_image(name):
-    global user_name, current_count
-    if not name or 'image' not in request.files:
-        return jsonify({"error": "Missing user name or image file"}), 400
-    user_name = name
+@app.route('/upload-image/', methods=['POST'])
+def upload_image():
+    global user_name, current_count, selected_gender
+    user_name = request.args.get("name")
+    selected_gender = request.args.get("gender")
+    
+    if not user_name or not selected_gender or 'image' not in request.files:
+        return jsonify({"error": "Missing required information"}), 400
+
     file = request.files['image']
     clear_folder(UPLOAD_FOLDER)
     clear_folder(GENERATED_FOLDER)
     current_count = get_latest_count_from_desktop()
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
     file.save(file_path)
-    save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
     upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
     socketio.emit('operation_status', {'success': True})
-    print("operation_status 이벤트 전송 완료")
     return jsonify({"image_path": backend_url + '/' + file_path.replace('./', '')}), 200
 
 
@@ -239,38 +253,26 @@ def select_option():
 성격 테스트 결과 전송 API
 사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름을 반환합니다.
 '''
-@app.route('/get-personality-result/<options>', methods=['POST'])
-def test_result(options):
-    global result_artist
-    if len(options) != 8:
-        return jsonify({"error": "Invalid number of options"}), 400
-    result_artist = next((artist for artist, info in ARTISTS.items() if info['condition'](list(options.upper()))), None)
-    
-    if result_artist:
-        socketio.emit('operation_status', {'success': True})
-        return jsonify({"artist": result_artist, "mbti": calculate_mbti(list(options.upper()))}), 200
-    else:
-        return jsonify({"error": "No matching artist found"}), 400
-
-    
-'''
-해당 화가의 스타일로 변환된 이미지를 생성 후 저장하는 API
-'''
 @app.route('/get-generated-images', methods=['POST'])
 def generate_style_images():
-    global result_artist
+    global result_artist, selected_gender
+    if not selected_gender:
+        return jsonify({"error": "Gender information is missing"}), 400
+
     if not (image_path := selected_artists.get('image_path')) or not (artist_info := ARTISTS.get(result_artist)):
         return jsonify({"error": "Missing image or result artist"}), 400
 
     prompt = blip_interrogate(image_path)
-    print(prompt)
     image_base64 = encode_image_to_base64(image_path)
     if not prompt:
         return jsonify({"error": "Failed to interrogate image"}), 500
 
+    # 성별에 맞는 negative_prompt 선택
+    selected_negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
+
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
     urls = [None] * len(matching_artists)
-    error_occurred = False  # 에러 상태를 추적할 변수
+    error_occurred = False
 
     with ThreadPoolExecutor() as executor:
         futures = {
@@ -278,7 +280,7 @@ def generate_style_images():
                 generate_image,
                 image_base64,
                 ARTISTS[artist]['modifier'],
-                ARTISTS[artist]['negative_prompt'],
+                ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),  # 성별별 negative_prompt 사용
                 ARTISTS[artist]['steps'],
                 ARTISTS[artist]['denoising_strength'],
                 ARTISTS[artist]['cfg_scale'],
@@ -289,11 +291,11 @@ def generate_style_images():
         for future in as_completed(futures):
             idx = futures[future]
             result = future.result()
-            if result is None:  # 이미지 생성 실패 시
+            if result is None:
                 error_occurred = True
             urls[idx] = result
 
-    if error_occurred:  # 이미지 생성 중 에러가 발생했을 때
+    if error_occurred:
         return jsonify({"error": "Failed to generate one or more images"}), 500
 
     socketio.emit('operation_status', {'success': True})
