@@ -1,86 +1,85 @@
 .main-container {
-    width: 100vw;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle, rgba(21, 0, 80, 0.9) 0%, rgba(21, 0, 80, 0.8) 90%), 
-    url('../../public/img/background.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    gap: 10vh;
-    font-family: 'Nanum Gothic';
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(
+      circle,
+      rgba(21, 0, 80, 0.9) 0%,
+      rgba(21, 0, 80, 0.8) 90%
+    ),
+    url("../../public/img/background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  gap: 10vh;
+  font-family: "Nanum Gothic";
 }
 
-
-
 .main-title {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
 
-    & p {
-        font-size: 1rem;
-        margin: 0;
-        font-weight: 500;
-    }
+  & p {
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+  }
 
-    & h4 {
-        font-size: 10rem;
-        margin: 0;
-        font-family: 'Merriweather';
-
-    }
-
+  & h4 {
+    font-size: 10rem;
+    margin: 0;
+    font-family: "Merriweather";
+  }
 }
 
 .main-qr {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-    & p {
-        margin-bottom: 3rem;
-        font-size: 1rem;
-        font-weight: bold;
-        color: white;
-    }
-
+  & p {
+    margin-bottom: 3rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+  }
 }
 
 .main-next {
-    width: fit-content;
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0.7rem 2.5rem;
-    line-height: 1.2;
-    text-decoration: none;
-    font-weight: bold;
-    background-color: white;
-    border-radius: 30px;
-    transition: all 0.3s ease;
+  width: fit-content;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.7rem 2.5rem;
+  line-height: 1.2;
+  text-decoration: none;
+  font-weight: bold;
+  background-color: white;
+  border-radius: 30px;
+  transition: all 0.3s ease;
 
-    &:hover {
-        background-color: #b89cff
-    }
+  &:hover {
+    background-color: #b89cff;
+  }
 
-    & p {
-        color: black;
-        margin: 0;
-    }
+  & p {
+    color: black;
+    margin: 0;
+  }
 }
 
 .main-upload {
-    position: fixed;
-    bottom: 5%;
-    color: white;
+  position: fixed;
+  bottom: 5%;
+  color: white;
 }

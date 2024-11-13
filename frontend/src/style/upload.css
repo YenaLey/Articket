@@ -1,140 +1,146 @@
 .upload {
-    width: 100vw;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    font-family: 'Nanum Gothic';
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  font-family: "Nanum Gothic";
 }
 
 .upload-container {
-    width: 100%;
-    max-width: 480px;
-    height: 100vh;
-    background-color: #150050;
-    display: flex;
-    flex-direction: column;
-    gap: 7vh;
-    color: white;
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  background-color: #150050;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  color: white;
 
-    
-    & h1 {
-        position: relative;
-        margin-bottom: 0;
-        font-family: 'Merriweather';
-        
-        & h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-family: "Teko";
-            font-weight: bold;
-            line-height: 0.5;
-        }
+  & h1 {
+    position: relative;
+    font-family: "Merriweather";
+    font-size: 45px;
+    margin: 0;
+
+    & h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-family: "Teko";
+      font-weight: bold;
+      line-height: 0.5;
     }
+  }
 }
 
 .upload-name {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 1vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1vh;
 
-    & p {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 700;
-        color: white;
-    }
+  & p {
+    margin: 10px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+  }
 
-    & input {
-        padding: 10px 3px;
-        font-size: 1rem;
-        border: none;
-        border-radius: 15px;
-        text-align: center;
-        background-color: #cdd5ff;
-    }
+  & input {
+    padding: 6px 3px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    background-color: #cdd5ff;
+    margin-bottom: 10px;
+  }
 }
 
+.gender-selection {
+  width: 100%;
+
+  & label {
+    margin: 0 10px;
+  }
+}
 
 .upload-image {
-    align-self: center;
-    width: 80%;
-    height: 40vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #cdd5ff;
+  align-self: center;
+  width: 80%;
+  height: 40vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #cdd5ff;
+  border-radius: 10px;
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     border-radius: 10px;
+  }
 
-    & img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
-    & svg {
-        color: #585858;
-        
-    }
+  & svg {
+    color: #585858;
+  }
 }
 
 .upload-select {
-    width: 100%;
-    margin-top: 2vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  margin-top: 2vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-    
-    & button {
-        cursor: pointer;
-        width: 80%;
-        padding: 7px 0 10px 0;
-        text-align: center;
-        font-size: 1.1rem;
-        color: black;
-        background-color: #cdd5ff;
-        border: none;
-        border-radius: 10px;
-        transition: all 0.5s ease;
+  & label {
+    margin-bottom: 10px;
+  }
 
-        &:not(:disabled):hover {
-            color: #cdd5ff;
-        }
-    }
-}
-
-.custom-file-label {
+  & button {
     cursor: pointer;
     width: 80%;
     padding: 7px 0 10px 0;
     text-align: center;
     font-size: 1.1rem;
     color: black;
-    background-color: white;
+    background-color: #cdd5ff;
+    border: none;
     border-radius: 10px;
     transition: all 0.5s ease;
-    
-    &:hover {
-        background-color: #cdd5ff;
+    margin-bottom: 10px;
+
+    &:not(:disabled):hover {
+      color: #cdd5ff;
     }
+  }
+}
+
+.custom-file-label {
+  cursor: pointer;
+  width: 80%;
+  padding: 7px 0 10px 0;
+  text-align: center;
+  font-size: 1.1rem;
+  color: black;
+  background-color: white;
+  border-radius: 10px;
+  transition: all 0.5s ease;
+
+  &:hover {
+    background-color: #cdd5ff;
+  }
 }
 
 .file-selected {
-    font-size: 1.1rem;
-    color: white;
-    padding: 3px;
-    border-top: 1.5px solid white;
-    border-bottom: 1.5px solid white;
-    position: relative;
-    bottom: 6vh;
+  display: none;
 }

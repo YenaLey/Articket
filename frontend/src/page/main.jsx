@@ -11,7 +11,7 @@ export default function Main() {
   useEffect(() => {
     if (uploadStatus) {
       console.log("업로드 성공 상태가 true로 변경됨!");
-      navigate('/test');
+      navigate("/test");
     }
   }, [uploadStatus, navigate]);
 
