@@ -5,7 +5,7 @@
     "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지의 경로를 받을 수 있는 API입니다.",
     "version": "1.0.0"
   },
-  "host": "192.168.0.14:5000",
+  "host": "192.168.88.155:5000",
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
@@ -27,7 +27,7 @@
     }
   ],
   "paths": {
-    "/upload-image/{name}": {
+    "/upload-image": {
       "post": {
         "tags": ["이미지 업로드"],
         "summary": "이미지 업로드",
@@ -35,12 +35,20 @@
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "name",
             "type": "string",
             "description": "사용자의 이름",
             "required": true,
             "default": "홍길동"
+          },
+          {
+            "in": "query",
+            "name": "gender",
+            "type": "string",
+            "description": "성별 (male 또는 female)",
+            "required": true,
+            "default": "female"
           },
           {
             "in": "formData",
@@ -61,7 +69,7 @@
             }
           },
           "400": {
-            "description": "이미지 파일이 없거나 이름이 누락되었습니다."
+            "description": "필수 정보(이름, 성별, 이미지)가 누락되었습니다."
           }
         }
       }
@@ -115,6 +123,16 @@
         "tags": ["이미지 변환 및 전송"],
         "summary": "이미지 생성 및 이미지 경로 전송",
         "description": "사용자가 업로드한 이미지를 지정된 화가 스타일로 변환하고 경로를 반환합니다.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "gender",
+            "type": "string",
+            "description": "성별 (male 또는 female)",
+            "required": true,
+            "default": "female"
+          }
+        ],
         "responses": {
           "200": {
             "description": "이미지 변환 성공",
@@ -123,6 +141,7 @@
               "properties": {
                 "user_name": { "type": "string" },
                 "artist": { "type": "string" },
+                "original_image": { "type": "string" },
                 "generated_image": {
                   "type": "array",
                   "items": { "type": "string" },
