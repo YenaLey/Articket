@@ -110,7 +110,7 @@ ARTISTS = {
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir2_xl:1>,masterpiece,best quality, portrait,',
+        'modifier': 'oil painging,style of Auguste Renoir, <lora:renior2_xl:1>,masterpiece,best quality, portrait,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
@@ -196,7 +196,9 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "denoising_strength": denoising_strength,
         "sampler_index": "Euler a",
         "batch_size": 1,
-        "n_iter": 1
+        "n_iter": 1,
+        "width": 1024,
+        "height": 1024
     }
     response = requests.post(f"{WEBUI_URL}/sdapi/v1/img2img", json=data, headers={"Content-Type": "application/json"})
     
@@ -244,12 +246,26 @@ def upload_image():
 
 
 '''
-성격 테스트에서 옵션을 선택할 때 호출하는 API.
+백엔드에서 프론트엔드로 성공 여부를 알리기 위해 호출하는 API.
 '''
 @app.route('/select-option', methods=['GET'])
 def select_option():
     socketio.emit('operation_status', {'success': True})
     return '', 200
+
+'''
+성격 테스트에서 옵션을 선택할 때 호출하는 API.
+'''
+@app.route('/emit-options', methods=['POST'])
+def emit_options():
+    data = request.get_json()
+    options = data.get('options', [])
+    
+    if not isinstance(options, list):
+        return jsonify({"error": "Options must be provided as a list"}), 400
+
+    socketio.emit('options_data', {'options': options})
+    return jsonify({"message": "Options emitted successfully", "options": options}), 200
 
 '''
 성격 테스트 결과 전송 API
@@ -317,6 +333,7 @@ def generate_style_images():
     return jsonify({
         "user_name": user_name,
         "artist": artist_info['description'],
+        "matching_artists": MATCHING_ARTISTS[result_artist],
         "original_image" : backend_url + '/' + selected_artists.get('image_path').replace('./', ''),
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'

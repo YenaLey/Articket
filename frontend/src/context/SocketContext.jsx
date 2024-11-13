@@ -9,8 +9,6 @@ export const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(false);
-  const [selectAB, setSelectAB] = useState(Array(8).fill(null));
-  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [imageUrl, setImageUrl] = useState(null);
   const location = useLocation();
 
@@ -47,16 +45,7 @@ export const SocketProvider = ({ children }) => {
 
   return (
     <SocketContext.Provider
-      value={{
-        socket,
-        uploadStatus,
-        setUploadStatus,
-        imageUrl,
-        selectAB,
-        setSelectAB,
-        currentQuestion,
-        setCurrentQuestion,
-      }}
+      value={{ socket, uploadStatus, setUploadStatus, imageUrl }}
     >
       {children}
     </SocketContext.Provider>
