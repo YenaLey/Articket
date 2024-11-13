@@ -10,13 +10,8 @@ export default function Test() {
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState(Array(8).fill(null));
   const [error, setError] = useState("");
-  const {
-    uploadStatus,
-    setUploadStatus,
-    selectAB,
-    currentQuestion,
-    setCurrentQuestion,
-  } = useSocket();
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const { uploadStatus, setUploadStatus } = useSocket();
 
   const questions = [
     {
@@ -65,8 +60,6 @@ export default function Test() {
   ];
 
   useEffect(() => {
-    console.log("Current selectAB value:", selectAB[currentQuestion]);
-
     const timer = setTimeout(() => {
       if (uploadStatus) {
         if (currentQuestion < 7) {
@@ -80,18 +73,22 @@ export default function Test() {
     console.log(currentQuestion, uploadStatus);
 
     return () => clearTimeout(timer);
-  }, [selectAB[currentQuestion], uploadStatus, currentQuestion]);
+  }, [uploadStatus, currentQuestion]);
+
+  const handleOptionChange = (index, value) => {
+    const newSelectedOptions = [...selectedOptions];
+    newSelectedOptions[index] = value;
+    setSelectedOptions(newSelectedOptions);
+    setError("");
+  };
 
   const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-    }
+    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
   };
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-    }
+    if (currentQuestion < questions.length - 1)
+      setCurrentQuestion(currentQuestion + 1);
   };
 
   const progressWidth = `${((currentQuestion + 1) / questions.length) * 84}%`;
@@ -114,27 +111,27 @@ export default function Test() {
           <h1>{questions[currentQuestion].question}</h1>
           <label
             className={`checkbox-label ${
-              selectAB[currentQuestion] === "A" ? "checked" : ""
+              selectedOptions[currentQuestion] === "A" ? "checked" : ""
             }`}
           >
             <input
               type="radio"
               name={`option${currentQuestion}`}
-              checked={selectAB[currentQuestion] === "A"}
-              readOnly
+              checked={selectedOptions[currentQuestion] === "A"}
+              onChange={() => handleOptionChange(currentQuestion, "A")}
             />
             {questions[currentQuestion].optionA}
           </label>
           <label
             className={`checkbox-label ${
-              selectAB[currentQuestion] === "B" ? "checked" : ""
+              selectedOptions[currentQuestion] === "B" ? "checked" : ""
             }`}
           >
             <input
               type="radio"
               name={`option${currentQuestion}`}
-              checked={selectAB[currentQuestion] === "B"}
-              readOnly
+              checked={selectedOptions[currentQuestion] === "B"}
+              onChange={() => handleOptionChange(currentQuestion, "B")}
             />
             {questions[currentQuestion].optionB}
           </label>

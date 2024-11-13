@@ -1,13 +1,11 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import "../../style/remote.css";
-import { useSocket } from "../../context/SocketContext";
 
 export default function Remote() {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [result, setResult] = useState(null); // 성격 결과 상태
   const [artist, setArtist] = useState(null); // 화가 이름 상태
-  const { selectAB, setSelectAB, currentQuestion } = useSocket();
 
   // 컴포넌트가 처음 로드될 때 localStorage에서 selectedOptions 불러오기
   useEffect(() => {
@@ -22,16 +20,8 @@ export default function Remote() {
     localStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
 
-  const handleABClick = (option) => {
-    setSelectAB((preList) => {
-      const newSelectAB = [...preList];
-      newSelectAB[currentQuestion] = option;
-      console.log("Updated selectAB:", newSelectAB);
-      return newSelectAB;
-    });
-  };
   // 옵션 선택 시 select-option API 호출과 함께 상태 업데이트
-  const handleSelectClick = async (option) => {
+  const handleButtonClick = async (option) => {
     if (selectedOptions.length < 8) {
       // 선택된 옵션 추가
       const updatedOptions = [...selectedOptions, option];
@@ -85,10 +75,8 @@ export default function Remote() {
   return (
     <div className="remote">
       <div className="remote-container">
-        <p>현재 질문 번호: {currentQuestion}</p>
-        <button onClick={() => handleABClick("A")}>옵션 A</button>
-        <button onClick={() => handleABClick("B")}>옵션 B</button>
-        <button onClick={() => handleSelectClick(selectAB)}>선택</button>
+        <button onClick={() => handleButtonClick("A")}>옵션 A</button>
+        <button onClick={() => handleButtonClick("B")}>옵션 B</button>
         <button onClick={handleResetOptions}>옵션 초기화</button>{" "}
         {/* 초기화 버튼 추가 */}
         <p>{selectedOptions}</p>

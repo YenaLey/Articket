@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "CO SHOW 전시회 Articket API",
-    "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지의 경로를 받을 수 있는 API입니다.",
+    "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지를 생성하는 API입니다.",
     "version": "1.0.0"
   },
   "host": "192.168.88.155:5000",
@@ -15,15 +15,19 @@
     },
     {
       "name": "옵션 선택",
-      "description": "옵션 선택 API"
+      "description": "테스트 옵션 선택 API"
     },
     {
-      "name": "성격 테스트 결과 전송",
+      "name": "성격 테스트 결과",
       "description": "성격 테스트 결과 전송 API"
     },
     {
-      "name": "이미지 변환 및 전송",
+      "name": "이미지 변환",
       "description": "이미지 변환 및 스타일 조정 API"
+    },
+    {
+      "name": "옵션 전달",
+      "description": "사용자가 선택한 옵션 리스트를 소켓으로 전송하는 API"
     }
   ],
   "paths": {
@@ -88,7 +92,7 @@
     },
     "/get-personality-result/{options}": {
       "post": {
-        "tags": ["성격 테스트 결과 전송"],
+        "tags": ["성격 테스트 결과"],
         "summary": "성격 테스트 결과",
         "description": "사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름과 MBTI 유형을 반환합니다.",
         "parameters": [
@@ -120,19 +124,9 @@
     },
     "/get-generated-images": {
       "post": {
-        "tags": ["이미지 변환 및 전송"],
-        "summary": "이미지 생성 및 이미지 경로 전송",
+        "tags": ["이미지 변환"],
+        "summary": "이미지 생성 및 경로 전송",
         "description": "사용자가 업로드한 이미지를 지정된 화가 스타일로 변환하고 경로를 반환합니다.",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "gender",
-            "type": "string",
-            "description": "성별 (male 또는 female)",
-            "required": true,
-            "default": "female"
-          }
-        ],
         "responses": {
           "200": {
             "description": "이미지 변환 성공",
@@ -147,6 +141,13 @@
                   "items": { "type": "string" },
                   "description": "변환된 각 화가 스타일의 이미지 경로 배열 (사용자 타입, 잘 맞는 타입, 안 맞는 타입 순)"
                 },
+                "matching_artists": {
+                  "type": "object",
+                  "properties": {
+                    "good": { "type": "string", "description": "잘 맞는 화가" },
+                    "bad": { "type": "string", "description": "안 맞는 화가" }
+                  }
+                },
                 "qr_image": { "type": "string" }
               }
             }
@@ -156,6 +157,49 @@
           },
           "500": {
             "description": "이미지 생성 실패"
+          }
+        }
+      }
+    },
+    "/emit-options": {
+      "post": {
+        "tags": ["옵션 전달"],
+        "summary": "옵션 리스트 전달 및 소켓 전송",
+        "description": "사용자가 선택한 옵션 리스트를 서버로 전달하고, 이를 소켓을 통해 다시 프론트엔드로 전송합니다.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "options",
+            "description": "사용자가 선택한 옵션 리스트",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "options": {
+                  "type": "array",
+                  "items": { "type": ["string", "null"] },
+                  "example": ["A", "A", null, null, null, null, null, null]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "옵션이 성공적으로 전송되었습니다.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" },
+                "options": {
+                  "type": "array",
+                  "items": { "type": ["string", "null"] }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "옵션 리스트가 없거나 형식이 올바르지 않습니다."
           }
         }
       }
