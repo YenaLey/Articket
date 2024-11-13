@@ -74,22 +74,22 @@ def calculate_mbti(options_list):
 ARTISTS = {
     '리히텐슈타인': {
         'description': '세련된 일상의 리히텐슈타인',
-        'modifier': 'pop art, <lora:loy_xl-000013:1>, masterpiece, best quality, background with a dotted halftone pattern, portrait,',
+        'modifier': 'pop art,<lora:loy2_xl:1>,masterpiece,best quality, background with a Ben-Day dots,portrait, artwork in the style of Roy Lichtenstein, pop art, bold primary colors, thick black outlines, comic book style, retro aesthetica, ',
         'negative_prompt': {
-            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
-            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+            'male': 'feminine,lipstick,red lips,makeup,beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+            'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
         'steps': 150,
-        'denoising_strength': 0.73,
+        'denoising_strength': 0.76,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ESFP", "ESTP", "ENTP"]
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'painting, <lora:gogh_xl-000011:1>, masterpiece, best quality, Starry Night, portrait,',
+        'modifier': 'painging,<lora:gogh_xl:1>,masterpiece,best quality,Starry Night, portrait,',
         'negative_prompt': {
-            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
-            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+            'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
+            'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
         },
         'steps': 100,
         'denoising_strength': 0.75,
@@ -98,25 +98,25 @@ ARTISTS = {
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'illustration, style of Pablo Picasso, <lora:picasso_xl-000008:1>, masterpiece, best quality, portrait,',
-            'negative_prompt': {
-            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
-            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.7>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
+         'negative_prompt': {
+            'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+            'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
-        'steps': 100,
-        'denoising_strength': 0.75,
+        'steps': 150,
+        'denoising_strength': 0.66,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENTJ", "ISTJ", "ESTJ", "ISTP"]
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painting, style of Auguste Renoir, <lora:renoir_70_40_4:1>, masterpiece, best quality, portrait,',
+        'modifier': 'oil painging,style of Auguste Renoir, <lora:renoir2_xl:1>,masterpiece,best quality, portrait,',
         'negative_prompt': {
-            'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
-            'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
+            'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
+            'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
         'steps': 100,
-        'denoising_strength': 0.73,
+        'denoising_strength': 0.67,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ISFJ", "ESFJ", "ISFP", "ENFJ"]
     }
