@@ -235,10 +235,12 @@ def upload_image():
     current_count = get_latest_count_from_desktop()
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
     file.save(file_path)
+    save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
     upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
-    socketio.emit('operation_status', {'success': True})
-    return jsonify({"image_path": backend_url + '/' + file_path.replace('./', '')}), 200
+    original_image = backend_url + '/' + file_path.replace('./', '')
+    socketio.emit('operation_status', {'success': True}, {"image_path": original_image})
+    return jsonify({"image_path": original_image}), 200
 
 
 '''
@@ -252,6 +254,22 @@ def select_option():
 '''
 성격 테스트 결과 전송 API
 사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름을 반환합니다.
+'''
+@app.route('/get-personality-result/<options>', methods=['POST'])
+def test_result(options):
+    global result_artist
+    if len(options) != 8:
+        return jsonify({"error": "Invalid number of options"}), 400
+    result_artist = next((artist for artist, info in ARTISTS.items() if info['condition'](list(options.upper()))), None)
+    
+    if result_artist:
+        socketio.emit('operation_status', {'success': True})
+        return jsonify({"artist": result_artist, "mbti": calculate_mbti(list(options.upper()))}), 200
+    else:
+        return jsonify({"error": "No matching artist found"}), 400
+
+'''
+해당 화가의 스타일로 변환된 이미지를 생성 후 저장하는 API
 '''
 @app.route('/get-generated-images', methods=['POST'])
 def generate_style_images():
@@ -267,9 +285,6 @@ def generate_style_images():
     if not prompt:
         return jsonify({"error": "Failed to interrogate image"}), 500
 
-    # 성별에 맞는 negative_prompt 선택
-    selected_negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
-
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
     urls = [None] * len(matching_artists)
     error_occurred = False
@@ -280,7 +295,7 @@ def generate_style_images():
                 generate_image,
                 image_base64,
                 ARTISTS[artist]['modifier'],
-                ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),  # 성별별 negative_prompt 사용
+                ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
                 ARTISTS[artist]['steps'],
                 ARTISTS[artist]['denoising_strength'],
                 ARTISTS[artist]['cfg_scale'],
@@ -297,11 +312,12 @@ def generate_style_images():
 
     if error_occurred:
         return jsonify({"error": "Failed to generate one or more images"}), 500
-
+    
     socketio.emit('operation_status', {'success': True})
     return jsonify({
         "user_name": user_name,
         "artist": artist_info['description'],
+        "original_image" : backend_url + '/' + selected_artists.get('image_path').replace('./', ''),
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'
     }), 200
