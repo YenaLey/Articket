@@ -1,18 +1,20 @@
 /* eslint-disable no-undef */
 import React, { useState } from "react";
-import { useSocket } from "../../context/SocketContext"; // socketContext 사용
+import { useNavigate } from "react-router-dom";
+import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
 import { ImFilePicture } from "react-icons/im";
 import axios from 'axios';
 
 export default function Upload() {
-  const { socket } = useSocket(); // useSocket을 통해 socket 객체 가져오기
+  const navigate = useNavigate();
+  const { socket } = useSocket();
   const [imgPreview, setImgPreview] = useState(null);
   const [fileName, setFileName] = useState("사진 선택하기");
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("");
-  const [uploadSuccess, setUploadSuccess] = useState(false); // 업로드 성공 상태
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
@@ -45,7 +47,7 @@ export default function Upload() {
     formData.append("image", image);
 
     setUploading(true);
-    setUploadSuccess(false); // 업로드 성공 상태 초기화
+    setUploadSuccess(false);
 
     try {
       const response = await axios.post(
@@ -59,12 +61,16 @@ export default function Upload() {
       );
       console.log("이미지 업로드 성공:", response.data);
       alert("이미지 업로드가 완료되었습니다.");
-      setUploadSuccess(true); // 업로드 성공 상태 업데이트
+      setUploadSuccess(true);
 
-      // 업로드 성공 시 소켓을 통해 상태 업데이트
       if (socket) {
-        socket.emit("uploadStatus", true); // 업로드 성공 상태를 소켓을 통해 전달
+        socket.emit("uploadStatus", true);
       }
+
+      setTimeout(() => {
+        navigate('/remote');
+      }, 500);
+
     } catch (error) {
       console.error("이미지 업로드 실패:", error);
       alert("이미지 업로드에 실패했습니다.");

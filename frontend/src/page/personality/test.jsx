@@ -8,7 +8,7 @@ import { useSocket } from "../../context/SocketContext";
 
 export default function Test() {
     const navigate = useNavigate();
-    const [selectedOptions, setSelectedOptions] = useState(Array(6).fill(null));
+    const [selectedOptions, setSelectedOptions] = useState(Array(8).fill(null));
     const [error, setError] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const { uploadStatus, setUploadStatus } = useSocket();
@@ -25,15 +25,17 @@ export default function Test() {
     ];
 
     useEffect(() => {
-        if (uploadStatus) {
-            if (currentQuestion !== 7) {
-                setCurrentQuestion((prev) => prev + 1); // currentQuestion을 증가시킴
-                setUploadStatus(false); // uploadStatus를 false로 초기화
+        const timer = setTimeout(() => {
+            if (uploadStatus && currentQuestion < 7) {
+                console.log(uploadStatus, currentQuestion);
+                setCurrentQuestion((prev) => prev + 1);
+                setUploadStatus(false);
             }
-        }
-    }, [uploadStatus, setUploadStatus]);
-
-
+        }, 1000);
+    
+        return () => clearTimeout(timer);
+    }, [uploadStatus, currentQuestion]);
+    
     const handleOptionChange = (index, value) => {
         const newSelectedOptions = [...selectedOptions];
         newSelectedOptions[index] = value;
@@ -96,7 +98,7 @@ export default function Test() {
                 {currentQuestion < questions.length - 1 ? (
                     <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><IoIosArrowDroprightCircle /></button>
                 ) : (
-                    <button className="test-nextpage" onClick={() => {navigate('/result')}} disabled={selectedOptions[currentQuestion] === null}>결과 확인하기</button>
+                    <button className="test-nextpage" onClick={() => {navigate('/result')}}>결과 확인하기</button>
                 )}
             </div>
 
