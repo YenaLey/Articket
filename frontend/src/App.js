@@ -11,8 +11,8 @@ import Remote from "./page/remote/remote";
 
 function App() {
   return (
-    <SocketProvider>
-      <Router>
+    <Router>
+      <SocketProvider>
         <div className="App">
           <header className="App-header">
             <Routes>
@@ -25,7 +25,7 @@ function App() {
               {/* 성격 검사 페이지 remote 경로 */}
               <Route path="/remote" element={<Remote />} />
 
-                {/* 성격 검사 페이지 경로 */}
+              {/* 성격 검사 페이지 경로 */}
               <Route path="/test" element={<Test />} />
 
               {/* 유형 설명 페이지 경로 */}
@@ -37,8 +37,8 @@ function App() {
             </Routes>
           </header>
         </div>
-      </Router>
-    </SocketProvider>
+      </SocketProvider>
+    </Router>
   );
 }
 

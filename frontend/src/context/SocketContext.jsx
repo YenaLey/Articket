@@ -2,12 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import io from "socket.io-client";
+import { useLocation } from "react-router-dom";
 
 export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [uploadStatus, setUploadStatus] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         const newSocket = io(`http://${process.env.REACT_APP_HOST}:5000`);
@@ -20,13 +22,16 @@ export const SocketProvider = ({ children }) => {
             }
         });
 
-        // 컴포넌트가 마운트될 때 한 번만 uploadStatus를 false로 초기화
         setUploadStatus(false);
 
         return () => {
             newSocket.disconnect();
         };
-    }, []); // 빈 배열을 사용하여 한 번만 실행되도록 처리
+    }, []);
+
+    useEffect(() => {
+        setUploadStatus(false); 
+    }, [location.pathname]); 
 
     return (
         <SocketContext.Provider value={{ socket, uploadStatus, setUploadStatus }}>
