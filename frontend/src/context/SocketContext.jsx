@@ -1,57 +1,70 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { useLocation } from "react-router-dom";
 
 export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
-    const [socket, setSocket] = useState(null);
-    const [uploadStatus, setUploadStatus] = useState(false);
-    const [imageUrl, setImageUrl] = useState(null);
-    const location = useLocation();
+  const [socket, setSocket] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(false);
+  const [selectAB, setSelectAB] = useState(Array(8).fill(null));
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [imageUrl, setImageUrl] = useState(null);
+  const location = useLocation();
 
-    useEffect(() => {
-        const newSocket = io(`http://${process.env.REACT_APP_HOST}:5000`);
-        setSocket(newSocket);
+  useEffect(() => {
+    const newSocket = io(`http://${process.env.REACT_APP_HOST}:5000`);
+    setSocket(newSocket);
 
-        newSocket.on("connect", () => {
-            console.log("Socket connected:", newSocket.id);
-        });
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
+    });
 
-        newSocket.on("operation_status", (status) => {
-            if (status.success) {
-                setUploadStatus(true);
-                if (status.image_path) {
-                    setImageUrl(status.image_path);
-                }
-            }
-        });
+    newSocket.on("operation_status", (status) => {
+      if (status.success) {
+        setUploadStatus(true);
+        if (status.image_path) {
+          setImageUrl(status.image_path);
+        }
+      }
+    });
 
-        newSocket.on("image_path", (url) => {
-            setImageUrl(url);
-        });
+    newSocket.on("image_path", (url) => {
+      setImageUrl(url);
+    });
 
-        return () => {
-            newSocket.disconnect();
-            console.log("Socket disconnected");
-        };
-    }, []);
+    return () => {
+      newSocket.disconnect();
+      console.log("Socket disconnected");
+    };
+  }, []);
 
-    useEffect(() => {
-        setUploadStatus(false); 
-    }, [location.pathname]); 
+  useEffect(() => {
+    setUploadStatus(false);
+  }, [location.pathname]);
 
-    return (
-        <SocketContext.Provider value={{ socket, uploadStatus, setUploadStatus, imageUrl }}>
-            {children}
-        </SocketContext.Provider>
-    );
+  return (
+    <SocketContext.Provider
+      value={{
+        socket,
+        uploadStatus,
+        setUploadStatus,
+        imageUrl,
+        selectAB,
+        setSelectAB,
+        currentQuestion,
+        setCurrentQuestion,
+      }}
+    >
+      {children}
+    </SocketContext.Provider>
+  );
 };
 
 SocketProvider.propTypes = {
-    children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 export const useSocket = () => useContext(SocketContext);
