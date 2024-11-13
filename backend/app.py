@@ -99,7 +99,7 @@ ARTISTS = {
     '피카소': {
         'description': '대담하고 창의적인 피카소',
         'modifier': 'illustration, style of Pablo Picasso, <lora:picasso_xl-000008:1>, masterpiece, best quality, portrait,',
-         'negative_prompt': {
+            'negative_prompt': {
             'male': 'lowres, bad anatomy, bad hands, cropped, worst quality, jpeg artifacts, watermark, nsfw',
             'female': 'lowres, bad anatomy, bad hands, text, error, cropped, worst quality, blurry, nsfw',
         },
@@ -239,7 +239,7 @@ def upload_image():
     selected_artists['image_path'] = file_path
     upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
     original_image = backend_url + '/' + file_path.replace('./', '')
-    socketio.emit('operation_status', {'success': True}, {"image_path": original_image})
+    socketio.emit('operation_status', {'success': True, 'image_path': original_image})
     return jsonify({"image_path": original_image}), 200
 
 

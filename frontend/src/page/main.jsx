@@ -6,12 +6,14 @@ import { useSocket } from "../context/SocketContext";
 
 export default function Main() {
   const navigate = useNavigate();
-  const { uploadStatus } = useSocket();
+  const { uploadStatus, imageUrl } = useSocket();
 
   useEffect(() => {
     if (uploadStatus) {
       console.log("업로드 성공 상태가 true로 변경됨!");
-      navigate("/test");
+      if (imageUrl) {
+        console.log("받은 이미지 URL:", imageUrl);
+      }
     }
   }, [uploadStatus, navigate]);
 
@@ -22,21 +24,23 @@ export default function Main() {
         <h4 className="main-title-title">ARTPICS</h4>
       </div>
 
-      <div className="main-qr">
-        <QR pathname="#/upload" />
-        <p onClick={() => navigate("/upload")}>
-          QR코드를 인식해서 사진을 선택해주세요
-        </p>
-      </div>
+      {!imageUrl && (
+        <div className="main-qr">
+          <QR pathname="#/upload" />
+          <p onClick={() => navigate("/upload")}>
+            QR코드를 인식해서 사진을 선택해주세요
+          </p>
+        </div>
+      )}
 
-      <div className="main-next">
-        <p onClick={() => navigate("/test")}>나의 예술가 유형 테스트하기 </p>
-      </div>
-
-      {uploadStatus ? (
-        <p>업로드 완료</p> // 업로드 성공 시 버튼 출력
-      ) : (
-        <p>업로드 대기 중...</p>
+      {imageUrl && (
+        <div className="main-image">
+          <div className="main-imgcontainer">
+            <img src={imageUrl} alt="업로드된 이미지" />
+          </div>
+          <p>사진이 업로드 되었습니다</p>
+          <button>예술가 유형 검사하기</button>
+        </div>
       )}
     </div>
   );
