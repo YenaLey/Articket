@@ -1,20 +1,9 @@
-.upload {
-  width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  font-family: "Nanum Gothic";
-}
-
 .upload-container {
+  font-family: "Nanum Gothic";
   width: 100%;
   max-width: 480px;
-  height: 100vh;
+  height: calc(var(--vh) * 100);
+  overflow: hidden;
   background-color: #150050;
   display: flex;
   flex-direction: column;

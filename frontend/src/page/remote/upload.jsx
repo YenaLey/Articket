@@ -84,75 +84,73 @@ export default function Upload() {
   };
 
   return (
-    <div className="upload">
-      <div className="upload-container">
-        <h1>ARTICKET</h1>
+    <div className="upload-container">
+      <h1>ARTICKET</h1>
 
-        {/* 사용자 이름 입력 */}
-        <div className="upload-name">
-          <p>이름과 성별을 입력해주세요!</p>
-          <input
-            type="text"
-            placeholder="이름 입력"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
-          {/* 성별 선택 */}
-          <div className="gender-selection">
-            <label>
-              <input
-                type="radio"
-                value="female"
-                checked={selectedGender === "female"}
-                onChange={handleGenderChange}
-              />
-              여자
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="male"
-                checked={selectedGender === "male"}
-                onChange={handleGenderChange}
-              />
-              남자
-            </label>
-          </div>
-        </div>
-
-        {/* 파일 선택 input 및 업로드 버튼 */}
-        <div className="upload-select">
-          <label
-            className={`${image ? "file-selected" : "custom-file-label"}`}
-            htmlFor="file-input"
-          >
-            {fileName}
+      {/* 사용자 이름 입력 */}
+      <div className="upload-name">
+        <p>이름과 성별을 입력해주세요!</p>
+        <input
+          type="text"
+          placeholder="이름 입력"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+        />
+        {/* 성별 선택 */}
+        <div className="gender-selection">
+          <label>
+            <input
+              type="radio"
+              value="female"
+              checked={selectedGender === "female"}
+              onChange={handleGenderChange}
+            />
+            여자
           </label>
-          <input
-            id="file-input"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
+          <label>
+            <input
+              type="radio"
+              value="male"
+              checked={selectedGender === "male"}
+              onChange={handleGenderChange}
+            />
+            남자
+          </label>
+        </div>
+      </div>
 
-          {imgPreview && (
-            <button onClick={uploadImage} disabled={uploading || uploadSuccess}>
-              {uploading
-                ? "업로드 중..."
-                : uploadSuccess
-                ? "업로드 완료"
-                : "이미지 업로드"}
-            </button>
+      {/* 파일 선택 input 및 업로드 버튼 */}
+      <div className="upload-select">
+        <label
+          className={`${image ? "file-selected" : "custom-file-label"}`}
+          htmlFor="file-input"
+        >
+          {fileName}
+        </label>
+        <input
+          id="file-input"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
+
+        {imgPreview && (
+          <button onClick={uploadImage} disabled={uploading || uploadSuccess}>
+            {uploading
+              ? "업로드 중..."
+              : uploadSuccess
+              ? "업로드 완료"
+              : "이미지 업로드"}
+          </button>
+        )}
+        {/* 이미지 미리보기 */}
+        <div className="upload-image">
+          {imgPreview ? (
+            <img src={imgPreview} alt="미리보기" />
+          ) : (
+            <ImFilePicture />
           )}
-          {/* 이미지 미리보기 */}
-          <div className="upload-image">
-            {imgPreview ? (
-              <img src={imgPreview} alt="미리보기" />
-            ) : (
-              <ImFilePicture />
-            )}
-          </div>
         </div>
       </div>
     </div>
