@@ -9,23 +9,33 @@ export const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [uploadStatus, setUploadStatus] = useState(false);
+    const [imageUrl, setImageUrl] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
         const newSocket = io(`http://${process.env.REACT_APP_HOST}:5000`);
         setSocket(newSocket);
 
-        // 서버에서 uploadStatus 이벤트를 받으면 상태 업데이트
+        newSocket.on("connect", () => {
+            console.log("Socket connected:", newSocket.id);
+        });
+
         newSocket.on("operation_status", (status) => {
             if (status.success) {
-                setUploadStatus(true); // 업로드 성공 시 상태 true로 변경
+                setUploadStatus(true);
+                if (status.image_path) {
+                    setImageUrl(status.image_path);
+                }
             }
         });
 
-        setUploadStatus(false);
+        newSocket.on("image_path", (url) => {
+            setImageUrl(url);
+        });
 
         return () => {
             newSocket.disconnect();
+            console.log("Socket disconnected");
         };
     }, []);
 
@@ -34,7 +44,7 @@ export const SocketProvider = ({ children }) => {
     }, [location.pathname]); 
 
     return (
-        <SocketContext.Provider value={{ socket, uploadStatus, setUploadStatus }}>
+        <SocketContext.Provider value={{ socket, uploadStatus, setUploadStatus, imageUrl }}>
             {children}
         </SocketContext.Provider>
     );

@@ -1,11 +1,24 @@
 /* eslint-disable no-undef */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../style/remote.css";
 
 export default function Remote() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [result, setResult] = useState(null); // 성격 결과 상태
     const [artist, setArtist] = useState(null); // 화가 이름 상태
+
+    // 컴포넌트가 처음 로드될 때 localStorage에서 selectedOptions 불러오기
+    useEffect(() => {
+        const storedOptions = localStorage.getItem("selectedOptions");
+        if (storedOptions) {
+            setSelectedOptions(JSON.parse(storedOptions));
+        }
+    }, []);
+
+    // selectedOptions가 변경될 때마다 localStorage에 저장
+    useEffect(() => {
+        localStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
+    }, [selectedOptions]);
 
     // 옵션 선택 시 select-option API 호출과 함께 상태 업데이트
     const handleButtonClick = async (option) => {
@@ -50,11 +63,19 @@ export default function Remote() {
         }
     };
 
+    // selectedOptions 초기화 버튼 클릭 시 동작
+    const handleResetOptions = () => {
+        localStorage.removeItem("selectedOptions"); // localStorage에서 selectedOptions 제거
+        setSelectedOptions([]); // 상태 초기화
+        console.log("selectedOptions가 초기화되었습니다.");
+    };
+
     return (
         <div className="remote">
             <div className="remote-container">
                 <button onClick={() => handleButtonClick("A")}>옵션 A</button>
                 <button onClick={() => handleButtonClick("B")}>옵션 B</button>
+                <button onClick={handleResetOptions}>옵션 초기화</button> {/* 초기화 버튼 추가 */}
                 <p>{selectedOptions}</p>
 
                 {/* 성격 결과와 화가 이름을 화면에 출력 */}

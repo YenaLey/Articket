@@ -26,13 +26,18 @@ export default function Test() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (uploadStatus && currentQuestion < 7) {
-                console.log(uploadStatus, currentQuestion);
-                setCurrentQuestion((prev) => prev + 1);
-                setUploadStatus(false);
+            if (uploadStatus) {
+                if (currentQuestion < 7) {
+                    setCurrentQuestion((prev) => prev + 1);
+                    setUploadStatus(false);
+                }
+                else if (currentQuestion == 7) {
+                    navigate('/result');
+                }
             }
-        }, 1000);
-    
+        }, 100);
+        console.log(currentQuestion, uploadStatus);
+        
         return () => clearTimeout(timer);
     }, [uploadStatus, currentQuestion]);
     
@@ -95,10 +100,8 @@ export default function Test() {
 
             <div className="test-navigation">
                 <button className="test-previous" onClick={handlePrevious} disabled={currentQuestion === 0}><IoIosArrowDropleftCircle /></button>
-                {currentQuestion < questions.length - 1 ? (
+                {currentQuestion < questions.length - 1 && (
                     <button className="test-next" onClick={handleNext} disabled={selectedOptions[currentQuestion] === null}><IoIosArrowDroprightCircle /></button>
-                ) : (
-                    <button className="test-nextpage" onClick={() => {navigate('/result')}}>결과 확인하기</button>
                 )}
             </div>
 
