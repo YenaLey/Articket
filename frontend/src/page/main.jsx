@@ -15,7 +15,7 @@ export default function Main() {
         console.log("받은 이미지 URL:", imageUrl);
       }
     }
-  }, [uploadStatus, navigate]);
+  }, [uploadStatus]);
 
   return (
     <div className="main-container">
@@ -39,7 +39,7 @@ export default function Main() {
             <img src={imageUrl} alt="업로드된 이미지" />
           </div>
           <p>사진이 업로드 되었습니다</p>
-          <button>예술가 유형 검사하기</button>
+          <button onClick={()=>navigate('/test')}>예술가 유형 검사하기</button>
         </div>
       )}
     </div>
