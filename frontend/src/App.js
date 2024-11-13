@@ -33,7 +33,6 @@ function App() {
 
               {/* 결과 페이지 경로 */}
               <Route path="/result" element={<Result />} />
-
             </Routes>
           </header>
         </div>

@@ -48,7 +48,7 @@ result_artist = ''
 upload_status = {
     'status': 'idle',
     'message': ''
-}
+}   
 current_count = 0
 selected_gender = ''
 

@@ -3,7 +3,6 @@ import React from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import PropTypes from "prop-types";
 
-export const localIp = "10.0.18.137";
 function QR({ pathname }) {
   return (
     <div>
