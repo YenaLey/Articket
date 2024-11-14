@@ -1,13 +1,5 @@
 ## 실행방법
 
-### stable diffusion webui 서버 실행
-
-```
-cd backend/static/file
-stable-diffusion-server 파일을 google colab에서 실행 (1.5모델과 A100 GPU 사용, Lora 모델 파일들을 /models/Lora에 삽입)
-생성된 public URL을 WEBUI_URL의 환경변수로 사용
-```
-
 ### frontend 폴더 안에 .env 파일 추가 (./frontend/.env)
 
 ```
@@ -18,8 +10,10 @@ REACT_APP_HOST=$HOST
 PORT=3000
 
 # 현재 stable diffusion webui 서버로 수정
-WEBUI_URL=https://a26161cb00cf321996.gradio.live
-BLIP_URL=https://zx50bk2xs1lr7a-8001.proxy.runpod.net
+WEBUI_URL_1=https://h6uuae6yziz7kj-3001.proxy.runpod.net/
+WEBUI_URL_2=https://dr9o6h711jnwva-3001.proxy.runpod.net/
+WEBUI_URL_3=https://c2q0w5q9332l3i-3001.proxy.runpod.net/
+BLIP_URL=https://ka2pk0g2zjq5ba-3002.proxy.runpod.net/
 
 # 모든 사진 보관 폴더 지정(설정 안해도 됨 그럴 경우 주석처리)
 # DESKTOP_FOLDER='/Users/leeyena/Desktop/articket'
