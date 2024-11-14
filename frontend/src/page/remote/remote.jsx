@@ -9,7 +9,7 @@ export default function Remote() {
 
   // 컴포넌트가 처음 로드될 때 localStorage에서 selectedOptions 불러오기
   useEffect(() => {
-    const storedOptions = localStorage.getItem("selectedOptions");
+    const storedOptions = sessionStorage.getItem("selectedOptions");
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
     }
@@ -17,7 +17,7 @@ export default function Remote() {
 
   // selectedOptions가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    localStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
+    sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
 
   // 옵션 선택 시 select-option API 호출과 함께 상태 업데이트
@@ -67,7 +67,7 @@ export default function Remote() {
 
   // selectedOptions 초기화 버튼 클릭 시 동작
   const handleResetOptions = () => {
-    localStorage.removeItem("selectedOptions"); // localStorage에서 selectedOptions 제거
+    sessionStorage.removeItem("selectedOptions"); // localStorage에서 selectedOptions 제거
     setSelectedOptions([]); // 상태 초기화
     console.log("selectedOptions가 초기화되었습니다.");
   };

@@ -27,7 +27,11 @@ PORT = 5000
 backend_url = f"http://{REACT_APP_HOST}:{PORT}"
 
 # Stable Diffusion WebUI URL 설정
-WEBUI_URL = os.getenv('WEBUI_URL')
+WEBUI_URLS = [
+    os.getenv('WEBUI_URL_1'),
+    os.getenv('WEBUI_URL_2'),
+    os.getenv('WEBUI_URL_3')
+]
 
 # BLIP API URL 설정 (환경 변수에서 가져옴)
 BLIP_URL = os.getenv('BLIP_URL')
@@ -185,8 +189,8 @@ def blip_interrogate(image_path):
         print(f"BLIP interrogate request failed with status code: {response.status_code}")
         return None
 
-def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number):
-    global current_count
+def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number, url_index):
+    webui_url = WEBUI_URLS[url_index % len(WEBUI_URLS)]
     data = {
         "init_images": [f"data:image/png;base64, {image_base64}"],
         "prompt": f"{modifier}, {prompt}",
@@ -200,9 +204,10 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "width": 1024,
         "height": 1024
     }
-    response = requests.post(f"{WEBUI_URL}/sdapi/v1/img2img", json=data, headers={"Content-Type": "application/json"})
-    
-    print(f"Response Status Code: {response.status_code}")
+    print(f"Starting generation process for image variant {url_index + 1}...")
+    response = requests.post(f"{webui_url}/sdapi/v1/img2img", json=data, headers={"Content-Type": "application/json"}, timeout=120)
+
+    print(f"Response Status Code from image generator {url_index + 1}: {response.status_code}")
     if response.status_code != 200:
         print("Error in API call:", response.text)
         return None
@@ -217,6 +222,7 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
     except Exception as e:
         print(f"Error in decoding or saving image: {e}")
         return None
+
 
 '''
 이미지 업로드 API
@@ -297,6 +303,7 @@ def generate_style_images():
         return jsonify({"error": "Missing image or result artist"}), 400
 
     prompt = blip_interrogate(image_path)
+    print(f"Generated caption: {prompt}")
     image_base64 = encode_image_to_base64(image_path)
     if not prompt:
         return jsonify({"error": "Failed to interrogate image"}), 500
@@ -316,7 +323,8 @@ def generate_style_images():
                 ARTISTS[artist]['denoising_strength'],
                 ARTISTS[artist]['cfg_scale'],
                 prompt,
-                idx + 1
+                idx + 1,
+                idx
             ): idx for idx, artist in enumerate(matching_artists)
         }
         for future in as_completed(futures):
@@ -325,6 +333,7 @@ def generate_style_images():
             if result is None:
                 error_occurred = True
             urls[idx] = result
+
 
     if error_occurred:
         return jsonify({"error": "Failed to generate one or more images"}), 500
