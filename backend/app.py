@@ -324,7 +324,7 @@ def generate_style_images():
                 ARTISTS[artist]['cfg_scale'],
                 prompt,
                 idx + 1,
-                idx
+                idx % len(WEBUI_URLS)
             ): idx for idx, artist in enumerate(matching_artists)
         }
         for future in as_completed(futures):
@@ -334,15 +334,18 @@ def generate_style_images():
                 error_occurred = True
             urls[idx] = result
 
-
     if error_occurred:
         return jsonify({"error": "Failed to generate one or more images"}), 500
+    
+    good = MATCHING_ARTISTS[result_artist]['good']
+    bad = MATCHING_ARTISTS[result_artist]['bad']
+    matching_artists = {'good': ARTISTS[good]['description'], 'bad': ARTISTS[bad]['description']}
     
     socketio.emit('operation_status', {'success': True})
     return jsonify({
         "user_name": user_name,
         "artist": artist_info['description'],
-        "matching_artists": MATCHING_ARTISTS[result_artist],
+        "matching_artists": matching_artists,
         "original_image" : backend_url + '/' + selected_artists.get('image_path').replace('./', ''),
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'
