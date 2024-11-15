@@ -32,17 +32,29 @@
     padding: 20px;
     gap: 30px;
     background-color: #150050;
-    border-radius: 30px;
+    border-radius: 50px;
+}
 
-    & button {
-        background-color: white;
-        color: black;
-        padding: 10px auto;
-        aspect-ratio: 1/1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 50%;
-        font-size: 40px;
+.remote-button {
+    border: none;
+    background-color: white;
+    color: black;
+    padding: 10px auto;
+    aspect-ratio: 1/1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-size: 40px;
+    transition: all 0.2s ease;
+
+    &.checked {
+        background-color: #5e6cba;
+        color: white;
+    }
+
+    &:hover {
+        background-color: #5e6cba;
+        color: white;
     }
 }

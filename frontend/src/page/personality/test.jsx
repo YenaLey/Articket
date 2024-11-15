@@ -63,17 +63,24 @@ export default function Test() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (uploadStatus) {
-        if (currentQuestion < 7) {
-          setCurrentQuestion((prev) => prev + 1);
-          setUploadStatus(false);
-        } else if (currentQuestion === 7) {
+        const lastAnsweredIndex = receivedOptions.findLastIndex((option) => option !== null);
+        if (lastAnsweredIndex !== -1) {
+          setCurrentQuestion(lastAnsweredIndex + 1);
+        } else {
+          setCurrentQuestion(0);
+        }
+        setUploadStatus(false);
+  
+        // 마지막 질문이라면 결과 페이지로 이동
+        if (lastAnsweredIndex === 7) {
           navigate("/result");
         }
       }
     }, 100);
-
+  
     return () => clearTimeout(timer);
-  }, [uploadStatus, currentQuestion]);
+  }, [uploadStatus, receivedOptions]);
+  
 
   const handlePrevious = () => {
     if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
@@ -104,8 +111,7 @@ export default function Test() {
           <p>{uploadStatus ? "true" : "false"}</p>
           <h1>{questions[currentQuestion].question}</h1>
           <label
-            className={`checkbox-label ${receivedOptions[currentQuestion] === "A" ? "checked" : ""
-              }`}
+            className={`checkbox-label ${receivedOptions[currentQuestion] === "A" ? "checked" : ""}`}
           >
             <input
               type="radio"
@@ -116,8 +122,7 @@ export default function Test() {
             <TbCircleLetterAFilled/> {questions[currentQuestion].optionA}
           </label>
           <label
-            className={`checkbox-label ${receivedOptions[currentQuestion] === "B" ? "checked" : ""
-              }`}
+            className={`checkbox-label ${receivedOptions[currentQuestion] === "B" ? "checked" : ""}`}
           >
             <input
               type="radio"

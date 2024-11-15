@@ -4,7 +4,7 @@ import "../../style/remote.css";
 
 export default function Remote() {
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [chosenOption, setChosenOption] = useState([]);
+  const [chosenOption, setChosenOption] = useState("");
   const [result, setResult] = useState(null); // 성격 결과 상태
   const [artist, setArtist] = useState(null); // 화가 이름 상태
 
@@ -22,7 +22,6 @@ export default function Remote() {
   const handleOptionClick = async (option) => {
     setChosenOption(option);
 
-    // chosenOption을 포함한 배열 생성, 길이가 8이 되도록 null로 채움
     const optionsArray = Array(8).fill(null);
     selectedOptions.forEach((opt, index) => {
       optionsArray[index] = opt;
@@ -51,6 +50,7 @@ export default function Remote() {
     if (selectedOptions.length < 8) {
       const updatedOptions = [...selectedOptions, `${chosenOption}`];
       setSelectedOptions(updatedOptions);
+      setChosenOption("");
 
       try {
         // select-option API 호출 (반환값은 필요 없음)
@@ -94,22 +94,47 @@ export default function Remote() {
     }
   };
 
-  const handleResetOptions = () => {
+  const handleResetOptions = async () => {
     sessionStorage.removeItem("selectedOptions");
     setSelectedOptions([]);
     console.log("selectedOptions가 초기화되었습니다.");
+
+    try {
+      // select-option API 호출 (반환값은 필요 없음)
+      await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("select-option API 호출 중 오류 발생:", error);
+    }
   };
 
   return (
     <div className="remote">
       <div className="remote-container">
         <div className="remote-button-container">
-          <button onClick={() => handleOptionClick("A")}>A</button>
+          <button 
+            onClick={() => handleOptionClick("A")}
+            className={`remote-button ${chosenOption === "A" ? "checked" : ""}`}
+          >
+            A
+          </button>
           <button 
             onClick={handleSelectClick}
+            className="remote-button"
             style={{fontSize:"30px"}}
-          >선택</button>
-          <button onClick={() => handleOptionClick("B")}>B</button>
+          >
+            선택
+          </button>
+          <button 
+            onClick={() => handleOptionClick("B")}
+            className={`remote-button ${chosenOption === "B" ? "checked" : ""}`}
+          >
+            B
+          </button>
         </div>
         <button onClick={handleResetOptions}>옵션 초기화</button>
         <p>{selectedOptions.join(", ")}</p>
