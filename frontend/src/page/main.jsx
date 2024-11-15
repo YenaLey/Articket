@@ -28,7 +28,7 @@ export default function Main() {
         <div className="main-qr">
           <QR pathname="#/upload" />
           <p onClick={() => navigate("/upload")}>
-            QR코드를 인식해서 사진을 선택해주세요
+            QR코드를 스캔해 리모콘에 접속해주세요
           </p>
         </div>
       )}

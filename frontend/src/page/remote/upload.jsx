@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
 import { ImFilePicture } from "react-icons/im";
+import { IoMdFemale } from "react-icons/io";
+import { IoMdMale } from "react-icons/io";
 import axios from "axios";
 
 export default function Upload() {
   const navigate = useNavigate();
   const { socket } = useSocket();
   const [imgPreview, setImgPreview] = useState(null);
-  const [fileName, setFileName] = useState("사진 선택하기");
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("");
@@ -26,7 +27,6 @@ export default function Upload() {
         alert("이미지 파일만 업로드할 수 있습니다.");
         return;
       }
-      setFileName(file.name);
       setImage(file);
 
       const reader = new FileReader();
@@ -45,7 +45,7 @@ export default function Upload() {
   // 이미지 업로드 함수
   const uploadImage = async () => {
     if (!image || !userName || !selectedGender) {
-      alert("사용자 이름과 성별이 입력되지 않았습니다.");
+      alert("이름, 성별, 이미지를 모두 입력해주세요.");
       return;
     }
 
@@ -73,7 +73,7 @@ export default function Upload() {
         socket.emit("operation_status", { success: true, image_path: response.data.image_path });
         console.log(response.data.image_path)
       }
-      
+
       setTimeout(() => {
         navigate("/remote");
       }, 500);
@@ -91,44 +91,46 @@ export default function Upload() {
 
       {/* 사용자 이름 입력 */}
       <div className="upload-name">
-        <p>이름과 성별을 입력해주세요!</p>
+        <p>티켓에 출력될 이름을 입력해주세요</p>
         <input
           type="text"
           placeholder="이름 입력"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
+          
         />
-        {/* 성별 선택 */}
-        <div className="gender-selection">
-          <label>
+        <p>사진 주인공의 성별을 선택해주세요</p>
+        <div className="upload-gender-selection">
+          <label
+            className={`gender-option ${selectedGender === "female" ? "selected" : ""}`}
+          >
             <input
               type="radio"
               value="female"
               checked={selectedGender === "female"}
               onChange={handleGenderChange}
+              style={{ display: "none" }}
             />
-            여자
+            <IoMdFemale/>&nbsp;여자
           </label>
-          <label>
+          <label
+            className={`gender-option ${selectedGender === "male" ? "selected" : ""}`}
+          >
             <input
               type="radio"
               value="male"
               checked={selectedGender === "male"}
               onChange={handleGenderChange}
+              style={{ display: "none" }}
             />
-            남자
+            <IoMdMale/>&nbsp;남자
           </label>
         </div>
+
       </div>
 
       {/* 파일 선택 input 및 업로드 버튼 */}
       <div className="upload-select">
-        <label
-          className={`${image ? "file-selected" : "custom-file-label"}`}
-          htmlFor="file-input"
-        >
-          {fileName}
-        </label>
         <input
           id="file-input"
           type="file"
@@ -137,23 +139,28 @@ export default function Upload() {
           style={{ display: "none" }}
         />
 
-        {imgPreview && (
-          <button onClick={uploadImage} disabled={uploading || uploadSuccess}>
-            {uploading
-              ? "업로드 중..."
-              : uploadSuccess
-              ? "업로드 완료"
-              : "이미지 업로드"}
-          </button>
-        )}
-        {/* 이미지 미리보기 */}
-        <div className="upload-image">
+        {/* label 요소로 파일 선택 트리거 */}
+        <label
+          className="upload-image"
+          htmlFor="file-input"
+        >
           {imgPreview ? (
             <img src={imgPreview} alt="미리보기" />
           ) : (
-            <ImFilePicture />
+            <>
+              <ImFilePicture />
+              <p>갤러리에서 선택하기</p>
+            </>
           )}
-        </div>
+        </label>
+
+        <button onClick={uploadImage} disabled={uploading || uploadSuccess || !imgPreview}>
+          {uploading
+            ? "업로드 중..."
+            : uploadSuccess
+              ? "업로드 완료"
+              : "사진 선택 완료"}
+        </button>
       </div>
     </div>
   );

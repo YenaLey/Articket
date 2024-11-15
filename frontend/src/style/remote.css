@@ -8,7 +8,6 @@
     justify-content: center;
     align-items: center;
     background-color: white;
-    font-family: 'Nanum Gothic';
 }
 
 .remote-container {
@@ -39,7 +38,6 @@
     border: none;
     background-color: white;
     color: black;
-    padding: 10px auto;
     aspect-ratio: 1/1;
     display: flex;
     justify-content: center;
