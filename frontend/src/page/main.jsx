@@ -6,7 +6,7 @@ import { useSocket } from "../context/SocketContext";
 
 export default function Main() {
   const navigate = useNavigate();
-  const { uploadStatus, imageUrl } = useSocket();
+  const { uploadStatus, imageUrl, receivedOptions } = useSocket();
 
   useEffect(() => {
     if (uploadStatus) {
@@ -16,6 +16,12 @@ export default function Main() {
       }
     }
   }, [uploadStatus]);
+
+  useEffect(() => {
+    if (receivedOptions[0] === "C") {
+      navigate("/test");
+    }
+  }, [receivedOptions])
 
   return (
     <div className="main-container">
