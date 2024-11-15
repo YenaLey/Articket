@@ -51,9 +51,7 @@ export default function Result() {
       setQrImageUrl(qr_image);
     } catch (error) {
       console.error(error);
-      alert(
-        "An error occurred while fetching generated images. Please try again."
-      );
+      navigate("/error");
     } finally {
       setLoading(false);
     }

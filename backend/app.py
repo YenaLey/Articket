@@ -90,7 +90,7 @@ ARTISTS = {
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'painging,<lora:gogh_xl:1>,masterpiece,best quality,Starry Night, portrait,',
+        'modifier': 'painging,<lora:gogh_xl:1>,masterpiece,best quality,Starry Night of gogh,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
@@ -202,26 +202,46 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "batch_size": 1,
         "n_iter": 1,
         "width": 1024,
-        "height": 1024
+        "height": 1024,
     }
-    print(f"Starting generation process for image variant {url_index + 1}...")
-    response = requests.post(f"{webui_url}/sdapi/v1/img2img", json=data, headers={"Content-Type": "application/json"}, timeout=120)
 
-    print(f"Response Status Code from image generator {url_index + 1}: {response.status_code}")
-    if response.status_code != 200:
-        print("Error in API call:", response.text)
-        return None
+    MAX_RETRIES = 3
+    for attempt in range(MAX_RETRIES):
+        try:
+            print(f"Attempt {attempt + 1}: Sending request to {webui_url}")
+            response = requests.post(
+                f"{webui_url}/sdapi/v1/img2img",
+                json=data,
+                headers={"Content-Type": "application/json"},
+                timeout=600
+            )
+            response.raise_for_status()
+            response_data = response.json()
 
-    try:
-        image_filename = f"{current_count}_{user_name}_result{result_number}.png"
-        generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
-        with open(generated_path, "wb") as f:
-            f.write(base64.b64decode(response.json()['images'][0]))
-        save_to_desktop(generated_path, image_filename)
-        return backend_url + '/' + generated_path.replace('./', '')
-    except Exception as e:
-        print(f"Error in decoding or saving image: {e}")
-        return None
+            image_filename = f"{current_count}_{user_name}_result{result_number}.png"
+            generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
+
+            with open(generated_path, "wb") as f:
+                f.write(base64.b64decode(response_data['images'][0]))
+
+            save_to_desktop(generated_path, image_filename)
+            return backend_url + '/' + generated_path.replace('./', '')
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed: {e}")
+            if attempt == MAX_RETRIES - 1:
+                return None
+        except (ValueError, IndexError) as e:
+            print(f"Error decoding response: {response.text}")
+            return None
+
+def generate_image_with_retry(*args, retries=3, delay=5, **kwargs):
+    for attempt in range(retries):
+        try:
+            return generate_image(*args, **kwargs)
+        except requests.exceptions.RequestException as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            time.sleep(delay)
+    return None
 
 
 '''
@@ -312,12 +332,38 @@ def generate_style_images():
     urls = [None] * len(matching_artists)
     error_occurred = False
 
-    with ThreadPoolExecutor() as executor:
-        futures = {
-            executor.submit(
-                generate_image,
+    ## 병렬 처리
+    # with ThreadPoolExecutor() as executor:
+    #     futures = {
+    #         executor.submit(
+    #             generate_image_with_retry,
+    #             image_base64,
+    #             ARTISTS[artist]['modifier'] + ('handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else 'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''),
+    #             ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
+    #             ARTISTS[artist]['steps'],
+    #             ARTISTS[artist]['denoising_strength'],
+    #             ARTISTS[artist]['cfg_scale'],
+    #             prompt,
+    #             idx + 1,
+    #             idx % len(WEBUI_URLS)
+    #         ): idx for idx, artist in enumerate(matching_artists)
+    #     }
+    #     for future in as_completed(futures):
+    #         idx = futures[future]
+    #         result = future.result()
+    #         if result is None:
+    #             error_occurred = True
+    #         urls[idx] = result
+
+    ## 순차적으로 처리
+    for idx, artist in enumerate(matching_artists):
+        try:
+            result = generate_image_with_retry(
                 image_base64,
-                ARTISTS[artist]['modifier'],
+                ARTISTS[artist]['modifier'] + (
+                    'handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else
+                    'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''
+                ),
                 ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
                 ARTISTS[artist]['steps'],
                 ARTISTS[artist]['denoising_strength'],
@@ -325,14 +371,15 @@ def generate_style_images():
                 prompt,
                 idx + 1,
                 idx % len(WEBUI_URLS)
-            ): idx for idx, artist in enumerate(matching_artists)
-        }
-        for future in as_completed(futures):
-            idx = futures[future]
-            result = future.result()
+            )
             if result is None:
                 error_occurred = True
-            urls[idx] = result
+                break
+            urls.append(result)
+        except Exception as e:
+            print(f"Error generating image for artist {artist}: {e}")
+            error_occurred = True
+            break
 
     if error_occurred:
         return jsonify({"error": "Failed to generate one or more images"}), 500
