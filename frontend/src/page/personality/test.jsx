@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import "../../style/test.css";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { IoIosArrowDropleftCircle } from "react-icons/io";
+import { TbCircleLetterAFilled } from "react-icons/tb";
+import { TbCircleLetterBFilled } from "react-icons/tb";
 import { useSocket } from "../../context/SocketContext";
 
 export default function Test() {
   const navigate = useNavigate();
-  const [selectedOptions, setSelectedOptions] = useState(Array(8).fill(null));
-  const [error, setError] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const { uploadStatus, setUploadStatus } = useSocket();
+  const { uploadStatus, setUploadStatus, receivedOptions } = useSocket();
 
   const questions = [
     {
@@ -59,39 +59,33 @@ export default function Test() {
     },
   ];
 
+  // 업로드 상태 변화에 따라 질문 진행
   useEffect(() => {
     const timer = setTimeout(() => {
       if (uploadStatus) {
         if (currentQuestion < 7) {
           setCurrentQuestion((prev) => prev + 1);
           setUploadStatus(false);
-        } else if (currentQuestion == 7) {
+        } else if (currentQuestion === 7) {
           navigate("/result");
         }
       }
     }, 100);
-    console.log(currentQuestion, uploadStatus);
 
     return () => clearTimeout(timer);
   }, [uploadStatus, currentQuestion]);
-
-  const handleOptionChange = (index, value) => {
-    const newSelectedOptions = [...selectedOptions];
-    newSelectedOptions[index] = value;
-    setSelectedOptions(newSelectedOptions);
-    setError("");
-  };
 
   const handlePrevious = () => {
     if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
   };
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1)
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
+    }
   };
 
-  const progressWidth = `${((currentQuestion + 1) / questions.length) * 84}%`;
+  const progressWidth = `${((currentQuestion) / questions.length) * 84}%`;
 
   return (
     <div className="test-container">
@@ -110,35 +104,33 @@ export default function Test() {
           <p>{uploadStatus ? "true" : "false"}</p>
           <h1>{questions[currentQuestion].question}</h1>
           <label
-            className={`checkbox-label ${
-              selectedOptions[currentQuestion] === "A" ? "checked" : ""
-            }`}
+            className={`checkbox-label ${receivedOptions[currentQuestion] === "A" ? "checked" : ""
+              }`}
           >
             <input
               type="radio"
               name={`option${currentQuestion}`}
-              checked={selectedOptions[currentQuestion] === "A"}
-              onChange={() => handleOptionChange(currentQuestion, "A")}
+              checked={receivedOptions[currentQuestion] === "A" || false}
+              readOnly
             />
-            {questions[currentQuestion].optionA}
+            <TbCircleLetterAFilled/> {questions[currentQuestion].optionA}
           </label>
           <label
-            className={`checkbox-label ${
-              selectedOptions[currentQuestion] === "B" ? "checked" : ""
-            }`}
+            className={`checkbox-label ${receivedOptions[currentQuestion] === "B" ? "checked" : ""
+              }`}
           >
             <input
               type="radio"
               name={`option${currentQuestion}`}
-              checked={selectedOptions[currentQuestion] === "B"}
-              onChange={() => handleOptionChange(currentQuestion, "B")}
+              checked={receivedOptions[currentQuestion] === "B" || false}
+              readOnly
             />
-            {questions[currentQuestion].optionB}
+            <TbCircleLetterBFilled/> {questions[currentQuestion].optionB}
           </label>
+
         </div>
       </div>
 
-      {error && <div className="test-error-message">{error}</div>}
 
       <div className="test-navigation">
         <button
@@ -152,7 +144,7 @@ export default function Test() {
           <button
             className="test-next"
             onClick={handleNext}
-            disabled={selectedOptions[currentQuestion] === null}
+            disabled={receivedOptions[currentQuestion] === null}
           >
             <IoIosArrowDroprightCircle />
           </button>

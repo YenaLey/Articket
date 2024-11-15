@@ -10,6 +10,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const [receivedOptions, setReceivedOptions] = useState([]); // 소켓으로 받은 옵션 데이터
   const location = useLocation();
 
   useEffect(() => {
@@ -33,6 +34,11 @@ export const SocketProvider = ({ children }) => {
       setImageUrl(url);
     });
 
+    newSocket.on("options_data", (data) => {
+      console.log("Received options via socket:", data.options);
+      setReceivedOptions(data.options);
+    });
+
     return () => {
       newSocket.disconnect();
       console.log("Socket disconnected");
@@ -45,7 +51,13 @@ export const SocketProvider = ({ children }) => {
 
   return (
     <SocketContext.Provider
-      value={{ socket, uploadStatus, setUploadStatus, imageUrl }}
+      value={{
+        socket,
+        uploadStatus,
+        setUploadStatus,
+        imageUrl,
+        receivedOptions,
+      }}
     >
       {children}
     </SocketContext.Provider>
