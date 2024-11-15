@@ -7,6 +7,7 @@ import Upload from "./page/remote/upload";
 import TotalResult from "./page/remote/total_result";
 import Test from "./page/personality/test";
 import Result from "./page/result";
+import ErrorPage from "./page/error";
 import Remote from "./page/remote/remote";
 
 function App() {
@@ -33,6 +34,10 @@ function App() {
 
               {/* 결과 페이지 경로 */}
               <Route path="/result" element={<Result />} />
+
+              {/* 에러 페이지 경로 */}
+              <Route path="/*" element={<ErrorPage />} />
+              <Route path="/error" element={<ErrorPage />} />
             </Routes>
           </header>
         </div>
