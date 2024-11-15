@@ -1,6 +1,6 @@
 .remote {
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     display: flex;
@@ -8,6 +8,7 @@
     justify-content: center;
     align-items: center;
     background-color: white;
+    font-family: "Nanum Gothic";
 }
 
 .remote-container {
@@ -16,14 +17,119 @@
     height: 100vh;
     background-color: #2E40a4;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 7vh;
     color: white;
+    position: relative;
+}
+
+.remote-start {
+    width: 80%;
+    padding: 8px 0;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+    background-color: #cdd5ff;
+    color: black;
+    font-size: 2rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(2px);
+        box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.remote-progress {
+    position: absolute;
+    top: 50px;
+    height: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.remote-progress-box {
+    width: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;
+    background-color: white;
+    color: black;
+    font-size: 1rem;
+    
+    &.checked {
+        background-color: #150050;
+        color: white;
+    }
+
+    &:nth-child(1) {
+        border-top-left-radius: 15px;
+        border-bottom-left-radius: 15px;
+    }
+
+    &:nth-child(8) {
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+    }
+}
+
+.remote-left,
+.remote-middle,
+.remote-right {
+    flex: 1;
+}
+
+.remote-left,
+.remote-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    & button {
+        aspect-ratio: 1/1;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        border-radius: 50%;
+        background-color: white;
+
+        &:active {
+            background-color: #5e6cba;
+            & svg {
+                color: white;
+            }
+        }
+
+        &:disabled {
+            background-color: rgba(256, 256, 256, 0.1);
+
+            & svg {
+                color: rgba(256, 256, 256, 0.2);
+            }
+        }
+    }
+    
+    & svg {
+        font-size: 5rem;
+        color: #150050;
+        position: relative;
+    }
+}
+
+.remote-left svg {
+    right: 0.2rem;
+}
+.remote-right svg {
+    left: 0.2rem;
 }
 
 .remote-button-container {
+    height: 50vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -43,7 +149,7 @@
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    font-size: 40px;
+    font-size: 2rem;
     transition: all 0.2s ease;
 
     &.checked {
@@ -51,7 +157,7 @@
         color: white;
     }
 
-    &:hover {
+    &:active {
         background-color: #5e6cba;
         color: white;
     }
