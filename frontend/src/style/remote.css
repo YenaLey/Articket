@@ -15,16 +15,34 @@
     width: 100%;
     max-width: 480px;
     height: 100vh;
-    background-color: #150050;
+    background-color: #2E40a4;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 7vh;
     color: white;
+}
+
+.remote-button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    gap: 30px;
+    background-color: #150050;
+    border-radius: 30px;
 
     & button {
-        font-size: 1.5rem;
-        width: 70%;
+        background-color: white;
+        color: black;
+        padding: 10px auto;
+        aspect-ratio: 1/1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        font-size: 40px;
     }
 }

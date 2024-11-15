@@ -21,7 +21,7 @@ export default function Main() {
     <div className="main-container">
       <div className="main-title">
         <p className="main-title-top">당신의 사진이 예술이 되는 곳</p>
-        <h4 className="main-title-title">ARTPICS</h4>
+        <h4 className="main-title-title">ARTICKET</h4>
       </div>
 
       {!imageUrl && (

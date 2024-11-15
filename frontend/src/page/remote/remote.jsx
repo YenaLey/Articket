@@ -4,10 +4,10 @@ import "../../style/remote.css";
 
 export default function Remote() {
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [chosenOption, setChosenOption] = useState([]);
   const [result, setResult] = useState(null); // 성격 결과 상태
   const [artist, setArtist] = useState(null); // 화가 이름 상태
 
-  // 컴포넌트가 처음 로드될 때 localStorage에서 selectedOptions 불러오기
   useEffect(() => {
     const storedOptions = sessionStorage.getItem("selectedOptions");
     if (storedOptions) {
@@ -15,16 +15,41 @@ export default function Remote() {
     }
   }, []);
 
-  // selectedOptions가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
 
-  // 옵션 선택 시 select-option API 호출과 함께 상태 업데이트
-  const handleButtonClick = async (option) => {
+  const handleOptionClick = async (option) => {
+    setChosenOption(option);
+
+    // chosenOption을 포함한 배열 생성, 길이가 8이 되도록 null로 채움
+    const optionsArray = Array(8).fill(null);
+    selectedOptions.forEach((opt, index) => {
+      optionsArray[index] = opt;
+    });
+    optionsArray[selectedOptions.length] = option;
+
+    try {
+      const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ options: optionsArray }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("emit-options 응답:", data.message, data.options);
+      } else {
+        console.error("/emit-options API 호출에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("/emit-options API 호출 중 오류 발생:", error);
+    }
+  };
+
+  const handleSelectClick = async () => {
     if (selectedOptions.length < 8) {
-      // 선택된 옵션 추가
-      const updatedOptions = [...selectedOptions, option];
+      const updatedOptions = [...selectedOptions, `${chosenOption}`];
       setSelectedOptions(updatedOptions);
 
       try {
@@ -38,49 +63,56 @@ export default function Remote() {
 
         // 8개의 옵션이 모두 선택되면 성격 테스트 결과 API 호출
         if (updatedOptions.length === 8) {
-          const resultResponse = await fetch(
-            `http://${
-              process.env.REACT_APP_HOST
-            }:5000/get-personality-result/${updatedOptions.join("")}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-
-          if (resultResponse.ok) {
-            const resultData = await resultResponse.json();
-            console.log("답변 왔어용~");
-            setResult(resultData.mbti); // 성격 결과 상태 저장
-            setArtist(resultData.artist); // 화가 이름 상태 저장
-          } else {
-            console.error("성격 결과를 가져오는 데 실패했습니다.");
-          }
+          fetchPersonalityResult(updatedOptions);
         }
       } catch (error) {
-        console.error("API 호출 중 오류가 발생했습니다:", error);
+        console.error("select-option API 호출 중 오류 발생:", error);
       }
-    } else {
-      console.log("모든 옵션이 이미 선택되었습니다.");
     }
   };
 
-  // selectedOptions 초기화 버튼 클릭 시 동작
+  const fetchPersonalityResult = async (updatedOptions) => {
+    try {
+      const resultResponse = await fetch(
+        `http://${process.env.REACT_APP_HOST}:5000/get-personality-result/${updatedOptions.join("")}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (resultResponse.ok) {
+        const resultData = await resultResponse.json();
+        console.log("답변 왔어용~");
+        setResult(resultData.mbti);
+        setArtist(resultData.artist);
+      } else {
+        console.error("성격 결과를 가져오는 데 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("성격 테스트 결과 API 호출 중 오류가 발생했습니다:", error);
+    }
+  };
+
   const handleResetOptions = () => {
-    sessionStorage.removeItem("selectedOptions"); // localStorage에서 selectedOptions 제거
-    setSelectedOptions([]); // 상태 초기화
+    sessionStorage.removeItem("selectedOptions");
+    setSelectedOptions([]);
     console.log("selectedOptions가 초기화되었습니다.");
   };
 
   return (
     <div className="remote">
       <div className="remote-container">
-        <button onClick={() => handleButtonClick("A")}>옵션 A</button>
-        <button onClick={() => handleButtonClick("B")}>옵션 B</button>
-        <button onClick={handleResetOptions}>옵션 초기화</button>{" "}
-        {/* 초기화 버튼 추가 */}
-        <p>{selectedOptions}</p>
-        {/* 성격 결과와 화가 이름을 화면에 출력 */}
+        <div className="remote-button-container">
+          <button onClick={() => handleOptionClick("A")}>A</button>
+          <button 
+            onClick={handleSelectClick}
+            style={{fontSize:"30px"}}
+          >선택</button>
+          <button onClick={() => handleOptionClick("B")}>B</button>
+        </div>
+        <button onClick={handleResetOptions}>옵션 초기화</button>
+        <p>{selectedOptions.join(", ")}</p>
         {result && (
           <div className="result">
             <p>성격 결과: {result}</p>
