@@ -42,7 +42,7 @@
 
 .remote-progress {
     position: absolute;
-    top: 50px;
+    top: 70px;
     height: 10px;
     display: flex;
     flex-direction: row;
@@ -160,5 +160,10 @@
     &:active {
         background-color: #5e6cba;
         color: white;
+    }
+
+    &:disabled {
+        background-color: rgba(256, 256, 256, 0.1);
+        color: rgba(256, 256, 256, 0.2);
     }
 }

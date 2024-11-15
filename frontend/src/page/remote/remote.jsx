@@ -105,8 +105,9 @@ export default function Remote() {
 
   const handleLeftClick = async () => {
     const updatedOptions = [...selectedOptions];
-    updatedOptions.pop();  // 마지막 값 삭제
-    setSelectedOptions(updatedOptions);  // 상태 업데이트
+    updatedOptions.pop(); 
+    setSelectedOptions(updatedOptions);
+    setChosenOption("");
 
     const optionsArray = Array(8).fill(null);
     updatedOptions.forEach((opt, index) => {
@@ -145,7 +146,7 @@ export default function Remote() {
   };
 
   const handleRightClick = async () => {
-    await handleOptionClick("C");
+    await handleOptionClick("D");
     await handleSelectClick();
   }
 
@@ -202,7 +203,7 @@ export default function Remote() {
             </div>
 
             <div className="remote-middle">
-              <p>{selectedOptions.length + 1} / 8</p>
+              <p>현재 질문:<br/>{selectedOptions.length + 1} / 8</p>
               <div className="remote-button-container">
                 <button
                   onClick={() => handleOptionClick("A")}
@@ -213,6 +214,7 @@ export default function Remote() {
                 <button
                   onClick={handleSelectClick}
                   className="remote-button"
+                  disabled={chosenOption === "" || chosenOption === "C"}
                   style={{ fontSize: "1.7rem" }}
                 >
                   선택
