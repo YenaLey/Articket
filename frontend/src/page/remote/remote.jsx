@@ -1,10 +1,12 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../style/remote.css";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
 export default function Remote() {
+  const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [chosenOption, setChosenOption] = useState("");
   const [start, setStart] = useState(false);
@@ -71,7 +73,9 @@ export default function Remote() {
         });
 
         if (updatedOptions.length === 8) {
-          fetchPersonalityResult(updatedOptions);
+          setSelectedOptions([]);
+          await fetchPersonalityResult(updatedOptions);
+          navigate('/m-result');
         }
 
         console.log("보낸 배열:", updatedOptions);
@@ -179,6 +183,7 @@ export default function Remote() {
           <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
         ) : (
           <React.Fragment>
+            <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
             <div className="remote-progress">
               {Array(8).fill(null).map((_, index) => {
                 const element = selectedOptions[index] || "";
