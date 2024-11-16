@@ -7,7 +7,7 @@ import { useSocket } from "../../context/SocketContext";
 
 export default function MobileResult() {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const { uploadStatus } = useSocket();
     const imgSample = [
         { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
