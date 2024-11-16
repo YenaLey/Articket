@@ -17,12 +17,16 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors 
 from io import BytesIO
+from admin import admin, init_socketio, log_progress
 
 load_dotenv(dotenv_path='../frontend/.env')
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+init_socketio(socketio)
+app.register_blueprint(admin)
 
 @app.route('/')
 def index():
@@ -56,11 +60,7 @@ for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, DESKTOP_FOLDER]:
 
 selected_artists = {}
 user_name = ''
-result_artist = ''
-upload_status = {
-    'status': 'idle',
-    'message': ''
-}   
+result_artist = '' 
 current_count = 0
 selected_gender = ''
 
@@ -190,23 +190,13 @@ def blip_interrogate(image_path):
     ## blip
     interrogate_url = f"{BLIP_URL}/generate_caption"
     response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
-
+    
     if response.status_code == 200:
-        print("CLIP interrogate request successful!")
+        print("BLIP interrogate request successful!")
         return response.json().get('caption', '')
     else:
-        print(f"CLIP interrogate request failed with status code: {response.status_code}")
+        print(f"BLIP interrogate request failed with status code: {response.status_code}")
         return None
-
-    ## blip
-    # interrogate_url = f"{BLIP_URL}/generate_caption"
-    # response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
-    # if response.status_code == 200:
-    #     print("BLIP interrogate request successful!")
-    #     return response.json().get('caption', '')
-    # else:
-    #     print(f"BLIP interrogate request failed with status code: {response.status_code}")
-    #     return None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number, url_index):
     webui_url = WEBUI_URLS[url_index % len(WEBUI_URLS)]
@@ -228,6 +218,7 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
     for attempt in range(MAX_RETRIES):
         try:
             print(f"Attempt {attempt + 1}: Sending request to {webui_url}")
+            log_progress("img2img", f"attempt{attempt+1} at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", None, "completed")
             response = requests.post(
                 f"{webui_url}/sdapi/v1/img2img",
                 json=data,
@@ -244,13 +235,18 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
                 f.write(base64.b64decode(response_data['images'][0]))
 
             save_to_desktop(generated_path, image_filename)
+            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "completed", None, "completed")
             return backend_url + '/' + generated_path.replace('./', '')
         except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
+            error_message = f"HTTP Error: {e.response.status_code} - {e.response.reason}" if e.response else str(e)
+            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "error", error_message, "error")
+            print(f"Request failed: {error_message}")
             if attempt == MAX_RETRIES - 1:
                 return None
         except (ValueError, IndexError) as e:
-            print(f"Error decoding response: {response.text}")
+            error_message = f"Response Parsing Error: {str(e)}"
+            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "error", error_message, "error")
+            print(f"Error decoding response: {error_message}")
             return None
 
 def generate_image_with_retry(*args, retries=3, delay=5, **kwargs):
@@ -327,6 +323,7 @@ def upload_image():
     selected_gender = request.args.get("gender")
     
     if not user_name or not selected_gender or 'image' not in request.files:
+        log_progress("upload image", "error", "missing required information", "error")
         return jsonify({"error": "Missing required information"}), 400
 
     file = request.files['image']
@@ -337,9 +334,12 @@ def upload_image():
     file.save(file_path)
     save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
-    upload_status.update({'status': 'completed', 'message': '이미지 업로드 완료'})
     original_image = backend_url + '/' + file_path.replace('./', '')
+
     socketio.emit('operation_status', {'success': True, 'image_path': original_image})
+
+    log_progress("upload image", "completed", None, "completed", f"{user_name}, {selected_gender}, {current_count}_{user_name}_original.png")
+
     return jsonify({"image_path": original_image}), 200
 
 
@@ -373,11 +373,15 @@ def emit_options():
 def test_result(options):
     global result_artist
     if len(options) != 8:
+        log_progress("get personality result", "error", "invalid number of options", "error")
         return jsonify({"error": "Invalid number of options"}), 400
+    
     result_artist = next((artist for artist, info in ARTISTS.items() if info['condition'](list(options.upper()))), None)
     
     if result_artist:
         socketio.emit('operation_status', {'success': True})
+        log_progress("get personality result", "completed", None, "completed", f"{options}, {result_artist}")
+
         return jsonify({"artist": result_artist, "mbti": calculate_mbti(list(options.upper()))}), 200
     else:
         return jsonify({"error": "No matching artist found"}), 400
@@ -387,46 +391,32 @@ def test_result(options):
 '''
 @app.route('/get-generated-images', methods=['POST'])
 def generate_style_images():
+
     global result_artist, selected_gender
+
     if not selected_gender:
+        log_progress("get generated images", "error", "gender information is missing", "error")
         return jsonify({"error": "Gender information is missing"}), 400
 
     if not (image_path := selected_artists.get('image_path')) or not (artist_info := ARTISTS.get(result_artist)):
+        log_progress("get generated images", "error", "missing image or result artist", "error")
         return jsonify({"error": "Missing image or result artist"}), 400
 
+    log_progress("blip api call", "completed", None, "completed")
     prompt = blip_interrogate(image_path)
     print(f"Generated caption: {prompt}")
+
     image_base64 = encode_image_to_base64(image_path)
     if not prompt:
+        log_progress("blip", "error", None, "error")
         return jsonify({"error": "Failed to interrogate image"}), 500
+    else :
+        log_progress("blip", "completed", None, "completed", f"{prompt}")
 
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
-    urls = [None] * len(matching_artists)
+    urls = []
     error_occurred = False
 
-    ## 병렬 처리
-    # with ThreadPoolExecutor() as executor:
-    #     futures = {
-    #         executor.submit(
-    #             generate_image_with_retry,
-    #             image_base64,
-    #             ARTISTS[artist]['modifier'] + (
-    #                 'handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else
-    #                 'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''
-    #             ),
-    #             ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
-    #             ARTISTS[artist]['steps'],
-    #             ARTISTS[artist]['denoising_strength'],
-    #             ARTISTS[artist]['cfg_scale'],
-    #             prompt,
-    #             idx + 1,
-    #             idx % len(WEBUI_URLS)
-    #         )
-    #         if result is None:
-    #             error_occurred = True
-    #         urls[idx] = result
-
-    ## 순차적으로 처리
     for idx, artist in enumerate(matching_artists):
         try:
             result = generate_image_with_retry(
@@ -446,36 +436,39 @@ def generate_style_images():
             if result is None:
                 error_occurred = True
                 break
-            urls[idx] = result
+            urls.append(result)
         except Exception as e:
             print(f"Error generating image for artist {artist}: {e}")
             error_occurred = True
             break
 
-    if error_occurred:
+    if error_occurred or len(urls) < len(matching_artists):
         return jsonify({"error": "Failed to generate one or more images"}), 500
-    
-    good = MATCHING_ARTISTS[result_artist]['good']
-    bad = MATCHING_ARTISTS[result_artist]['bad']
-    matching_artists = {'good': ARTISTS[good]['description'], 'bad': ARTISTS[bad]['description']}
+    else:
+        log_progress("get generated images", "completed", None, "completed")
 
     template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
     save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
 
     if not os.path.exists(template_path):
-        return jsonify({"error": f"Template file for {result_artist} not found"}), 500
+        log_progress("get ticket pdf", "error", f"Template file for {result_artist} not found", "error")
+    else:
+        pdf_result = edit_pdf_template(template_path, user_name, urls, save_path)
+        if "error" in pdf_result:
+            log_progress("get ticket pdf", "error", f"Failed to generate PDF", "error")
+        else:
+            log_progress(f"get {user_name}'s ticket pdf", "completed", None, "completed")
 
-    pdf_result = edit_pdf_template(template_path, user_name, urls, save_path)
-
-    if "error" in pdf_result:
-        return jsonify({"error": "Failed to generate PDF"}), 500
-    
     socketio.emit('operation_status', {'success': True})
+
     return jsonify({
         "user_name": user_name,
         "artist": artist_info['description'],
-        "matching_artists": matching_artists,
-        "original_image" : backend_url + '/' + selected_artists.get('image_path').replace('./', ''),
+        "matching_artists": {
+            "good": ARTISTS[MATCHING_ARTISTS[result_artist]['good']]['description'],
+            "bad": ARTISTS[MATCHING_ARTISTS[result_artist]['bad']]['description']
+        },
+        "original_image": backend_url + '/' + selected_artists.get('image_path').replace('./', ''),
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'
     }), 200
@@ -484,6 +477,10 @@ if __name__ == '__main__':
     try:
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
-        app.run(debug=True, host=REACT_APP_HOST, port=PORT)
+        print(f"관리자 페이지 보려면: {backend_url}/admin")
+        socketio.run(app, debug=True, host=REACT_APP_HOST, port=PORT)
     except Exception as e:
+        log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
         print(f"Flask 서버 실행 중 오류 발생: {e}")
+    finally:
+        log_progress("server_shutdown", "error", "Server is shutting down", "error")
