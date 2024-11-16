@@ -16,11 +16,15 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const who = ["나의 화가 유형", "나와 찰떡인 화가", "나와 상극인 화가"];
   const artists_summary = {
-    '세련된 일상의 리히텐슈타인': "일상에 신선한 시각을 더하며 다재다능함을 발휘하는 창의적인 예술가",
-    '감정과 열정의 섬세한 고흐': "삶의 깊이를 탐구하며 위로와 영감을 전하는 진지한 예술가",
-    '대담하고 창의적인 피카소': "새로운 길을 개척하며 성장을 이끄는 창의적인 리더형 예술가",
-    '낙천적이고 따뜻한 르누아르': "따뜻한 색감과 넘치는 표현으로 사람들과의 조화로운 관계와 삶의 아름다움을 찬미한 낙천적인 예술가"
-  }
+    "세련된 일상의 리히텐슈타인":
+      "일상에 신선한 시각을 더하며 다재다능함을 발휘하는 창의적인 예술가",
+    "감정과 열정의 섬세한 고흐":
+      "삶의 깊이를 탐구하며 위로와 영감을 전하는 진지한 예술가",
+    "대담하고 창의적인 피카소":
+      "새로운 길을 개척하며 성장을 이끄는 창의적인 리더형 예술가",
+    "낙천적이고 따뜻한 르누아르":
+      "따뜻한 색감과 넘치는 표현으로 사람들과의 조화로운 관계와 삶의 아름다움을 찬미한 낙천적인 예술가",
+  };
 
   // 기본 화가 이미지 샘플
   const imgSample = [
@@ -47,7 +51,13 @@ export default function Result() {
 
       const generatedResult = await response.json();
       console.log(generatedResult);
-      const { user_name, artist, matching_artists, original_image, generated_image } = generatedResult;
+      const {
+        user_name,
+        artist,
+        matching_artists,
+        original_image,
+        generated_image,
+      } = generatedResult;
 
       setUserName(user_name);
       setArtist(artist);
@@ -59,12 +69,11 @@ export default function Result() {
 
       if (socket && generated_image) {
         socket.emit("operation_status", { success: true });
-        console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~")
+        console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
       }
-
     } catch (error) {
       console.error(error);
-      navigate("/error");
+      navigate("/");
     } finally {
       setLoading(false);
     }
@@ -83,7 +92,11 @@ export default function Result() {
         <div className="loading-container">
           <div className="loading-img-container">
             {imgSample.map((element, index) => (
-              <div className="loading-img" key={index} style={{ "--delay": `${index * 0.5}s` }}>
+              <div
+                className="loading-img"
+                key={index}
+                style={{ "--delay": `${index * 0.5}s` }}
+              >
                 <p>{element.artist}</p>
                 <img
                   src={process.env.PUBLIC_URL + element.src}
@@ -102,7 +115,9 @@ export default function Result() {
       ) : (
         <div className="result-result">
           <div className="result-description">
-            <h4><span>{userName}</span> 의 예술가 유형은?</h4>
+            <h4>
+              <span>{userName}</span> 의 예술가 유형은?
+            </h4>
             <h2>{artist}</h2>
             <p>{artists_summary[artist]}</p>
           </div>
@@ -117,13 +132,18 @@ export default function Result() {
               generatedImageUrls.map((url, index) => {
                 if (url === null) return null;
 
-
                 return (
                   <div className="result-img" key={index}>
-                    <p style={{ fontSize: "1.5rem" }}>{who[index] || "정보 없음"}</p>
+                    <p style={{ fontSize: "1.5rem" }}>
+                      {who[index] || "정보 없음"}
+                    </p>
                     <img src={url} alt={`generated ${index + 1}`} />
                     <p>
-                      {index === 0 ? artist : index === 1 ? matchingArtists['good'] : matchingArtists['bad']}
+                      {index === 0
+                        ? artist
+                        : index === 1
+                        ? matchingArtists["good"]
+                        : matchingArtists["bad"]}
                     </p>
                   </div>
                 );
@@ -131,7 +151,6 @@ export default function Result() {
             ) : (
               <p>생성된 이미지가 없습니다.</p>
             )}
-
           </div>
 
           {/* <div className="qr-container">
