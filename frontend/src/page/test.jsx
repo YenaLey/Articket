@@ -79,7 +79,7 @@ export default function Test() {
     }, 100);
   
     return () => clearTimeout(timer);
-  }, [uploadStatus, receivedOptions]);
+  }, [uploadStatus, receivedOptions, navigate, setUploadStatus]);
   
 
   const handlePrevious = () => {
