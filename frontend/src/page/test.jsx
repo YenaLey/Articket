@@ -1,12 +1,12 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../style/test.css";
+import "../style/test.css"
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { IoIosArrowDropleftCircle } from "react-icons/io";
 import { TbCircleLetterAFilled } from "react-icons/tb";
 import { TbCircleLetterBFilled } from "react-icons/tb";
-import { useSocket } from "../../context/SocketContext";
+import { useSocket } from "../context/SocketContext";
 
 export default function Test() {
   const navigate = useNavigate();

@@ -3,13 +3,13 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { SocketProvider } from "./context/SocketContext";
 import "./App.css";
 import Main from "./page/main";
-import Upload from "./page/remote/upload";
-import TotalResult from "./page/remote/total_result";
-import Test from "./page/personality/test";
+import Upload from "./page/mobile/upload";
+import TotalResult from "./page/mobile/total_result/total_result";
+import Test from "./page/test";
 import Result from "./page/result";
 import ErrorPage from "./page/error";
-import Remote from "./page/remote/remote";
-import MobileResult from "./page/remote/mobile_result";
+import Remote from "./page/mobile/remote";
+import MobileResult from "./page/mobile/mobile_result";
 
 function App() {
   return (

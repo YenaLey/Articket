@@ -47,6 +47,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     setUploadStatus(false);
+    setImageUrl(null);
   }, [location.pathname]);
 
   return (

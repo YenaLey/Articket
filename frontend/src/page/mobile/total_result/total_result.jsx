@@ -1,5 +1,5 @@
 import React from "react";
-import "../../style/total_result.css";
+import "../../../style/total_result.css";
 
 export default function TotalResult() {
   return (
