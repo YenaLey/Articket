@@ -35,54 +35,54 @@ export default function Result() {
   ];
 
   // 생성된 이미지와 기타 데이터 가져오기
-  const getGeneratedImages = async () => {
-    try {
-      const response = await fetch(
-        `http://${process.env.REACT_APP_HOST}:5000/get-generated-images`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch generated images");
-      }
-
-      const generatedResult = await response.json();
-      console.log(generatedResult);
-      const {
-        user_name,
-        artist,
-        matching_artists,
-        original_image,
-        generated_image,
-      } = generatedResult;
-
-      setUserName(user_name);
-      setArtist(artist);
-      setMatchingArtists(matching_artists);
-      setOriginalImage(original_image);
-      setGeneratedImageUrls(
-        Array.isArray(generated_image) ? generated_image : [generated_image]
-      );
-
-      if (socket && generated_image) {
-        socket.emit("operation_status", { success: true });
-        console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
-      }
-    } catch (error) {
-      console.error(error);
-      navigate("/");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 컴포넌트가 마운트될 때 API 호출
   useEffect(() => {
+    const getGeneratedImages = async () => {
+      try {
+        const response = await fetch(
+          `http://${process.env.REACT_APP_HOST}:5000/get-generated-images`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch generated images");
+        }
+  
+        const generatedResult = await response.json();
+        console.log(generatedResult);
+        const {
+          user_name,
+          artist,
+          matching_artists,
+          original_image,
+          generated_image,
+        } = generatedResult;
+  
+        setUserName(user_name);
+        setArtist(artist);
+        setMatchingArtists(matching_artists);
+        setOriginalImage(original_image);
+        setGeneratedImageUrls(
+          Array.isArray(generated_image) ? generated_image : [generated_image]
+        );
+  
+        if (socket && generated_image) {
+          socket.emit("operation_status", { success: true });
+          console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
+        }
+      } catch (error) {
+        console.error(error);
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     getGeneratedImages();
-  }, [getGeneratedImages]);
+  }, [navigate, socket]);
+  
 
   return (
     <div className="result-container">
