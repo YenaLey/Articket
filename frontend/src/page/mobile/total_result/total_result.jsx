@@ -20,9 +20,9 @@ export default function TotalResult() {
 
   const gradients = [
     "linear-gradient(to bottom, #e37900, #261400)",
-    "linear-gradient(to bottom, #00682B 79%, #00210D)",
-    "linear-gradient(to bottom, #ca0000 63%, #330000)",
-    "linear-gradient(to bottom, #0196b7 63%, #002D37)",
+    "linear-gradient(to bottom, #00682B, #00210D)",
+    "linear-gradient(to bottom, #ca0000, #330000)",
+    "linear-gradient(to bottom, #0196b7, #002D37)",
   ];
 
   const scrollToTopRef = useRef(null);
