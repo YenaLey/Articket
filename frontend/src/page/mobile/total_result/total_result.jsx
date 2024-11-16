@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import "../../../style/total_result.css";
 import { adata } from "./artist_data";
+import { GoMoveToTop } from "react-icons/go";
 
 export default function TotalResult() {
   const [index, setIndex] = useState(0);
@@ -37,6 +38,9 @@ export default function TotalResult() {
         style={{ backgroundColor: color[index].backgroundColor }}
       >
         <div ref={scrollToTopRef} className="total-top"/>
+        <button className="total-floating" onClick={scrollToTop}>
+          <GoMoveToTop />
+        </button> 
         <div className="total-button-container">
           {adata.map((element, num) => (
             <button
