@@ -57,10 +57,10 @@ export default function Result() {
         Array.isArray(generated_image) ? generated_image : [generated_image]
       );
 
-      if ( socket && generated_image ){
+      if (socket && generated_image) {
         socket.emit("operation_status", { success: true });
         console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~")
-      } 
+      }
 
     } catch (error) {
       console.error(error);
@@ -109,26 +109,22 @@ export default function Result() {
 
           <div className="result-img-container">
             <div className="result-img">
-              <p style={{fontSize:"1.5rem"}}>원본사진</p>
+              <p style={{ fontSize: "1.5rem" }}>원본사진</p>
               <img src={originalImage} alt="원본" />
-              <p></p>
+              <p>&nbsp;</p>
             </div>
             {generatedImageUrls.length > 0 ? (
               generatedImageUrls.map((url, index) => {
                 if (url === null) return null;
 
-                // matchingArtists는 객체이므로, 배열 형태로 변환 후 사용
-                const artistsArray = Object.values(matchingArtists);
 
                 return (
                   <div className="result-img" key={index}>
-                    <p style={{fontSize:"1.5rem"}}>{who[index] || "정보 없음"}</p>
+                    <p style={{ fontSize: "1.5rem" }}>{who[index] || "정보 없음"}</p>
                     <img src={url} alt={`generated ${index + 1}`} />
-                    {index === 0 ?
-                      <p>{artist}</p>
-                      : <p>{artistsArray[index - 1] || "매칭된 화가 없음"}</p>
-                    }
-
+                    <p>
+                      {index === 0 ? artist : index === 1 ? matchingArtists['good'] : matchingArtists['bad']}
+                    </p>
                   </div>
                 );
               })
