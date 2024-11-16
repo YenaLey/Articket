@@ -45,7 +45,6 @@ export default function Main() {
             <img src={imageUrl} alt="업로드된 이미지" />
           </div>
           <p>사진이 업로드 되었습니다</p>
-          <button onClick={()=>navigate('/test')}>예술가 유형 검사하기</button>
         </div>
       )}
     </div>
