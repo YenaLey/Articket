@@ -6,3 +6,5 @@ python-dotenv
 pytz
 flask-cors
 flask-socketio
+reportlab
+PyPDF2
