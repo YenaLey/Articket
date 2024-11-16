@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
@@ -17,6 +17,15 @@ export default function Upload() {
   const [userName, setUserName] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [hasParticipated, setHasParticipated] = useState(false);
+
+  // 참여 여부 확인
+  useEffect(() => {
+    const participated = localStorage.getItem("hasParticipated");
+    if (participated === "true") {
+      setHasParticipated(true);
+    }
+  }, []);
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
@@ -67,11 +76,16 @@ export default function Upload() {
       );
       console.log("이미지 업로드 성공:", response.data);
       alert("이미지 업로드가 완료되었습니다.");
+      localStorage.setItem("hasParticipated", "true");
+      setHasParticipated(true);
       setUploadSuccess(true);
 
       if (socket && response.data.image_path) {
-        socket.emit("operation_status", { success: true, image_path: response.data.image_path });
-        console.log(response.data.image_path)
+        socket.emit("operation_status", {
+          success: true,
+          image_path: response.data.image_path,
+        });
+        console.log(response.data.image_path);
       }
 
       setTimeout(() => {
@@ -97,12 +111,14 @@ export default function Upload() {
           placeholder="이름 입력"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          
+          disabled={hasParticipated}
         />
         <p>사진 주인공의 성별을 선택해주세요</p>
         <div className="upload-gender-selection">
           <label
-            className={`gender-option ${selectedGender === "female" ? "selected" : ""}`}
+            className={`gender-option ${
+              selectedGender === "female" ? "selected" : ""
+            }`}
           >
             <input
               type="radio"
@@ -110,11 +126,15 @@ export default function Upload() {
               checked={selectedGender === "female"}
               onChange={handleGenderChange}
               style={{ display: "none" }}
+              disabled={hasParticipated}
             />
-            <IoMdFemale/>&nbsp;여자
+            <IoMdFemale />
+            &nbsp;여자
           </label>
           <label
-            className={`gender-option ${selectedGender === "male" ? "selected" : ""}`}
+            className={`gender-option ${
+              selectedGender === "male" ? "selected" : ""
+            }`}
           >
             <input
               type="radio"
@@ -122,11 +142,12 @@ export default function Upload() {
               checked={selectedGender === "male"}
               onChange={handleGenderChange}
               style={{ display: "none" }}
+              disabled={hasParticipated}
             />
-            <IoMdMale/>&nbsp;남자
+            <IoMdMale />
+            &nbsp;남자
           </label>
         </div>
-
       </div>
 
       {/* 파일 선택 input 및 업로드 버튼 */}
@@ -137,11 +158,12 @@ export default function Upload() {
           accept="image/*"
           onChange={handleFileChange}
           style={{ display: "none" }}
+          disabled={hasParticipated}
         />
 
         {/* label 요소로 파일 선택 트리거 */}
         <label
-          className="upload-image"
+          className={`upload-image ${hasParticipated ? "disabled" : ""}`}
           htmlFor="file-input"
         >
           {imgPreview ? (
@@ -154,12 +176,19 @@ export default function Upload() {
           )}
         </label>
 
-        <button onClick={uploadImage} disabled={uploading || uploadSuccess || !imgPreview}>
-          {uploading
+        <button
+          onClick={uploadImage}
+          disabled={
+            uploading || uploadSuccess || !imgPreview || hasParticipated
+          }
+        >
+          {hasParticipated
+            ? "참여 완료"
+            : uploading
             ? "업로드 중..."
             : uploadSuccess
-              ? "업로드 완료"
-              : "사진 선택 완료"}
+            ? "업로드 완료"
+            : "사진 선택 완료"}
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/main.css";
 import QR from "./qr";
@@ -9,7 +9,7 @@ export default function Main() {
   const { uploadStatus, imageUrl, receivedOptions } = useSocket();
 
   useEffect(() => {
-    const timer = setTimeout(()=> {
+    const timer = setTimeout(() => {
       if (uploadStatus) {
         console.log("업로드 성공 상태가 true로 변경됨!");
         if (imageUrl) {
@@ -25,7 +25,7 @@ export default function Main() {
     if (receivedOptions[0] === "C") {
       navigate("/test");
     }
-  }, [receivedOptions])
+  }, [receivedOptions]);
 
   return (
     <div className="main-container">
@@ -36,8 +36,8 @@ export default function Main() {
 
       {!imageUrl && (
         <div className="main-qr">
-          <QR pathname="#/upload" />
-          <p onClick={() => navigate("/upload")}>
+          <QR pathname={`#/upload`} />
+          <p onClick={() => navigate(`#/upload`)}>
             QR코드를 스캔해 리모콘에 접속해주세요
           </p>
         </div>
