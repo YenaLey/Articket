@@ -9,6 +9,14 @@ import time
 from flasgger import Swagger
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A5
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib import colors 
+from io import BytesIO
 
 load_dotenv(dotenv_path='../frontend/.env')
 
@@ -169,7 +177,7 @@ def blip_interrogate(image_path):
 
     ## clip
     # image_base64 = encode_image_to_base64(image_path)
-    # interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
+    # interrogate_url = f"{WEBUI_URLS[0]}/sdapi/v1/interrogate"
     # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
     # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
     # if response.status_code == 200:
@@ -242,6 +250,59 @@ def generate_image_with_retry(*args, retries=3, delay=5, **kwargs):
             print(f"Attempt {attempt + 1} failed: {e}")
             time.sleep(delay)
     return None
+
+pdfmetrics.registerFont(TTFont('Pretendard', './font/Pretendard-Thin.ttf'))
+
+def edit_pdf_template(template_path, user_name, urls, save_path):
+    try:
+        reader = PdfReader(template_path)
+        writer = PdfWriter()
+
+        page_width, page_height = A5
+
+        img_width = [137, 130, 130]
+        img_height = [143, 130, 130]
+
+        for page_number, page in enumerate(reader.pages):
+            packet = BytesIO()
+            can = canvas.Canvas(packet, pagesize=(page_width, page_height))
+
+            can.setFont("Pretendard", 9)
+            can.setFillColor(colors.white)
+            can.drawString(275, 428, f"{user_name}")
+
+            x_position = [14, 242, 48]
+            y_position = [426, 227, 42]
+            for idx, img_url in enumerate(urls):
+                if idx >= 3:
+                    break
+                try:
+                    response = requests.get(img_url, stream=True)
+                    response.raise_for_status()
+                    img = ImageReader(response.raw)
+
+                    can.drawImage(img, x_position[idx], y_position[idx], img_width[idx], img_height[idx])
+                except Exception as e:
+                    print(f"Error adding image {img_url}: {e}")
+
+            can.save()
+            packet.seek(0)
+
+            overlay_reader = PdfReader(packet)
+            overlay_page = overlay_reader.pages[0]
+            page.merge_page(overlay_page)
+
+            writer.add_page(page)
+
+        with open(save_path, "wb") as output_pdf:
+            writer.write(output_pdf)
+
+        print(f"PDF saved to {save_path}")
+        return {"message": "PDF generated successfully"}
+
+    except Exception as e:
+        print(f"Error editing PDF template: {e}")
+        return {"error": "Failed to edit PDF template"}
 
 
 '''
@@ -375,7 +436,7 @@ def generate_style_images():
             if result is None:
                 error_occurred = True
                 break
-            urls.append(result)
+            urls[idx] = result
         except Exception as e:
             print(f"Error generating image for artist {artist}: {e}")
             error_occurred = True
@@ -387,6 +448,17 @@ def generate_style_images():
     good = MATCHING_ARTISTS[result_artist]['good']
     bad = MATCHING_ARTISTS[result_artist]['bad']
     matching_artists = {'good': ARTISTS[good]['description'], 'bad': ARTISTS[bad]['description']}
+
+    template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
+    save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
+
+    if not os.path.exists(template_path):
+        return jsonify({"error": f"Template file for {result_artist} not found"}), 500
+
+    pdf_result = edit_pdf_template(template_path, user_name, urls, save_path)
+
+    if "error" in pdf_result:
+        return jsonify({"error": "Failed to generate PDF"}), 500
     
     socketio.emit('operation_status', {'success': True})
     return jsonify({
@@ -397,7 +469,6 @@ def generate_style_images():
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'
     }), 200
-
 
 if __name__ == '__main__':
     try:
