@@ -108,7 +108,6 @@ export default function Test() {
 
         <div className="test-box">
           <p>{currentQuestion + 1}/8</p>
-          <p>{uploadStatus ? "true" : "false"}</p>
           <h1>{questions[currentQuestion].question}</h1>
           <label
             className={`checkbox-label ${receivedOptions[currentQuestion] === "A" ? "checked" : ""}`}

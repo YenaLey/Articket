@@ -9,12 +9,16 @@ export default function Main() {
   const { uploadStatus, imageUrl, receivedOptions } = useSocket();
 
   useEffect(() => {
-    if (uploadStatus) {
-      console.log("업로드 성공 상태가 true로 변경됨!");
-      if (imageUrl) {
-        console.log("받은 이미지 URL:", imageUrl);
+    const timer = setTimeout(()=> {
+      if (uploadStatus) {
+        console.log("업로드 성공 상태가 true로 변경됨!");
+        if (imageUrl) {
+          console.log("받은 이미지 URL:", imageUrl);
+        }
       }
-    }
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [uploadStatus]);
 
   useEffect(() => {
