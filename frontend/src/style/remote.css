@@ -40,6 +40,12 @@
     }
 }
 
+.remote-progress-dc {
+    position: absolute;
+    top: 20px;
+    font-size: 1rem;
+}
+
 .remote-progress {
     position: absolute;
     top: 70px;

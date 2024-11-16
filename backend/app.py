@@ -168,26 +168,26 @@ def encode_image_to_base64(image_path):
 def blip_interrogate(image_path):
 
     ## clip
-    # image_base64 = encode_image_to_base64(image_path)
-    # interrogate_url = f"{WEBUI_URL}/sdapi/v1/interrogate"
-    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
-    # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
-    # if response.status_code == 200:
-    #     print("CLIP interrogate request successful!")
-    #     return response.json().get('caption', '')
-    # else:
-    #     print(f"CLIP interrogate request failed with status code: {response.status_code}")
-    #     return None
-
-    ## blip
-    interrogate_url = f"{BLIP_URL}/generate_caption"
-    response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    image_base64 = encode_image_to_base64(image_path)
+    interrogate_url = f"{WEBUI_URLS[0]}/sdapi/v1/interrogate"
+    interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
+    response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
     if response.status_code == 200:
-        print("BLIP interrogate request successful!")
+        print("CLIP interrogate request successful!")
         return response.json().get('caption', '')
     else:
-        print(f"BLIP interrogate request failed with status code: {response.status_code}")
+        print(f"CLIP interrogate request failed with status code: {response.status_code}")
         return None
+
+    ## blip
+    # interrogate_url = f"{BLIP_URL}/generate_caption"
+    # response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    # if response.status_code == 200:
+    #     print("BLIP interrogate request successful!")
+    #     return response.json().get('caption', '')
+    # else:
+    #     print(f"BLIP interrogate request failed with status code: {response.status_code}")
+    #     return None
 
 def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number, url_index):
     webui_url = WEBUI_URLS[url_index % len(WEBUI_URLS)]
@@ -338,7 +338,10 @@ def generate_style_images():
     #         executor.submit(
     #             generate_image_with_retry,
     #             image_base64,
-    #             ARTISTS[artist]['modifier'] + ('handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else 'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''),
+    #             ARTISTS[artist]['modifier'] + (
+    #                 'handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else
+    #                 'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''
+    #             ),
     #             ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
     #             ARTISTS[artist]['steps'],
     #             ARTISTS[artist]['denoising_strength'],
@@ -346,11 +349,7 @@ def generate_style_images():
     #             prompt,
     #             idx + 1,
     #             idx % len(WEBUI_URLS)
-    #         ): idx for idx, artist in enumerate(matching_artists)
-    #     }
-    #     for future in as_completed(futures):
-    #         idx = futures[future]
-    #         result = future.result()
+    #         )
     #         if result is None:
     #             error_occurred = True
     #         urls[idx] = result

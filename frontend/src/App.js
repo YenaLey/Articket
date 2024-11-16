@@ -9,6 +9,7 @@ import Test from "./page/personality/test";
 import Result from "./page/result";
 import ErrorPage from "./page/error";
 import Remote from "./page/remote/remote";
+import MobileResult from "./page/remote/mobile_result";
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
 
               {/* 성격 검사 페이지 remote 경로 */}
               <Route path="/remote" element={<Remote />} />
+
+              {/* 결과 페이지 remote 경로 */}
+              <Route path="/m-result" element={<MobileResult />} />
 
               {/* 성격 검사 페이지 경로 */}
               <Route path="/test" element={<Test />} />
