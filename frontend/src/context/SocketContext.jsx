@@ -48,6 +48,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     setUploadStatus(false);
     setImageUrl(null);
+    setReceivedOptions([]);
   }, [location.pathname]);
 
   return (
