@@ -27,6 +27,17 @@ export default function MobileResult() {
         return () => clearTimeout(timer);
     }, [uploadStatus]);
 
+    useEffect(()=> {
+        const storedLoading = sessionStorage.getItem("loading");
+        if (storedLoading === "false") {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        sessionStorage.setItem("loading", loading.toString());
+    }, [loading]);
+
     return (
         <div className="mresult">
             <div className="mresult-container">
