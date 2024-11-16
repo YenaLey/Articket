@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/main.css";
 import QR from "./qr";
@@ -19,13 +19,13 @@ export default function Main() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [uploadStatus]);
+  }, [uploadStatus, imageUrl]);
 
   useEffect(() => {
     if (receivedOptions[0] === "C") {
       navigate("/test");
     }
-  }, [receivedOptions]);
+  }, [receivedOptions, navigate]);
 
   return (
     <div className="main-container">

@@ -82,7 +82,7 @@ export default function Result() {
   // 컴포넌트가 마운트될 때 API 호출
   useEffect(() => {
     getGeneratedImages();
-  }, []);
+  }, [getGeneratedImages]);
 
   return (
     <div className="result-container">
