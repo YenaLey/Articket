@@ -118,7 +118,7 @@ ARTISTS = {
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painting,style of Auguste Renoir, <lora:renoir2_xl:1>,masterpiece,best quality, portrait,',
+        'modifier': 'oil painting,style of Auguste Renoir,  <lora:renior2_xl:1>,masterpiece,best quality, portrait,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
@@ -266,7 +266,8 @@ def edit_pdf_template(template_path, user_name, urls, save_path):
                 if idx >= 3:
                     break
                 try:
-                    response = requests.get(img_url, stream=True)
+                    image_url = img_url.replace('\\', '/')
+                    response = requests.get(image_url, stream=True)
                     response.raise_for_status()
                     img = ImageReader(response.raw)
 
@@ -378,7 +379,7 @@ def generate_images():
         selected_artists['generated_images'][artist_name] = result
 
     log_progress("generate images", "completed", None, "completed")
-    socketio.emit('operation_status', {'success': True})
+    socketio.emit('operation_status', {'image_success': True})
 
     return jsonify({"message": "Images generated successfully"}), 200
 
