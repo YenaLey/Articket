@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import "../../style/remote.css";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import { useSocket } from "../../context/SocketContext";
 
 export default function Remote() {
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState(Array(8).fill(null));
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [chosenOption, setChosenOption] = useState("");
   const [start, setStart] = useState(false);
   const [done, setDone] = useState(false);
-  const { questionIndex } = useSocket();
 
   // session storage 설정
   useEffect(() => {
@@ -30,6 +29,14 @@ export default function Remote() {
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
     }
+
+    const storedIndex = sessionStorage.getItem("currentIndex");
+    if (storedIndex === undefined || storedIndex === null) {
+      setCurrentIndex(0);
+    } else {
+      setCurrentIndex(Number(storedIndex));
+    }
+    
   }, []);
 
   useEffect(() => {
@@ -40,12 +47,16 @@ export default function Remote() {
     sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
 
+  useEffect(()=> {
+    sessionStorage.setItem("currentIndex", JSON.stringify(currentIndex));
+  }, [currentIndex]);
+
   // 옵션 A or B 클릭 시 /emit-options 호출
   const handleOptionClick = async (option) => {
     setChosenOption(option);
 
     const optionsArray = [...selectedOptions];
-    optionsArray[questionIndex] = option;
+    optionsArray[currentIndex] = option;
 
     try {
       const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
@@ -69,7 +80,7 @@ export default function Remote() {
   const handleSelectClick = async () => {
     if (selectedOptions.includes("") || selectedOptions.includes(null)) {
       const updatedOptions = [...selectedOptions];
-      updatedOptions[questionIndex] = chosenOption;
+      updatedOptions[currentIndex] = chosenOption;
       setSelectedOptions(updatedOptions);
       setChosenOption("");
   
@@ -81,10 +92,11 @@ export default function Remote() {
           },
         });
   
-        if (questionIndex !== null && questionIndex !== 7) {
-          let newIndex = questionIndex;
-          if (questionIndex !== 7) {
+        if (currentIndex !== null && currentIndex !== 7) {
+          let newIndex = currentIndex;
+          if (currentIndex !== 7) {
             newIndex = newIndex + 1;
+            setCurrentIndex(currentIndex + 1);
           }
           const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
             method: "POST",
@@ -138,8 +150,9 @@ export default function Remote() {
 
   // 왼쪽 방향키 클릭
   const handleLeftClick = async () => {
-    if (questionIndex !== null && questionIndex > 0) {
-      const newIndex = questionIndex - 1;
+    if (currentIndex !== null && currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(currentIndex - 1);
       try {
         const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
           method: "POST",
@@ -162,8 +175,9 @@ export default function Remote() {
 
   // 오른쪽 방향키 클릭
   const handleRightClick = async () => {
-    if (questionIndex !== null && questionIndex < 7) {
-      const newIndex = questionIndex + 1;
+    if (currentIndex !== null && currentIndex < 7) {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(currentIndex + 1);
       try {
         const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
           method: "POST",
@@ -206,7 +220,7 @@ export default function Remote() {
             <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
           ) : (
             <React.Fragment>
-              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다{questionIndex}{selectedOptions}</p>
+              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다{currentIndex}{selectedOptions}</p>
               <div className="remote-progress"> 
                 {Array(8).fill(null).map((_, index) => {
                   const element = selectedOptions[index] || "";
@@ -231,11 +245,11 @@ export default function Remote() {
               </div>
 
               <div className="remote-middle">
-                <p>현재 질문:<br />{questionIndex + 1} / 8</p>
+                <p>현재 질문:<br />{currentIndex + 1} / 8</p>
                 <div className="remote-button-container">
                   <button
                     onClick={() => handleOptionClick("A")}
-                    className={`remote-button ${selectedOptions[questionIndex] === "A" || chosenOption === "A" ? "checked" : ""}`}
+                    className={`remote-button ${selectedOptions[currentIndex] === "A" || chosenOption === "A" ? "checked" : ""}`}
                   >
                     A
                   </button>
@@ -249,7 +263,7 @@ export default function Remote() {
                   </button>
                   <button
                     onClick={() => handleOptionClick("B")}
-                    className={`remote-button ${selectedOptions[questionIndex] === "B" || chosenOption === "B" ? "checked" : ""}`}
+                    className={`remote-button ${selectedOptions[currentIndex] === "B" || chosenOption === "B" ? "checked" : ""}`}
                   >
                     B
                   </button>
