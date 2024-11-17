@@ -47,11 +47,11 @@ export default function Result() {
                 headers: { "Content-Type": "application/json" },
               }
             );
-  
+
             if (!response.ok) {
               throw new Error("Failed to fetch generated images");
             }
-  
+
             const generatedResult = await response.json();
             console.log(generatedResult);
             const {
@@ -61,15 +61,17 @@ export default function Result() {
               original_image,
               generated_image,
             } = generatedResult;
-  
+
             setUserName(user_name);
             setArtist(artist);
             setMatchingArtists(matching_artists);
             setOriginalImage(original_image);
             setGeneratedImageUrls(
-              Array.isArray(generated_image) ? generated_image : [generated_image]
+              Array.isArray(generated_image)
+                ? generated_image
+                : [generated_image]
             );
-  
+
             if (socket && generated_image) {
               socket.emit("operation_status", { success: true });
               console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
@@ -83,10 +85,10 @@ export default function Result() {
         })();
       }
     }, 5000);
-  
+
     return () => clearTimeout(timer);
   }, [imageStatus, socket, navigate]);
-  
+
   // 이미지 변환 중 오류 발생 시 main화면으로 navigate
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -95,8 +97,8 @@ export default function Result() {
       }
     }, 4000);
 
-    return () => clearTimeout(timer)
-  }, [errorStatus, navigate])
+    return () => clearTimeout(timer);
+  }, [errorStatus, navigate]);
 
   return (
     <div className="result-container">

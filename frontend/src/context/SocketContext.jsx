@@ -67,7 +67,7 @@ export const SocketProvider = ({ children }) => {
       setErrorStatus(false);
     }
   }, [location.pathname]);
-  
+
   return (
     <SocketContext.Provider
       value={{
@@ -77,7 +77,7 @@ export const SocketProvider = ({ children }) => {
         imageUrl,
         imageStatus,
         receivedOptions,
-        errorStatus
+        errorStatus,
       }}
     >
       {children}

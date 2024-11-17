@@ -16,6 +16,7 @@
       const socket = io();
       const logContainer = document.getElementById("log-container");
 
+      // 현재 한국 시간 반환
       function getKoreanTime() {
         const now = new Date();
         const kstOffset = 9 * 60 * 60 * 1000;
