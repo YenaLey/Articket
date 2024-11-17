@@ -153,6 +153,7 @@ export default function Remote() {
     if (currentIndex !== null && currentIndex > 0) {
       const newIndex = currentIndex - 1;
       setCurrentIndex(currentIndex - 1);
+      setChosenOption("");
       try {
         const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
           method: "POST",
@@ -178,6 +179,7 @@ export default function Remote() {
     if (currentIndex !== null && currentIndex < 7) {
       const newIndex = currentIndex + 1;
       setCurrentIndex(currentIndex + 1);
+      setChosenOption("");
       try {
         const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
           method: "POST",
