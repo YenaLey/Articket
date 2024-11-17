@@ -24,7 +24,7 @@ export default function Upload() {
   useEffect(() => {
     const participated = localStorage.getItem("hasParticipated");
     if (participated === "true") {
-      setHasParticipated(true);
+      setHasParticipated(false);
     }
   }, []);
 

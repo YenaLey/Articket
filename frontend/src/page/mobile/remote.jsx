@@ -220,7 +220,7 @@ export default function Remote() {
             <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
           ) : (
             <React.Fragment>
-              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다{currentIndex}{selectedOptions}</p>
+              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
               <div className="remote-progress"> 
                 {Array(8).fill(null).map((_, index) => {
                   const element = selectedOptions[index] || "";
