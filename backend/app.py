@@ -347,6 +347,7 @@ def generate_images():
     prompt = blip_interrogate(image_path)
     if not prompt:
         log_progress("blip", "error", None, "error")
+        socketio.emit('operation_status', {'error_status': True})
         return jsonify({"error": "Failed to interrogate image"}), 500
     else:
         log_progress("blip", "completed", None, "completed", f"{prompt}")
@@ -375,6 +376,7 @@ def generate_images():
         )
         if result is None:
             log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
+            socketio.emit('operation_status', {'error_status': True})
             return jsonify({"error": f"Failed to generate image for {artist_name}"}), 500
         selected_artists['generated_images'][artist_name] = result
 

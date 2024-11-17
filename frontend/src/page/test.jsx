@@ -59,6 +59,31 @@ export default function Test() {
     },
   ];
 
+  // 페이지가 로드되면 사진 생성 시작
+  const generateImages = async () => {
+    try {
+      const response = await fetch(
+        `http://${process.env.REACT_APP_HOST}:5000/generate-images`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.ok) {
+        const msg = await response.json();
+        console.log(msg);
+      } else {
+        console.error("Faild to generate images");
+      }
+    } catch (error) {
+      console.error("/generate-images API 호출 중 오류 발생:", error);
+    }
+  }
+
+  useEffect(() => {
+    generateImages();
+  }, [])
+
   // 업로드 상태 변화에 따라 질문 진행
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,27 +95,16 @@ export default function Test() {
           setCurrentQuestion(0);
         }
         setUploadStatus(false);
-  
+
         // 마지막 질문이라면 결과 페이지로 이동
         if (lastAnsweredIndex === 7) {
           navigate("/result");
         }
       }
     }, 100);
-  
+
     return () => clearTimeout(timer);
   }, [uploadStatus, receivedOptions, navigate, setUploadStatus]);
-  
-
-  const handlePrevious = () => {
-    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
-  };
-
-  const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
 
   const progressWidth = `${((currentQuestion) / questions.length) * 84}%`;
 
@@ -118,7 +132,7 @@ export default function Test() {
               checked={receivedOptions[currentQuestion] === "A" || false}
               readOnly
             />
-            <TbCircleLetterAFilled/> {questions[currentQuestion].optionA}
+            <TbCircleLetterAFilled /> {questions[currentQuestion].optionA}
           </label>
           <label
             className={`checkbox-label ${receivedOptions[currentQuestion] === "B" ? "checked" : ""}`}
@@ -129,7 +143,7 @@ export default function Test() {
               checked={receivedOptions[currentQuestion] === "B" || false}
               readOnly
             />
-            <TbCircleLetterBFilled/> {questions[currentQuestion].optionB}
+            <TbCircleLetterBFilled /> {questions[currentQuestion].optionB}
           </label>
 
         </div>
@@ -139,7 +153,6 @@ export default function Test() {
       <div className="test-navigation">
         <button
           className="test-previous"
-          onClick={handlePrevious}
           disabled={currentQuestion === 0}
         >
           <IoIosArrowDropleftCircle />
@@ -147,7 +160,6 @@ export default function Test() {
         {currentQuestion < questions.length - 1 && (
           <button
             className="test-next"
-            onClick={handleNext}
             disabled={receivedOptions[currentQuestion] === null}
           >
             <IoIosArrowDroprightCircle />

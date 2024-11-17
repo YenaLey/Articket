@@ -8,7 +8,7 @@ import { useSocket } from "../../context/SocketContext";
 export default function MobileResult() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const { uploadStatus } = useSocket();
+    const { uploadStatus, errorStatus } = useSocket();
     const imgSample = [
         { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
         { src: "/img/고흐.png", artist: "고흐", color: "#E37900" },
@@ -16,17 +16,35 @@ export default function MobileResult() {
         { src: "/img/피카소.png", artist: "피카소", color: "#CA0000"},
     ];
 
+    // 화면 로드 2초 후 실행
     useEffect(() => {
         const timer = setTimeout(() => {
+            // 변환된 이미지가 모니터에 로드되었으면 로딩 끝
             if (uploadStatus) {
                 console.log("이미지 변환이 완료됐대요!");
                 setLoading(false);
             }
+            
+            // 이미지 변환 중 오류 발생 시 storage 초기화 후 upload 페이지로 navigate
+            if (errorStatus) {
+                const handleErrorAndNavigate = async () => {
+                    sessionStorage.removeItem("selectedOptions");
+                    sessionStorage.removeItem("start");
+                    localStorage.setItem("hasParticipated", "false");
+                    alert("사진 변환에 실패하였습니다.")
+        
+                    await new Promise((resolve) => setTimeout(resolve, 0));
+            
+                    navigate("/upload");
+                }
+                handleErrorAndNavigate();
+            }
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [uploadStatus]);
+    }, [uploadStatus, errorStatus, navigate]); 
 
+    // sessionStorage에 로딩중 여부 저장
     useEffect(()=> {
         const storedLoading = sessionStorage.getItem("loading");
         if (storedLoading === "false") {
@@ -38,6 +56,7 @@ export default function MobileResult() {
         sessionStorage.setItem("loading", loading.toString());
     }, [loading]);
 
+    //
     return (
         <div className="mresult">
             <div className="mresult-container">

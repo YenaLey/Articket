@@ -11,6 +11,7 @@ export default function Remote() {
   const [chosenOption, setChosenOption] = useState("");
   const [start, setStart] = useState(false);
 
+  // session storage 설정
   useEffect(() => {
     const storedStart = sessionStorage.getItem("start");
     if (storedStart === "true") {
@@ -31,6 +32,7 @@ export default function Remote() {
     sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
 
+  // 옵션 A or B 클릭 시 /emit-options 호출
   const handleOptionClick = async (option) => {
     setChosenOption(option);
 
@@ -58,6 +60,7 @@ export default function Remote() {
     }
   };
 
+  // "선택" 클릭 시 /select-option 호출
   const handleSelectClick = async () => {
     if (selectedOptions.length < 8) {
       const updatedOptions = [...selectedOptions, `${chosenOption}`];
@@ -85,6 +88,7 @@ export default function Remote() {
     }
   };
 
+  // 모두 선택 시 성격검사api 호출
   const fetchPersonalityResult = async (updatedOptions) => {
     try {
       const resultResponse = await fetch(
@@ -106,7 +110,7 @@ export default function Remote() {
     }
   };
 
-
+  // 왼쪽 방향키 클릭
   const handleLeftClick = async () => {
     const updatedOptions = [...selectedOptions];
     updatedOptions.pop(); 
@@ -149,15 +153,18 @@ export default function Remote() {
     }
   };
 
+  // 오른쪽 방향키 클릭
   const handleRightClick = async () => {
     await handleOptionClick("D");
     await handleSelectClick();
   }
 
+  // 테스트 시작
   const testStart = async () => {
     handleOptionClick("C");
     setStart(true);
   }
+  
 
   // const handleResetOptions = async () => {
   //   sessionStorage.removeItem("selectedOptions");
