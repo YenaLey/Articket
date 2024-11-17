@@ -70,7 +70,7 @@ export const SocketProvider = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === "/" || location.pathname === "/upload") {
       setImageStatus(false);
       setErrorStatus(false);
     }
