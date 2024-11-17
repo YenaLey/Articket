@@ -16,11 +16,25 @@
       const socket = io();
       const logContainer = document.getElementById("log-container");
 
+      function getKoreanTime() {
+        const now = new Date();
+        const kstOffset = 9 * 60 * 60 * 1000;
+        const kstTime = new Date(
+          now.getTime() + now.getTimezoneOffset() * 60 * 1000 + kstOffset
+        );
+
+        const hours = kstTime.getHours().toString().padStart(2, "0");
+        const minutes = kstTime.getMinutes().toString().padStart(2, "0");
+        const seconds = kstTime.getSeconds().toString().padStart(2, "0");
+
+        return `${hours}:${minutes}:${seconds}`;
+      }
+
       socket.on("log", function (data) {
         const logItem = document.createElement("div");
         logItem.classList.add("log-item", data.status);
         logItem.innerHTML = `
-          ${data.event} ${data.message}
+          [${getKoreanTime()}] ${data.event} ${data.message}
           ${data.why ? `<br/><span class="log-why">${data.why}</span>` : ""}
           ${data.data ? `<br/><span class="log-data">${data.data}</span>` : ""}
         `;
