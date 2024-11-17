@@ -15,7 +15,7 @@ def init_socketio(socketio_instance):
 def admin_page():
     return render_template('admin.html')
 
-def log_progress(event, message, why, status="in-progress", data=None):
+def log_progress(event, message, why, status, data=None):
     """실시간 로그 전송 유틸리티 함수"""
     if socketio:
         socketio.emit('log', {

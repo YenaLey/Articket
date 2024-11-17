@@ -54,6 +54,11 @@ body {
   border-left-color: #52c41a;
 }
 
+.log-item.call {
+  color: white;
+  border-left-color: white;
+}
+
 .log-why {
   font-style: italic;
   color: #aaaaaa;

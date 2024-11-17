@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "CO SHOW 전시회 Articket API",
-    "description": "사용자가 이미지를 업로드하고, 성격 테스트 결과와 해당 화가의 스타일로 변환된 이미지를 생성하는 API입니다.",
+    "title": "CO SHOW Exhibition Articket API",
+    "description": "An API for users to upload images, take a personality test, and generate images transformed into the style of corresponding artists.",
     "version": "1.0.0"
   },
   "host": "192.168.35.2:5000",
@@ -10,39 +10,39 @@
   "schemes": ["http"],
   "tags": [
     {
-      "name": "이미지 업로드",
-      "description": "이미지 업로드 API"
+      "name": "Image Upload",
+      "description": "API for image upload"
     },
     {
-      "name": "옵션 선택",
-      "description": "테스트 옵션 선택 API"
+      "name": "Image Transformation",
+      "description": "API for image transformation and style adjustment"
     },
     {
-      "name": "성격 테스트 결과",
-      "description": "성격 테스트 결과 전송 API"
+      "name": "Personality Test Result",
+      "description": "API for sending personality test results"
     },
     {
-      "name": "이미지 변환",
-      "description": "이미지 변환 및 스타일 조정 API"
+      "name": "Option Selection",
+      "description": "API for test option selection"
     },
     {
-      "name": "옵션 전달",
-      "description": "사용자가 선택한 옵션 리스트를 소켓으로 전송하는 API"
+      "name": "Option Transmission",
+      "description": "API for transmitting user's selected options via socket"
     }
   ],
   "paths": {
-    "/upload-image": {
+    "/upload-image/": {
       "post": {
-        "tags": ["이미지 업로드"],
-        "summary": "이미지 업로드",
-        "description": "사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다.",
+        "tags": ["Image Upload"],
+        "summary": "Upload Image",
+        "description": "Users can upload an image, and receive the path to the stored image on the server.",
         "consumes": ["multipart/form-data"],
         "parameters": [
           {
             "in": "query",
             "name": "name",
             "type": "string",
-            "description": "사용자의 이름",
+            "description": "User's name",
             "required": true,
             "default": "홍길동"
           },
@@ -50,7 +50,7 @@
             "in": "query",
             "name": "gender",
             "type": "string",
-            "description": "성별 (male 또는 female)",
+            "description": "Gender ('male' or 'female')",
             "required": true,
             "default": "female"
           },
@@ -58,13 +58,13 @@
             "in": "formData",
             "name": "image",
             "type": "file",
-            "description": "업로드할 이미지 파일",
+            "description": "Image file to upload",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "이미지 업로드 성공",
+            "description": "Image uploaded successfully",
             "schema": {
               "type": "object",
               "properties": {
@@ -73,104 +73,57 @@
             }
           },
           "400": {
-            "description": "필수 정보(이름, 성별, 이미지)가 누락되었습니다."
+            "description": "Missing required information (name, gender, or image)."
+          }
+        }
+      }
+    },
+    "/generate-images": {
+      "post": {
+        "tags": ["Image Transformation"],
+        "summary": "Start Image Transformation",
+        "description": "After uploading the image, call this API to generate images in the style of all artists.",
+        "responses": {
+          "200": {
+            "description": "Image transformation started successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "User name or gender is missing, or image has not been uploaded."
+          },
+          "500": {
+            "description": "Image generation failed"
           }
         }
       }
     },
     "/select-option": {
       "get": {
-        "tags": ["옵션 선택"],
-        "summary": "옵션 선택",
-        "description": "옵션 선택에 대한 확인 요청을 보냅니다.",
+        "tags": ["Option Selection"],
+        "summary": "Option Selection Confirmation",
+        "description": "Sends a confirmation request for option selection.",
         "responses": {
           "200": {
-            "description": "옵션 선택 성공"
-          }
-        }
-      }
-    },
-    "/get-personality-result/{options}": {
-      "post": {
-        "tags": ["성격 테스트 결과"],
-        "summary": "성격 테스트 결과",
-        "description": "사용자의 선택을 바탕으로 성격에 해당되는 화가의 이름과 MBTI 유형을 반환합니다.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "options",
-            "description": "사용자의 선택 리스트 (A와 B로 이루어진 8글자의 문자열, 예: 'ABABABAB')",
-            "required": true,
-            "type": "string",
-            "default": "ABABABAB"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "테스트 결과 성공",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "artist": { "type": "string" },
-                "mbti": { "type": "string" }
-              }
-            }
-          },
-          "400": {
-            "description": "선택 사항이 누락되었거나 형식이 올바르지 않습니다."
-          }
-        }
-      }
-    },
-    "/get-generated-images": {
-      "post": {
-        "tags": ["이미지 변환"],
-        "summary": "이미지 생성 및 경로 전송",
-        "description": "사용자가 업로드한 이미지를 지정된 화가 스타일로 변환하고 경로를 반환합니다.",
-        "responses": {
-          "200": {
-            "description": "이미지 변환 성공",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user_name": { "type": "string" },
-                "artist": { "type": "string" },
-                "original_image": { "type": "string" },
-                "generated_image": {
-                  "type": "array",
-                  "items": { "type": "string" },
-                  "description": "변환된 각 화가 스타일의 이미지 경로 배열 (사용자 타입, 잘 맞는 타입, 안 맞는 타입 순)"
-                },
-                "matching_artists": {
-                  "type": "object",
-                  "properties": {
-                    "good": { "type": "string", "description": "잘 맞는 화가" },
-                    "bad": { "type": "string", "description": "안 맞는 화가" }
-                  }
-                },
-                "qr_image": { "type": "string" }
-              }
-            }
-          },
-          "400": {
-            "description": "이미지 또는 화가 정보가 누락되었습니다."
-          },
-          "500": {
-            "description": "이미지 생성 실패"
+            "description": "Option selection confirmed"
           }
         }
       }
     },
     "/emit-options": {
       "post": {
-        "tags": ["옵션 전달"],
-        "summary": "옵션 리스트 전달 및 소켓 전송",
-        "description": "사용자가 선택한 옵션 리스트를 서버로 전달하고, 이를 소켓을 통해 다시 프론트엔드로 전송합니다.",
+        "tags": ["Option Transmission"],
+        "summary": "Transmit Option List via Socket",
+        "description": "Sends the user's selected option list to the server, which then emits it back to the frontend via socket.",
         "parameters": [
           {
             "in": "body",
             "name": "options",
-            "description": "사용자가 선택한 옵션 리스트",
+            "description": "List of options selected by the user",
             "required": true,
             "schema": {
               "type": "object",
@@ -186,7 +139,7 @@
         ],
         "responses": {
           "200": {
-            "description": "옵션이 성공적으로 전송되었습니다.",
+            "description": "Options transmitted successfully",
             "schema": {
               "type": "object",
               "properties": {
@@ -199,7 +152,84 @@
             }
           },
           "400": {
-            "description": "옵션 리스트가 없거나 형식이 올바르지 않습니다."
+            "description": "Option list is missing or has an invalid format."
+          }
+        }
+      }
+    },
+    "/get-personality-result/{options}": {
+      "post": {
+        "tags": ["Personality Test Result"],
+        "summary": "Personality Test Result",
+        "description": "Returns the name of the artist corresponding to the user's personality based on their choices, along with the MBTI type.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "options",
+            "description": "User's choice list (an 8-character string of 'A' and 'B', e.g., 'ABABABAB')",
+            "required": true,
+            "type": "string",
+            "default": "ABABABAB"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test result successfully retrieved",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artist": { "type": "string" },
+                "mbti": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "Selections are missing or have an invalid format."
+          }
+        }
+      }
+    },
+    "/get-generated-images": {
+      "post": {
+        "tags": ["Personality Test Result"],
+        "summary": "Generate Ticket PDF and Return Image Paths",
+        "description": "Creates a ticket PDF for the corresponding artist and returns the paths to the images.",
+        "responses": {
+          "200": {
+            "description": "Images and ticket generated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_name": { "type": "string" },
+                "artist": { "type": "string" },
+                "original_image": { "type": "string" },
+                "generated_image": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Array of image paths transformed into the styles of each artist (user's type, compatible type, incompatible type)"
+                },
+                "matching_artists": {
+                  "type": "object",
+                  "properties": {
+                    "good": {
+                      "type": "string",
+                      "description": "Compatible artist"
+                    },
+                    "bad": {
+                      "type": "string",
+                      "description": "Incompatible artist"
+                    }
+                  }
+                },
+                "qr_image": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "Image or artist information is missing."
+          },
+          "500": {
+            "description": "Failed to generate images"
           }
         }
       }
