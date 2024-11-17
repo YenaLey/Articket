@@ -18,12 +18,21 @@ export default function Upload() {
   const [selectedGender, setSelectedGender] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [hasParticipated, setHasParticipated] = useState(false);
+  const [done, setDone] = useState(false);
 
   // 참여 여부 확인
   useEffect(() => {
     const participated = localStorage.getItem("hasParticipated");
     if (participated === "true") {
       setHasParticipated(true);
+    }
+  }, []);
+
+  // 체험 완료 여부 확인
+  useEffect(() => {
+    const storedDone = localStorage.getItem("done");
+    if (storedDone === "true") {
+      setDone(true);
     }
   }, []);
 
@@ -99,98 +108,106 @@ export default function Upload() {
     }
   };
 
-  return (
-    <div className="upload-container">
-      <h1>ARTICKET</h1>
+  if (done) {
+    return (
+      <div className="upload-completed">
+        <p>체험이 완료되었습니다.</p>
+        <button onClick={() => navigate('/total-result')}>성격 유형 검사 결과 확인하기</button>
+      </div>
+    )
+  }
+  else {
+    return (
+      <div className="upload-container">
+        <h1>ARTICKET</h1>
 
-      {/* 사용자 이름 입력 */}
-      <div className="upload-name">
-        <p>티켓에 출력될 이름을 입력해주세요</p>
-        <input
-          type="text"
-          placeholder="이름 입력"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          disabled={hasParticipated}
-        />
-        <p>사진 주인공의 성별을 선택해주세요</p>
-        <div className="upload-gender-selection">
+        {/* 사용자 이름 입력 */}
+        <div className="upload-name">
+          <p>티켓에 출력될 이름을 입력해주세요</p>
+          <input
+            type="text"
+            placeholder="이름 입력"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            disabled={hasParticipated}
+          />
+          <p>사진 주인공의 성별을 선택해주세요</p>
+          <div className="upload-gender-selection">
+            <label
+              className={`gender-option ${selectedGender === "female" ? "selected" : ""
+                }`}
+            >
+              <input
+                type="radio"
+                value="female"
+                checked={selectedGender === "female"}
+                onChange={handleGenderChange}
+                style={{ display: "none" }}
+                disabled={hasParticipated}
+              />
+              <IoMdFemale />
+              &nbsp;여자
+            </label>
+            <label
+              className={`gender-option ${selectedGender === "male" ? "selected" : ""
+                }`}
+            >
+              <input
+                type="radio"
+                value="male"
+                checked={selectedGender === "male"}
+                onChange={handleGenderChange}
+                style={{ display: "none" }}
+                disabled={hasParticipated}
+              />
+              <IoMdMale />
+              &nbsp;남자
+            </label>
+          </div>
+        </div>
+
+        {/* 파일 선택 input 및 업로드 버튼 */}
+        <div className="upload-select">
+          <input
+            id="file-input"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+            disabled={hasParticipated}
+          />
+
+          {/* label 요소로 파일 선택 트리거 */}
           <label
-            className={`gender-option ${
-              selectedGender === "female" ? "selected" : ""
-            }`}
+            className={`upload-image ${hasParticipated ? "disabled" : ""}`}
+            htmlFor="file-input"
           >
-            <input
-              type="radio"
-              value="female"
-              checked={selectedGender === "female"}
-              onChange={handleGenderChange}
-              style={{ display: "none" }}
-              disabled={hasParticipated}
-            />
-            <IoMdFemale />
-            &nbsp;여자
+            {imgPreview ? (
+              <img src={imgPreview} alt="미리보기" />
+            ) : (
+              <>
+                <ImFilePicture />
+                <p>갤러리에서 선택하기</p>
+              </>
+            )}
           </label>
-          <label
-            className={`gender-option ${
-              selectedGender === "male" ? "selected" : ""
-            }`}
+
+          <button
+            onClick={uploadImage}
+            disabled={
+              uploading || uploadSuccess || !imgPreview || hasParticipated
+            }
           >
-            <input
-              type="radio"
-              value="male"
-              checked={selectedGender === "male"}
-              onChange={handleGenderChange}
-              style={{ display: "none" }}
-              disabled={hasParticipated}
-            />
-            <IoMdMale />
-            &nbsp;남자
-          </label>
+            {hasParticipated
+              ? "참여 완료"
+              : uploading
+                ? "업로드 중..."
+                : uploadSuccess
+                  ? "업로드 완료"
+                  : "사진 선택 완료"}
+          </button>
         </div>
       </div>
-
-      {/* 파일 선택 input 및 업로드 버튼 */}
-      <div className="upload-select">
-        <input
-          id="file-input"
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-          disabled={hasParticipated}
-        />
-
-        {/* label 요소로 파일 선택 트리거 */}
-        <label
-          className={`upload-image ${hasParticipated ? "disabled" : ""}`}
-          htmlFor="file-input"
-        >
-          {imgPreview ? (
-            <img src={imgPreview} alt="미리보기" />
-          ) : (
-            <>
-              <ImFilePicture />
-              <p>갤러리에서 선택하기</p>
-            </>
-          )}
-        </label>
-
-        <button
-          onClick={uploadImage}
-          disabled={
-            uploading || uploadSuccess || !imgPreview || hasParticipated
-          }
-        >
-          {hasParticipated
-            ? "참여 완료"
-            : uploading
-            ? "업로드 중..."
-            : uploadSuccess
-            ? "업로드 완료"
-            : "사진 선택 완료"}
-        </button>
-      </div>
-    </div>
-  );
+    );
+  }
 }

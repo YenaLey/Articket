@@ -324,6 +324,7 @@ def upload_image():
     original_image = backend_url + '/' + file_path.replace('./', '')
 
     socketio.emit('operation_status', {'success': True, 'image_path': original_image})
+    socketio.emit('index_data', {'index_status': 0})
 
     log_progress("upload image", "completed", None, "completed", f"{user_name}, {selected_gender}, {current_count}_{user_name}_original.png")
 
@@ -410,6 +411,23 @@ def emit_options():
 
     socketio.emit('options_data', {'options': options})
     return jsonify({"message": "Options emitted successfully", "options": options}), 200
+
+'''
+성격 테스트에서 인덱스를 변경할 때 호출하는 API.
+'''
+@app.route('/emit_index', methods=['POST'])
+def emit_index():
+    data = request.get_json()
+    if 'index_status' not in data:
+        return jsonify({"error": "index_status is required"}), 400
+
+    index_status = data['index_status']
+    if not isinstance(index_status, int):
+        return jsonify({"error": "index_status must be an integer"}), 400
+
+    socketio.emit('index_data', {'index_status': index_status})
+
+    return jsonify({"message": "index_data emitted successfully", "index_status": index_status}), 200
 
 '''
 성격 테스트 결과 전송 API
