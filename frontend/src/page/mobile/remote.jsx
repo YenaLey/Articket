@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import "../../style/remote.css";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
+import { useSocket } from "../../context/SocketContext";
 
 export default function Remote() {
   const navigate = useNavigate();
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState(Array(8).fill(null));
   const [chosenOption, setChosenOption] = useState("");
   const [start, setStart] = useState(false);
   const [done, setDone] = useState(false);
+  const { questionIndex } = useSocket();
 
   // session storage 설정
   useEffect(() => {
@@ -18,12 +20,12 @@ export default function Remote() {
     if (storedDone === "true") {
       setDone(true);
     }
-
+  
     const storedStart = sessionStorage.getItem("start");
     if (storedStart === "true") {
       setStart(true);
     }
-
+  
     const storedOptions = sessionStorage.getItem("selectedOptions");
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
@@ -42,11 +44,8 @@ export default function Remote() {
   const handleOptionClick = async (option) => {
     setChosenOption(option);
 
-    const optionsArray = Array(8).fill(null);
-    selectedOptions.forEach((opt, index) => {
-      optionsArray[index] = opt;
-    });
-    optionsArray[selectedOptions.length] = option;
+    const optionsArray = [...selectedOptions];
+    optionsArray[questionIndex] = option;
 
     try {
       const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
@@ -68,11 +67,12 @@ export default function Remote() {
 
   // "선택" 클릭 시 /select-option 호출
   const handleSelectClick = async () => {
-    if (selectedOptions.length < 8) {
-      const updatedOptions = [...selectedOptions, `${chosenOption}`];
+    if (selectedOptions.includes("") || selectedOptions.includes(null)) {
+      const updatedOptions = [...selectedOptions];
+      updatedOptions[questionIndex] = chosenOption;
       setSelectedOptions(updatedOptions);
       setChosenOption("");
-
+  
       try {
         await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
           method: "GET",
@@ -80,20 +80,39 @@ export default function Remote() {
             "Content-Type": "application/json",
           },
         });
-
-        if (updatedOptions.length === 8) {
-          setSelectedOptions([]);
+  
+        if (questionIndex !== null && questionIndex !== 7) {
+          let newIndex = questionIndex;
+          if (questionIndex !== 7) {
+            newIndex = newIndex + 1;
+          }
+          const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ index_status: newIndex }),
+          });
+  
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("인덱스 보냈습니다:", responseData.index_status);
+          } else {
+            console.error("인덱스 전송 실패:", response.statusText);
+          }
+        }
+  
+        if (!updatedOptions.includes("") && !updatedOptions.includes(null)) {
+          setSelectedOptions(Array(8).fill(null));
           await fetchPersonalityResult(updatedOptions);
           navigate('/m-result');
         }
-
-        console.log("보낸 배열:", updatedOptions);
       } catch (error) {
         console.error("select-option API 호출 중 오류 발생:", error);
       }
     }
   };
-
+  
   // 모두 선택 시 성격검사api 호출
   const fetchPersonalityResult = async (updatedOptions) => {
     try {
@@ -104,7 +123,7 @@ export default function Remote() {
           headers: { "Content-Type": "application/json" },
         }
       );
-
+  
       if (resultResponse.ok) {
         const resultData = await resultResponse.json();
         console.log("답변 왔어용~", resultData);
@@ -115,55 +134,55 @@ export default function Remote() {
       console.error("성격 테스트 결과 API 호출 중 오류가 발생했습니다:", error);
     }
   };
+  
 
   // 왼쪽 방향키 클릭
   const handleLeftClick = async () => {
-    const updatedOptions = [...selectedOptions];
-    updatedOptions.pop();
-    setSelectedOptions(updatedOptions);
-    setChosenOption("");
-
-    const optionsArray = Array(8).fill(null);
-    updatedOptions.forEach((opt, index) => {
-      optionsArray[index] = opt;
-    });
-
-    // emit-options API 호출
-    try {
-      const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ options: optionsArray }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("emit-options 응답:", data.message, data.options);
-      } else {
-        console.error("/emit-options API 호출에 실패했습니다.");
+    if (questionIndex !== null && questionIndex > 0) {
+      const newIndex = questionIndex - 1;
+      try {
+        const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ index_status: newIndex }),
+        });
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("인덱스 감소, 새 인덱스:", responseData.index_status);
+        } else {
+          console.error("인덱스 전송 실패:", response.statusText);
+        }
+      } catch (error) {
+        console.error("API 호출 중 오류 발생:", error);
       }
-    } catch (error) {
-      console.error("/emit-options API 호출 중 오류 발생:", error);
-    }
-
-    // select-option API 호출
-    try {
-      await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("/select-option API 호출 중 오류 발생:", error);
     }
   };
 
   // 오른쪽 방향키 클릭
   const handleRightClick = async () => {
-    await handleOptionClick("D");
-    await handleSelectClick();
-  }
+    if (questionIndex !== null && questionIndex < 7) {
+      const newIndex = questionIndex + 1;
+      try {
+        const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ index_status: newIndex }),
+        });
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("인덱스 증가, 새 인덱스:", responseData.index_status);
+        } else {
+          console.error("인덱스 전송 실패:", response.statusText);
+        }
+      } catch (error) {
+        console.error("API 호출 중 오류 발생:", error);
+      }
+    }
+  };
 
   // 테스트 시작
   const testStart = async () => {
@@ -187,8 +206,8 @@ export default function Remote() {
             <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
           ) : (
             <React.Fragment>
-              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
-              <div className="remote-progress">
+              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다{questionIndex}{selectedOptions}</p>
+              <div className="remote-progress"> 
                 {Array(8).fill(null).map((_, index) => {
                   const element = selectedOptions[index] || "";
                   return (
@@ -212,11 +231,11 @@ export default function Remote() {
               </div>
 
               <div className="remote-middle">
-                <p>현재 질문:<br />{selectedOptions.length + 1} / 8</p>
+                <p>현재 질문:<br />{questionIndex + 1} / 8</p>
                 <div className="remote-button-container">
                   <button
                     onClick={() => handleOptionClick("A")}
-                    className={`remote-button ${chosenOption === "A" ? "checked" : ""}`}
+                    className={`remote-button ${selectedOptions[questionIndex] === "A" || chosenOption === "A" ? "checked" : ""}`}
                   >
                     A
                   </button>
@@ -230,7 +249,7 @@ export default function Remote() {
                   </button>
                   <button
                     onClick={() => handleOptionClick("B")}
-                    className={`remote-button ${chosenOption === "B" ? "checked" : ""}`}
+                    className={`remote-button ${selectedOptions[questionIndex] === "B" || chosenOption === "B" ? "checked" : ""}`}
                   >
                     B
                   </button>

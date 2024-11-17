@@ -11,7 +11,7 @@ import { useSocket } from "../context/SocketContext";
 export default function Test() {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const { uploadStatus, setUploadStatus, receivedOptions } = useSocket();
+  const { uploadStatus, setUploadStatus, receivedOptions, questionIndex } = useSocket();
 
   const questions = [
     {
@@ -84,27 +84,18 @@ export default function Test() {
     generateImages();
   }, [])
 
-  // 업로드 상태 변화에 따라 질문 진행
+  // 질문 순서 받아오기
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (uploadStatus) {
-        const lastAnsweredIndex = receivedOptions.findLastIndex((option) => option !== null);
-        if (lastAnsweredIndex !== -1) {
-          setCurrentQuestion(lastAnsweredIndex + 1);
-        } else {
-          setCurrentQuestion(0);
-        }
-        setUploadStatus(false);
+    if (questionIndex !== null) {
+      setCurrentQuestion(questionIndex);
 
-        // 마지막 질문이라면 결과 페이지로 이동
-        if (lastAnsweredIndex === 7) {
-          navigate("/result");
-        }
+      if (uploadStatus && receivedOptions.length === 8 && !receivedOptions.includes(null)) {
+        navigate("/result");
       }
-    }, 100);
+      setUploadStatus(false);
+    }
 
-    return () => clearTimeout(timer);
-  }, [uploadStatus, receivedOptions, navigate, setUploadStatus]);
+  }, [navigate, questionIndex, receivedOptions, uploadStatus, setUploadStatus]);
 
   const progressWidth = `${((currentQuestion) / questions.length) * 84}%`;
 

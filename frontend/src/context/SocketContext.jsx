@@ -11,8 +11,9 @@ export const SocketProvider = ({ children }) => {
   const [uploadStatus, setUploadStatus] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [imageStatus, setImageStatus] = useState(false);
-  const [receivedOptions, setReceivedOptions] = useState([]);
+  const [receivedOptions, setReceivedOptions] = useState(Array(8).fill(null));
   const [errorStatus, setErrorStatus] = useState(false);
+  const [questionIndex, setQuestionIndex] = useState(0); // 추가된 상태 변수
   const location = useLocation();
 
   useEffect(() => {
@@ -49,6 +50,11 @@ export const SocketProvider = ({ children }) => {
       setReceivedOptions(data.options);
     });
 
+    newSocket.on("index_data", (index) => {
+      console.log("인덱스 받아왔어용:", index.index_status);
+      setQuestionIndex(index.index_status);
+    });
+
     return () => {
       newSocket.disconnect();
       console.log("Socket disconnected");
@@ -59,6 +65,7 @@ export const SocketProvider = ({ children }) => {
     setUploadStatus(false);
     setImageUrl(null);
     setReceivedOptions([]);
+    setQuestionIndex(0);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -67,7 +74,7 @@ export const SocketProvider = ({ children }) => {
       setErrorStatus(false);
     }
   }, [location.pathname]);
-  
+
   return (
     <SocketContext.Provider
       value={{
@@ -77,7 +84,9 @@ export const SocketProvider = ({ children }) => {
         imageUrl,
         imageStatus,
         receivedOptions,
-        errorStatus
+        errorStatus,
+        questionIndex,
+        setQuestionIndex
       }}
     >
       {children}
