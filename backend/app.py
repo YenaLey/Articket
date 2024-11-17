@@ -39,11 +39,7 @@ PORT = 5000
 backend_url = f"http://{REACT_APP_HOST}:{PORT}"
 
 # Stable Diffusion WebUI URL 설정
-WEBUI_URLS = [
-    os.getenv('WEBUI_URL_1'),
-    os.getenv('WEBUI_URL_2'),
-    os.getenv('WEBUI_URL_3')
-]
+WEBUI_URL = os.getenv('WEBUI_URL')
 
 # BLIP API URL 설정 (환경 변수에서 가져옴)
 BLIP_URL = os.getenv('BLIP_URL')
@@ -98,7 +94,7 @@ ARTISTS = {
     },
     '고흐': {
         'description': '감정과 열정의 섬세한 고흐',
-        'modifier': 'painging,<lora:gogh_xl:1>,masterpiece,best quality,Starry Night of gogh,',
+        'modifier': 'painting,<lora:gogh_xl:1>,masterpiece,best quality,Starry Night of Gogh,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
@@ -122,7 +118,7 @@ ARTISTS = {
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painging,style of Auguste Renoir, <lora:renior2_xl:1>,masterpiece,best quality, portrait,',
+        'modifier': 'oil painting,style of Auguste Renoir, <lora:renoir2_xl:1>,masterpiece,best quality, portrait,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
@@ -174,20 +170,6 @@ def encode_image_to_base64(image_path):
 
 # BLIP으로 이미지를 텍스트로 변환하는 함수
 def blip_interrogate(image_path):
-
-    ## clip
-    # image_base64 = encode_image_to_base64(image_path)
-    # interrogate_url = f"{WEBUI_URLS[0]}/sdapi/v1/interrogate"
-    # interrogate_data = {"image": f"data:image/png;base64,{image_base64}", "model": "clip", "clip_skip": 1}
-    # response = requests.post(interrogate_url, json=interrogate_data, headers={"Content-Type": "application/json"})
-    # if response.status_code == 200:
-    #     print("CLIP interrogate request successful!")
-    #     return response.json().get('caption', '')
-    # else:
-    #     print(f"CLIP interrogate request failed with status code: {response.status_code}")
-    #     return None
-
-    ## blip
     interrogate_url = f"{BLIP_URL}/generate_caption"
     response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
     
@@ -198,8 +180,8 @@ def blip_interrogate(image_path):
         print(f"BLIP interrogate request failed with status code: {response.status_code}")
         return None
 
-def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, result_number, url_index):
-    webui_url = WEBUI_URLS[url_index % len(WEBUI_URLS)]
+def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, artist_name):
+    webui_url = WEBUI_URL
     data = {
         "init_images": [f"data:image/png;base64, {image_base64}"],
         "prompt": f"{modifier}, {prompt}",
@@ -218,7 +200,7 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
     for attempt in range(MAX_RETRIES):
         try:
             print(f"Attempt {attempt + 1}: Sending request to {webui_url}")
-            log_progress("img2img", f"attempt{attempt+1} at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", None, "completed")
+            log_progress(f"{artist_name}'s img2img", f"attempt{attempt+1}", None, "call")
             response = requests.post(
                 f"{webui_url}/sdapi/v1/img2img",
                 json=data,
@@ -228,24 +210,24 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
             response.raise_for_status()
             response_data = response.json()
 
-            image_filename = f"{current_count}_{user_name}_result{result_number}.png"
+            image_filename = f"{current_count}_{user_name}_{artist_name}.png"
             generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
 
             with open(generated_path, "wb") as f:
                 f.write(base64.b64decode(response_data['images'][0]))
 
             save_to_desktop(generated_path, image_filename)
-            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "completed", None, "completed")
+            log_progress(f"{artist_name}'s img2img", "completed", None, "completed")
             return backend_url + '/' + generated_path.replace('./', '')
         except requests.exceptions.RequestException as e:
             error_message = f"HTTP Error: {e.response.status_code} - {e.response.reason}" if e.response else str(e)
-            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "error", error_message, "error")
+            log_progress(f"{artist_name}'s img2img", "error", error_message, "error")
             print(f"Request failed: {error_message}")
             if attempt == MAX_RETRIES - 1:
                 return None
         except (ValueError, IndexError) as e:
             error_message = f"Response Parsing Error: {str(e)}"
-            log_progress(f"img2img at WEBUI_URL{url_index % len(WEBUI_URLS) + 1}", "error", error_message, "error")
+            log_progress(f"{artist_name}'s img2img", "error", error_message, "error")
             print(f"Error decoding response: {error_message}")
             return None
 
@@ -342,6 +324,63 @@ def upload_image():
 
     return jsonify({"image_path": original_image}), 200
 
+'''
+이미지 변환 시작 API
+이미지 업로드 후 이 API를 호출하여 모든 화가에 대한 이미지를 생성합니다.
+'''
+@app.route('/generate-images', methods=['POST'])
+def generate_images():
+    global selected_artists, user_name, selected_gender, current_count
+
+    if not selected_gender or not user_name:
+        log_progress("generate images", "error", "User name or gender is missing", "error")
+        return jsonify({"error": "User name or gender is missing"}), 400
+
+    if 'image_path' not in selected_artists:
+        log_progress("generate images", "error", "Image has not been uploaded", "error")
+        return jsonify({"error": "Image has not been uploaded"}), 400
+
+    image_path = selected_artists['image_path']
+
+    image_base64 = encode_image_to_base64(image_path)
+    prompt = blip_interrogate(image_path)
+    if not prompt:
+        log_progress("blip", "error", None, "error")
+        return jsonify({"error": "Failed to interrogate image"}), 500
+    else:
+        log_progress("blip", "completed", None, "completed", f"{prompt}")
+
+    selected_artists['generated_images'] = {}
+    for artist_name in ['리히텐슈타인', '고흐', '피카소', '르누아르']:
+        artist_info = ARTISTS[artist_name]
+        modifier = artist_info['modifier']
+        negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
+        steps = artist_info['steps']
+        denoising_strength = artist_info['denoising_strength']
+        cfg_scale = artist_info['cfg_scale']
+        if artist_name == '고흐' and selected_gender == 'male':
+            modifier += 'handsome, portrait,'
+        elif artist_name == '고흐' and selected_gender == 'female':
+            modifier += 'pretty, portrait,'
+        result = generate_image_with_retry(
+            image_base64,
+            modifier,
+            negative_prompt,
+            steps,
+            denoising_strength,
+            cfg_scale,
+            prompt,
+            artist_name
+        )
+        if result is None:
+            log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
+            return jsonify({"error": f"Failed to generate image for {artist_name}"}), 500
+        selected_artists['generated_images'][artist_name] = result
+
+    log_progress("generate images", "completed", None, "completed")
+    socketio.emit('operation_status', {'success': True})
+
+    return jsonify({"message": "Images generated successfully"}), 200
 
 '''
 백엔드에서 프론트엔드로 성공 여부를 알리기 위해 호출하는 API.
@@ -387,65 +426,31 @@ def test_result(options):
         return jsonify({"error": "No matching artist found"}), 400
 
 '''
-해당 화가의 스타일로 변환된 이미지를 생성 후 저장하는 API
+해당 화가에 대한 티켓 pdf를 만들고 사진들 경로를 반환하는 API
 '''
 @app.route('/get-generated-images', methods=['POST'])
 def generate_style_images():
 
-    global result_artist, selected_gender
+    global result_artist
 
-    if not selected_gender:
-        log_progress("get generated images", "error", "gender information is missing", "error")
-        return jsonify({"error": "Gender information is missing"}), 400
+    if result_artist == "":
+        log_progress("get generated images", "error", "result-artist have not been selected", "error")
+        return jsonify({"error": "result-artist have not been selected"}), 400
 
-    if not (image_path := selected_artists.get('image_path')) or not (artist_info := ARTISTS.get(result_artist)):
-        log_progress("get generated images", "error", "missing image or result artist", "error")
-        return jsonify({"error": "Missing image or result artist"}), 400
-
-    log_progress("blip api call", "completed", None, "completed")
-    prompt = blip_interrogate(image_path)
-    print(f"Generated caption: {prompt}")
-
-    image_base64 = encode_image_to_base64(image_path)
-    if not prompt:
-        log_progress("blip", "error", None, "error")
-        return jsonify({"error": "Failed to interrogate image"}), 500
-    else :
-        log_progress("blip", "completed", None, "completed", f"{prompt}")
+    if 'generated_images' not in selected_artists:
+        log_progress("get generated images", "error", "Images have not been generated", "error")
+        return jsonify({"error": "Images have not been generated"}), 400
 
     matching_artists = [result_artist, MATCHING_ARTISTS[result_artist]['good'], MATCHING_ARTISTS[result_artist]['bad']]
     urls = []
-    error_occurred = False
 
-    for idx, artist in enumerate(matching_artists):
-        try:
-            result = generate_image_with_retry(
-                image_base64,
-                ARTISTS[artist]['modifier'] + (
-                    'handsome, portrait,' if artist == '고흐' and selected_gender == 'male' else
-                    'pretty, portrait,' if artist == '고흐' and selected_gender == 'female' else ''
-                ),
-                ARTISTS[artist]['negative_prompt'].get(selected_gender, ''),
-                ARTISTS[artist]['steps'],
-                ARTISTS[artist]['denoising_strength'],
-                ARTISTS[artist]['cfg_scale'],
-                prompt,
-                idx + 1,
-                idx % len(WEBUI_URLS)
-            )
-            if result is None:
-                error_occurred = True
-                break
-            urls.append(result)
-        except Exception as e:
-            print(f"Error generating image for artist {artist}: {e}")
-            error_occurred = True
-            break
-
-    if error_occurred or len(urls) < len(matching_artists):
-        return jsonify({"error": "Failed to generate one or more images"}), 500
-    else:
-        log_progress("get generated images", "completed", None, "completed")
+    for artist in matching_artists:
+        image_url = selected_artists['generated_images'].get(artist)
+        if image_url:
+            urls.append(image_url)
+        else:
+            log_progress("get generated images", "error", f"Image for artist {artist} not found", "error")
+            return jsonify({"error": f"Image for artist {artist} not found"}), 500
 
     template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
     save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
@@ -463,7 +468,7 @@ def generate_style_images():
 
     return jsonify({
         "user_name": user_name,
-        "artist": artist_info['description'],
+        "artist": ARTISTS.get(result_artist)['description'],
         "matching_artists": {
             "good": ARTISTS[MATCHING_ARTISTS[result_artist]['good']]['description'],
             "bad": ARTISTS[MATCHING_ARTISTS[result_artist]['bad']]['description']
