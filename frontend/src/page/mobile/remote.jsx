@@ -10,24 +10,30 @@ export default function Remote() {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [chosenOption, setChosenOption] = useState("");
   const [start, setStart] = useState(false);
+  const [done, setDone] = useState(false);
 
   // session storage 설정
   useEffect(() => {
+    const storedDone = localStorage.getItem("done");
+    if (storedDone === "true") {
+      setDone(true);
+    }
+
     const storedStart = sessionStorage.getItem("start");
     if (storedStart === "true") {
       setStart(true);
     }
-  
+
     const storedOptions = sessionStorage.getItem("selectedOptions");
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
     }
   }, []);
-  
+
   useEffect(() => {
     sessionStorage.setItem("start", start.toString());
   }, [start]);
-  
+
   useEffect(() => {
     sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
   }, [selectedOptions]);
@@ -113,7 +119,7 @@ export default function Remote() {
   // 왼쪽 방향키 클릭
   const handleLeftClick = async () => {
     const updatedOptions = [...selectedOptions];
-    updatedOptions.pop(); 
+    updatedOptions.pop();
     setSelectedOptions(updatedOptions);
     setChosenOption("");
 
@@ -164,97 +170,89 @@ export default function Remote() {
     handleOptionClick("C");
     setStart(true);
   }
-  
 
-  // const handleResetOptions = async () => {
-  //   sessionStorage.removeItem("selectedOptions");
-  //   setSelectedOptions([]);
-  //   console.log("selectedOptions가 초기화되었습니다.");
-
-  //   try {
-  //     await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("select-option API 호출 중 오류 발생:", error);
-  //   }
-  // };
-
-  return (
-    <div className="remote">
-      <div className="remote-container">
-        {!start ? (
-          <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
-        ) : (
-          <React.Fragment>
-            <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
-            <div className="remote-progress">
-              {Array(8).fill(null).map((_, index) => {
-                const element = selectedOptions[index] || "";
-                return (
-                  <div
-                    key={index}
-                    className={`remote-progress-box ${element === "A" || element === "B" ? "checked" : ""}`}
-                  >
-                    {index+1}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="remote-left">
-              <button
-                onClick={handleLeftClick}
-                className="remote-button"
-                disabled={selectedOptions.length === 0}
-              >
-                <IoIosArrowBack />
-              </button>
-            </div>
-
-            <div className="remote-middle">
-              <p>현재 질문:<br/>{selectedOptions.length + 1} / 8</p>
-              <div className="remote-button-container">
+  if (done) {
+    return (
+      <div className="remote-completed">
+        <p>체험이 완료되었습니다.</p>
+        <button onClick={() => navigate('/total-result')}>성격 유형 검사 결과 확인하기</button>
+      </div>
+    )
+  }
+  else {
+    return (
+      <div className="remote">
+        <div className="remote-container">
+          {!start ? (
+            <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
+          ) : (
+            <React.Fragment>
+              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
+              <div className="remote-progress">
+                {Array(8).fill(null).map((_, index) => {
+                  const element = selectedOptions[index] || "";
+                  return (
+                    <div
+                      key={index}
+                      className={`remote-progress-box ${element === "A" || element === "B" ? "checked" : ""}`}
+                    >
+                      {index + 1}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="remote-left">
                 <button
-                  onClick={() => handleOptionClick("A")}
-                  className={`remote-button ${chosenOption === "A" ? "checked" : ""}`}
-                >
-                  A
-                </button>
-                <button
-                  onClick={handleSelectClick}
+                  onClick={handleLeftClick}
                   className="remote-button"
-                  disabled={chosenOption === "" || chosenOption === "C"}
-                  style={{ fontSize: "1.7rem" }}
+                  disabled={selectedOptions.length === 0}
                 >
-                  선택
-                </button>
-                <button
-                  onClick={() => handleOptionClick("B")}
-                  className={`remote-button ${chosenOption === "B" ? "checked" : ""}`}
-                >
-                  B
+                  <IoIosArrowBack />
                 </button>
               </div>
-            </div>
 
-            <div className="remote-right">
-              <button
-                onClick={handleRightClick}
-                className="remote-arrow"
-                disabled={selectedOptions.length === 7}
-              >
-                <IoIosArrowForward />
-              </button>
-            </div>
+              <div className="remote-middle">
+                <p>현재 질문:<br />{selectedOptions.length + 1} / 8</p>
+                <div className="remote-button-container">
+                  <button
+                    onClick={() => handleOptionClick("A")}
+                    className={`remote-button ${chosenOption === "A" ? "checked" : ""}`}
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={handleSelectClick}
+                    className="remote-button"
+                    disabled={chosenOption === "" || chosenOption === "C"}
+                    style={{ fontSize: "1.7rem" }}
+                  >
+                    선택
+                  </button>
+                  <button
+                    onClick={() => handleOptionClick("B")}
+                    className={`remote-button ${chosenOption === "B" ? "checked" : ""}`}
+                  >
+                    B
+                  </button>
+                </div>
+              </div>
 
-            {/* 화살표 구현 다하면 이 밑은 지우기 */}
-            {/* <button onClick={handleResetOptions} style={{ position: "fixed", top: "30px" }}>옵션 초기화</button> */}
-          </React.Fragment>
-        )}
+              <div className="remote-right">
+                <button
+                  onClick={handleRightClick}
+                  className="remote-arrow"
+                  disabled={selectedOptions.length === 7}
+                >
+                  <IoIosArrowForward />
+                </button>
+              </div>
+
+              {/* 화살표 구현 다하면 이 밑은 지우기 */}
+              {/* <button onClick={handleResetOptions} style={{ position: "fixed", top: "30px" }}>옵션 초기화</button> */}
+            </React.Fragment>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
