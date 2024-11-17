@@ -30,7 +30,8 @@ export default function MobileResult() {
             // 변환된 이미지가 모니터에 로드되었으면 로딩 끝. localStorage에 저장
             if (uploadStatus) {
                 console.log("이미지 변환이 완료됐대요!");
-                localStorage.setItem("done", "true");
+                setDone(true);
+                localStorage.setItem("done", false);
             }
 
             // 이미지 변환 중 오류 발생 시 storage 초기화 후 upload 페이지로 navigate
@@ -38,6 +39,7 @@ export default function MobileResult() {
                 const handleErrorAndNavigate = async () => {
                     sessionStorage.removeItem("selectedOptions");
                     sessionStorage.removeItem("start");
+                    sessionStorage.removeItem("currentIndex");
                     localStorage.setItem("hasParticipated", "false");
                     alert("사진 변환에 실패하였습니다.")
 
@@ -81,7 +83,8 @@ export default function MobileResult() {
                         <div className="mresult-result">
                             <h1>ATOO</h1>
                             <h4>ARTICKET</h4>
-                            <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button>
+                            {/* <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button> */}
+                            <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button>
                         </div>
                     )
                 }

@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
   const [imageStatus, setImageStatus] = useState(false);
   const [receivedOptions, setReceivedOptions] = useState(Array(8).fill(null));
   const [errorStatus, setErrorStatus] = useState(false);
-  const [questionIndex, setQuestionIndex] = useState(0); // 추가된 상태 변수
+  const [questionIndex, setQuestionIndex] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export const SocketProvider = ({ children }) => {
 
       if (status.error_status) {
         setErrorStatus(true);
+        console.log("에러났다내요")
       }
     });
 
