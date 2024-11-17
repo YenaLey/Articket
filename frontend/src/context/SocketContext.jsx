@@ -10,7 +10,9 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
-  const [receivedOptions, setReceivedOptions] = useState([]); // 소켓으로 받은 옵션 데이터
+  const [imageStatus, setImageStatus] = useState(false);
+  const [receivedOptions, setReceivedOptions] = useState([]);
+  const [errorStatus, setErrorStatus] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -27,6 +29,14 @@ export const SocketProvider = ({ children }) => {
         if (status.image_path) {
           setImageUrl(status.image_path);
         }
+      }
+
+      if (status.image_success) {
+        setImageStatus(true);
+      }
+
+      if (status.error_status) {
+        setErrorStatus(true);
       }
     });
 
@@ -51,6 +61,13 @@ export const SocketProvider = ({ children }) => {
     setReceivedOptions([]);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setImageStatus(false);
+      setErrorStatus(false);
+    }
+  }, [location.pathname]);
+  
   return (
     <SocketContext.Provider
       value={{
@@ -58,7 +75,9 @@ export const SocketProvider = ({ children }) => {
         uploadStatus,
         setUploadStatus,
         imageUrl,
+        imageStatus,
         receivedOptions,
+        errorStatus
       }}
     >
       {children}

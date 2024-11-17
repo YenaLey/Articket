@@ -7,7 +7,7 @@ import HashLoader from "react-spinners/HashLoader";
 
 export default function Result() {
   const navigate = useNavigate();
-  const { socket } = useSocket();
+  const { socket, imageStatus, errorStatus } = useSocket();
   const [userName, setUserName] = useState("");
   const [artist, setArtist] = useState("");
   const [matchingArtists, setMatchingArtists] = useState({});
@@ -36,53 +36,67 @@ export default function Result() {
 
   // 생성된 이미지와 기타 데이터 가져오기
   useEffect(() => {
-    const getGeneratedImages = async () => {
-      try {
-        const response = await fetch(
-          `http://${process.env.REACT_APP_HOST}:5000/get-generated-images`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+    const timer = setTimeout(() => {
+      if (imageStatus) {
+        (async () => {
+          try {
+            const response = await fetch(
+              `http://${process.env.REACT_APP_HOST}:5000/get-generated-images`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+  
+            if (!response.ok) {
+              throw new Error("Failed to fetch generated images");
+            }
+  
+            const generatedResult = await response.json();
+            console.log(generatedResult);
+            const {
+              user_name,
+              artist,
+              matching_artists,
+              original_image,
+              generated_image,
+            } = generatedResult;
+  
+            setUserName(user_name);
+            setArtist(artist);
+            setMatchingArtists(matching_artists);
+            setOriginalImage(original_image);
+            setGeneratedImageUrls(
+              Array.isArray(generated_image) ? generated_image : [generated_image]
+            );
+  
+            if (socket && generated_image) {
+              socket.emit("operation_status", { success: true });
+              console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
+            }
+          } catch (error) {
+            console.error(error);
+            navigate("/");
+          } finally {
+            setLoading(false);
           }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to fetch generated images");
-        }
-  
-        const generatedResult = await response.json();
-        console.log(generatedResult);
-        const {
-          user_name,
-          artist,
-          matching_artists,
-          original_image,
-          generated_image,
-        } = generatedResult;
-  
-        setUserName(user_name);
-        setArtist(artist);
-        setMatchingArtists(matching_artists);
-        setOriginalImage(original_image);
-        setGeneratedImageUrls(
-          Array.isArray(generated_image) ? generated_image : [generated_image]
-        );
-  
-        if (socket && generated_image) {
-          socket.emit("operation_status", { success: true });
-          console.log("생성된 이미지를 모두 가져왔다고 리모컨에 알림~");
-        }
-      } catch (error) {
-        console.error(error);
-        navigate("/");
-      } finally {
-        setLoading(false);
+        })();
       }
-    };
+    }, 5000);
   
-    getGeneratedImages();
-  }, [navigate, socket]);
+    return () => clearTimeout(timer);
+  }, [imageStatus, socket, navigate]);
   
+  // 이미지 변환 중 오류 발생 시 main화면으로 navigate
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (errorStatus) {
+        navigate("/");
+      }
+    }, 4000);
+
+    return () => clearTimeout(timer)
+  }, [errorStatus, navigate])
 
   return (
     <div className="result-container">
@@ -152,15 +166,6 @@ export default function Result() {
               <p>생성된 이미지가 없습니다.</p>
             )}
           </div>
-
-          {/* <div className="qr-container">
-            {qrImageUrl && (
-              <div className="qr-image">
-                <img src={qrImageUrl} alt="QR code" />
-                <p>QR 코드를 스캔하여 성격 테스트 결과를 확인하세요</p>
-              </div>
-            )}
-          </div> */}
         </div>
       )}
     </div>
