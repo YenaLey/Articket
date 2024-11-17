@@ -106,12 +106,12 @@ ARTISTS = {
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.7>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.35>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
-        'steps': 150,
+        'steps': 120,
         'denoising_strength': 0.66,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENTJ", "ISTJ", "ESTJ", "ISTP"]
@@ -189,11 +189,15 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "steps": steps,
         "cfg_scale": cfg_scale,
         "denoising_strength": denoising_strength,
-        "sampler_index": "Euler a",
+        "sampler_name": "DPM++ 2M Karras",
         "batch_size": 1,
         "n_iter": 1,
         "width": 1024,
         "height": 1024,
+        "restore_faces": True,
+        "tiling": False,
+        "seed": -1
+
     }
 
     MAX_RETRIES = 3
