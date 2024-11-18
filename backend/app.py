@@ -100,7 +100,7 @@ ARTISTS = {
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,yellow face',
         },
         'steps': 100,
-        'denoising_strength': 0.75,
+        'denoising_strength': 0.65,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["INFJ", "INFP", "INTJ", "INTP"]
     },
@@ -118,13 +118,13 @@ ARTISTS = {
     },
     '르누아르': {
         'description': '낙천적이고 따뜻한 르누아르',
-        'modifier': 'oil painting,style of Auguste Renoir,  <lora:renior2_xl:1>,masterpiece,best quality, portrait,',
+        'modifier': 'oil painting,style of Auguste Renoir,  <lora:renior2_xl:0.6>,masterpiece,best quality, portrait,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
         'steps': 100,
-        'denoising_strength': 0.67,
+        'denoising_strength': 0.63,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ISFJ", "ESFJ", "ISFP", "ENFJ"]
     }
