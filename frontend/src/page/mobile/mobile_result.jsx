@@ -18,8 +18,8 @@ export default function MobileResult() {
 
     // localStorage로부터 체험완료 여부 가져옴
     useEffect(() => {
-        const storedDone = localStorage.getItem("done");
-        if (storedDone === "true") {
+        const storedDone = JSON.parse(localStorage.getItem("done"));
+        if (storedDone) {
             setDone(true);
         }
     }, []);
@@ -30,8 +30,8 @@ export default function MobileResult() {
             // 변환된 이미지가 모니터에 로드되었으면 로딩 끝. localStorage에 저장
             if (uploadStatus) {
                 console.log("이미지 변환이 완료됐대요!");
+                localStorage.setItem("done", JSON.stringify(true));
                 setDone(true);
-                localStorage.setItem("done", false);
             }
 
             // 이미지 변환 중 오류 발생 시 storage 초기화 후 upload 페이지로 navigate
@@ -76,6 +76,7 @@ export default function MobileResult() {
 
                         <div className="mloading-loading">
                             <p>성격 유형을 분석하여 해당 화가 스타일로<br />이미지를 변환 중이에요</p>
+                            {JSON.parse(localStorage.getItem("done")) ? <p>true</p> : <p>false</p>}
                             <HashLoader color="#D8D8D8" size={30} />
                         </div>
                     </div>)
@@ -83,8 +84,10 @@ export default function MobileResult() {
                         <div className="mresult-result">
                             <h1>ATOO</h1>
                             <h4>ARTICKET</h4>
-                            {/* <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button> */}
-                            <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button>
+                            {JSON.parse(localStorage.getItem("done")) ? <p>true</p> : <p>false</p>}
+                            {done ? <p>true</p> : <p>false</p>}
+                            <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button>
+                            {/* <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button> */}
                         </div>
                     )
                 }

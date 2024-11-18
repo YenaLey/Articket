@@ -15,9 +15,9 @@ export default function Remote() {
 
   // session storage 설정
   useEffect(() => {
-    const storedDone = localStorage.getItem("done");
-    if (storedDone === "true") {
-      setDone(true);
+    const storedDone = JSON.parse(localStorage.getItem("done"));
+    if (storedDone) {
+        setDone(true);
     }
   
     const storedStart = sessionStorage.getItem("start");
@@ -251,7 +251,7 @@ export default function Remote() {
                 <div className="remote-button-container">
                   <button
                     onClick={() => handleOptionClick("A")}
-                    className={`remote-button ${selectedOptions[currentIndex] === "A" || chosenOption === "A" ? "checked" : ""}`}
+                    className={`remote-button ${ chosenOption === "A" ? "checked" : ""}`}
                   >
                     A
                   </button>
@@ -265,7 +265,7 @@ export default function Remote() {
                   </button>
                   <button
                     onClick={() => handleOptionClick("B")}
-                    className={`remote-button ${selectedOptions[currentIndex] === "B" || chosenOption === "B" ? "checked" : ""}`}
+                    className={`remote-button ${ chosenOption === "B" ? "checked" : ""}`}
                   >
                     B
                   </button>
