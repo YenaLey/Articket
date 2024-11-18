@@ -133,9 +133,8 @@ export default function Upload() {
           <p>사진 주인공의 성별을 선택해주세요</p>
           <div className="upload-gender-selection">
             <label
-              className={`gender-option ${
-                selectedGender === "female" ? "selected" : ""
-              }`}
+              className={`gender-option ${selectedGender === "female" ? "selected" : ""
+                }`}
             >
               <input
                 type="radio"
@@ -149,9 +148,8 @@ export default function Upload() {
               &nbsp;여자
             </label>
             <label
-              className={`gender-option ${
-                selectedGender === "male" ? "selected" : ""
-              }`}
+              className={`gender-option ${selectedGender === "male" ? "selected" : ""
+                }`}
             >
               <input
                 type="radio"
@@ -202,10 +200,10 @@ export default function Upload() {
             {hasParticipated
               ? "참여 완료"
               : uploading
-              ? "업로드 중..."
-              : uploadSuccess
-              ? "업로드 완료"
-              : "사진 선택 완료"}
+                ? "업로드 중..."
+                : uploadSuccess
+                  ? "업로드 완료"
+                  : "사진 선택 완료"}
           </button>
         </div>
       </div>
