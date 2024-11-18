@@ -84,7 +84,7 @@ export default function Result() {
           }
         })();
       }
-    }, 5000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [imageStatus, socket, navigate]);
