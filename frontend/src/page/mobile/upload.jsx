@@ -29,12 +29,10 @@ export default function Upload() {
   }, []);
 
   // 체험 완료 여부 확인
-  useEffect(() => {
-    const storedDone = localStorage.getItem("done");
-    if (storedDone === "true") {
-      setDone(true);
-    }
-  }, []);
+  const storedDone = localStorage.getItem("done");
+  if (storedDone === "true") {
+    setDone(true);
+  }
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {

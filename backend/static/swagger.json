@@ -5,7 +5,7 @@
     "description": "An API for users to upload images, take a personality test, and generate images transformed into the style of corresponding artists.",
     "version": "1.0.0"
   },
-  "host": "192.168.88.155:5000",
+  "host": "192.168.0.14:5000",
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
