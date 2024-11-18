@@ -86,8 +86,8 @@ export default function MobileResult() {
                             <h4>ARTICKET</h4>
                             {JSON.parse(localStorage.getItem("done")) ? <p>true</p> : <p>false</p>}
                             {done ? <p>true</p> : <p>false</p>}
-                            {/* <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button> */}
-                            <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button>
+                            <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button>
+                            {/* <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button> */}
                         </div>
                     )
                 }
