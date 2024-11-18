@@ -18,8 +18,8 @@ export default function MobileResult() {
 
     // localStorage로부터 체험완료 여부 가져옴
     useEffect(() => {
-        const storedDone = JSON.parse(localStorage.getItem("done"));
-        if (storedDone) {
+        const storedDone = localStorage.getItem("done");
+        if (storedDone === "true") {
             setDone(true);
         }
     }, []);
@@ -30,7 +30,7 @@ export default function MobileResult() {
             // 변환된 이미지가 모니터에 로드되었으면 로딩 끝. localStorage에 저장
             if (uploadStatus) {
                 console.log("이미지 변환이 완료됐대요!");
-                localStorage.setItem("done", JSON.stringify(true));
+                localStorage.setItem("done", "true");
                 setDone(true);
             }
 
@@ -86,8 +86,8 @@ export default function MobileResult() {
                             <h4>ARTICKET</h4>
                             {JSON.parse(localStorage.getItem("done")) ? <p>true</p> : <p>false</p>}
                             {done ? <p>true</p> : <p>false</p>}
-                            <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button>
-                            {/* <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button> */}
+                            {/* <button onClick={() => navigate('/total-result')}>성격 유형 결과 확인하기</button> */}
+                            <button onClick={() => localStorage.setItem("done", false)}>성격 유형 결과 확인하기</button>
                         </div>
                     )
                 }

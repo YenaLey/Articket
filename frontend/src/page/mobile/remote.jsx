@@ -15,9 +15,9 @@ export default function Remote() {
 
   // session storage 설정
   useEffect(() => {
-    const storedDone = JSON.parse(localStorage.getItem("done"));
-    if (storedDone) {
-        setDone(true);
+    const storedDone = localStorage.getItem("done");
+    if (storedDone === "true") {
+      setDone(true);
     }
   
     const storedStart = sessionStorage.getItem("start");
@@ -57,6 +57,7 @@ export default function Remote() {
 
     const optionsArray = [...selectedOptions];
     optionsArray[currentIndex] = option;
+    setSelectedOptions(optionsArray);
 
     try {
       const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
@@ -222,6 +223,7 @@ export default function Remote() {
             <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
           ) : (
             <React.Fragment>
+              <p>{selectedOptions}</p>
               <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
               <div className="remote-progress"> 
                 {Array(8).fill(null).map((_, index) => {
