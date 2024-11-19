@@ -143,9 +143,8 @@ export default function MobileResult() {
                                 <p>
                                     성격 유형을 분석하여 해당 화가 스타일로
                                     <br />
-                                    이미지를 변환 중이에요 {uploadStatus ? true : false}
+                                    이미지를 변환 중이에요
                                 </p>
-                                {uploadStatus ? <p>true</p> : <p>false</p>}
                                 <HashLoader color="#D8D8D8" size={30} />
                             </div>
                         </div>
