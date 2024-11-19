@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
@@ -17,16 +17,8 @@ export default function Upload() {
   const [userName, setUserName] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [hasParticipated, setHasParticipated] = useState(false);
   const [done, setDone] = useState(false);
 
-  // 참여 여부 확인
-  useEffect(() => {
-    const participated = localStorage.getItem("hasParticipated");
-    if (participated === "true") {
-      setHasParticipated(true);
-    }
-  }, []);
 
   // 체험 완료 여부 확인
   const storedDone = localStorage.getItem("done");
@@ -83,8 +75,6 @@ export default function Upload() {
       );
       console.log("이미지 업로드 성공:", response.data);
       alert("이미지 업로드가 완료되었습니다.");
-      localStorage.setItem("hasParticipated", "true");
-      setHasParticipated(true);
       setUploadSuccess(true);
 
       if (socket && response.data.image_path) {
@@ -128,7 +118,6 @@ export default function Upload() {
             placeholder="이름 입력"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
-            disabled={hasParticipated}
           />
           <p>사진 주인공의 성별을 선택해주세요</p>
           <div className="upload-gender-selection">
@@ -142,7 +131,6 @@ export default function Upload() {
                 checked={selectedGender === "female"}
                 onChange={handleGenderChange}
                 style={{ display: "none" }}
-                disabled={hasParticipated}
               />
               <IoMdFemale />
               &nbsp;여자
@@ -157,7 +145,6 @@ export default function Upload() {
                 checked={selectedGender === "male"}
                 onChange={handleGenderChange}
                 style={{ display: "none" }}
-                disabled={hasParticipated}
               />
               <IoMdMale />
               &nbsp;남자
@@ -173,12 +160,11 @@ export default function Upload() {
             accept="image/*"
             onChange={handleFileChange}
             style={{ display: "none" }}
-            disabled={hasParticipated}
           />
 
           {/* label 요소로 파일 선택 트리거 */}
           <label
-            className={`upload-image ${hasParticipated ? "disabled" : ""}`}
+            className={`upload-image`}
             htmlFor="file-input"
           >
             {imgPreview ? (
@@ -194,12 +180,10 @@ export default function Upload() {
           <button
             onClick={uploadImage}
             disabled={
-              uploading || uploadSuccess || !imgPreview || hasParticipated
+              uploading || uploadSuccess || !imgPreview
             }
           >
-            {hasParticipated
-              ? "참여 완료"
-              : uploading
+            {uploading
                 ? "업로드 중..."
                 : uploadSuccess
                   ? "업로드 완료"
