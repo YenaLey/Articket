@@ -62,7 +62,6 @@ export default function MobileResult() {
                     sessionStorage.removeItem("selectedOptions");
                     sessionStorage.removeItem("start");
                     sessionStorage.removeItem("currentIndex");
-                    localStorage.setItem("hasParticipated", "false");
                     alert("사진 변환에 실패하였습니다.");
                     navigate("/upload");
                 }

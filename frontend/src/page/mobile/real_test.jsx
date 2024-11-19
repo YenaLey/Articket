@@ -14,7 +14,6 @@ export default function RealTest() {
         sessionStorage.removeItem("selectedOptions");
         sessionStorage.removeItem("start");
         sessionStorage.removeItem("currentIndex");
-        localStorage.setItem("hasParticipated", "false");
         localStorage.setItem("done", "false");
         localStorage.setItem("generated", "false");
     };
