@@ -131,10 +131,10 @@ ARTISTS = {
 }
 
 MATCHING_ARTISTS = {
-    '피카소': {'good': '르누아르', 'bad': '리히텐슈타인'},
-    '고흐': {'good': '리히텐슈타인', 'bad': '피카소'},
-    '르누아르': {'good': '피카소', 'bad': '고흐'},
-    '리히텐슈타인': {'good': '고흐', 'bad': '르누아르'},
+    '피카소': {'good': '르누아르', 'bad': '리히텐슈타인', 'neutral': '고흐'},
+    '고흐': {'good': '리히텐슈타인', 'bad': '피카소', 'neutral': '르누아르'},
+    '르누아르': {'good': '피카소', 'bad': '고흐', 'neutral': '리히텐슈타인'},
+    '리히텐슈타인': {'good': '고흐', 'bad': '르누아르', 'neutral': '피카소'},
 }
 
 # 특정 폴더 내의 파일들을 삭제하는 함수
@@ -222,7 +222,12 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
 
             save_to_desktop(generated_path, image_filename)
             log_progress(f"{artist_name}'s img2img", "completed", None, "completed")
-            return backend_url + '/' + generated_path.replace('./', '')
+            result = {
+                'file_path': generated_path,
+                'url': backend_url + '/' + generated_path.replace('./', '')
+            }
+            return result
+        
         except requests.exceptions.RequestException as e:
             error_message = f"HTTP Error: {e.response.status_code} - {e.response.reason}" if e.response else str(e)
             log_progress(f"{artist_name}'s img2img", "error", error_message, "error")
@@ -470,12 +475,12 @@ def generate_style_images():
     urls = []
 
     for artist in matching_artists:
-        image_url = selected_artists['generated_images'].get(artist)
-        if image_url:
-            urls.append(image_url)
-        else:
+        artist_result = selected_artists['generated_images'].get(artist)
+        if artist_result is None:
             log_progress("get generated images", "error", f"Image for artist {artist} not found", "error")
             return jsonify({"error": f"Image for artist {artist} not found"}), 500
+        image_url = artist_result['url']
+        urls.append(image_url)
 
     template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
     save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
@@ -502,6 +507,49 @@ def generate_style_images():
         "generated_image": urls,
         "qr_image": backend_url + '/static/personality-result-qr.png'
     }), 200
+
+'''
+매칭된 화가들의 이미지를 Base64 문자열과 설명(description)으로 반환하는 API
+'''
+@app.route('/get-matching-images', methods=['GET'])
+def get_matching_images():
+    global result_artist
+
+    if result_artist == "":
+        log_progress("get matching images", "error", "Result artist has not been selected", "error")
+        return jsonify({"error": "Result artist has not been selected"}), 400
+
+    if 'generated_images' not in selected_artists:
+        log_progress("get matching images", "error", "Images have not been generated", "error")
+        return jsonify({"error": "Images have not been generated"}), 400
+
+    try:
+        matching_artists = {
+            "match": result_artist,
+            "good": MATCHING_ARTISTS[result_artist]['good'],
+            "bad": MATCHING_ARTISTS[result_artist]['bad'],
+            "neutral": MATCHING_ARTISTS[result_artist]['neutral']
+        }
+
+        matching_images = {}
+        for key, artist_name in matching_artists.items():
+            artist_result = selected_artists['generated_images'].get(artist_name)
+            if artist_result is None:
+                log_progress("get matching images", "error", f"Image for artist {artist_name} not found", "error")
+                return jsonify({"error": f"Image for artist {artist_name} not found"}), 500
+            image_path = artist_result['file_path']
+
+            matching_images[key] = {
+                "description": ARTISTS[artist_name]['description'],
+                "image_base64": encode_image_to_base64(image_path)
+            }
+
+        log_progress("get matching images", "completed", None, "completed")
+        return jsonify({"matching_artists": matching_images}), 200
+
+    except Exception as e:
+        log_progress("get matching images", "error", f"Error occurred: {str(e)}", "error")
+        return jsonify({"error": "An error occurred while generating matching images"}), 500
 
 if __name__ == '__main__':
     try:
