@@ -106,7 +106,7 @@ ARTISTS = {
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.35>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.6>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
