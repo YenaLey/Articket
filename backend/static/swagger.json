@@ -5,7 +5,7 @@
     "description": "An API for users to upload images, take a personality test, and generate images transformed into the style of corresponding artists.",
     "version": "1.0.0"
   },
-  "host": "192.168.0.14:5000",
+  "host": "192.168.88.155:5000",
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
@@ -102,6 +102,62 @@
         }
       }
     },
+    "/get-matching-images": {
+      "get": {
+        "tags": ["Personality Test Result"],
+        "summary": "Retrieve Matching Images and Descriptions",
+        "description": "Returns the matching artists' descriptions and their respective images encoded in Base64 format.",
+        "responses": {
+          "200": {
+            "description": "Matching images retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "matching_artists": {
+                  "type": "object",
+                  "properties": {
+                    "match": {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "image_base64": { "type": "string" }
+                      }
+                    },
+                    "good": {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "image_base64": { "type": "string" }
+                      }
+                    },
+                    "bad": {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "image_base64": { "type": "string" }
+                      }
+                    },
+                    "neutral": {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "image_base64": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Result artist has not been selected or images have not been generated."
+          },
+          "500": {
+            "description": "Error occurred while generating matching images."
+          }
+        }
+      }
+    },
     "/select-option": {
       "get": {
         "tags": ["Option Selection"],
@@ -130,8 +186,8 @@
               "properties": {
                 "options": {
                   "type": "array",
-                  "items": { "type": ["string", "null"] },
-                  "example": ["A", "A", null, null, null, null, null, null]
+                  "items": { "type": "string" },
+                  "example": ["A", "B", "A", "B", "A", "B", "A", "B"]
                 }
               }
             }
@@ -146,7 +202,7 @@
                 "message": { "type": "string" },
                 "options": {
                   "type": "array",
-                  "items": { "type": ["string", "null"] }
+                  "items": { "type": "string" }
                 }
               }
             }
@@ -185,51 +241,6 @@
           },
           "400": {
             "description": "Selections are missing or have an invalid format."
-          }
-        }
-      }
-    },
-    "/get-generated-images": {
-      "post": {
-        "tags": ["Personality Test Result"],
-        "summary": "Generate Ticket PDF and Return Image Paths",
-        "description": "Creates a ticket PDF for the corresponding artist and returns the paths to the images.",
-        "responses": {
-          "200": {
-            "description": "Images and ticket generated successfully",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user_name": { "type": "string" },
-                "artist": { "type": "string" },
-                "original_image": { "type": "string" },
-                "generated_image": {
-                  "type": "array",
-                  "items": { "type": "string" },
-                  "description": "Array of image paths transformed into the styles of each artist (user's type, compatible type, incompatible type)"
-                },
-                "matching_artists": {
-                  "type": "object",
-                  "properties": {
-                    "good": {
-                      "type": "string",
-                      "description": "Compatible artist"
-                    },
-                    "bad": {
-                      "type": "string",
-                      "description": "Incompatible artist"
-                    }
-                  }
-                },
-                "qr_image": { "type": "string" }
-              }
-            }
-          },
-          "400": {
-            "description": "Image or artist information is missing."
-          },
-          "500": {
-            "description": "Failed to generate images"
           }
         }
       }
