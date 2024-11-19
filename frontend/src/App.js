@@ -10,6 +10,7 @@ import Result from "./page/result";
 import ErrorPage from "./page/error";
 import Remote from "./page/mobile/remote";
 import MobileResult from "./page/mobile/mobile_result";
+import RealTest from "./page/mobile/real_test";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
               {/* 결과 페이지 경로 */}
               <Route path="/result" element={<Result />} />
 
+              <Route path="/shibal" element={<RealTest />} />
               {/* 에러 페이지 경로 */}
               <Route path="/*" element={<ErrorPage />} />
               <Route path="/error" element={<ErrorPage />} />
