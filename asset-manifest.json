@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/Articket/static/css/main.2b23881a.css",
-    "main.js": "/Articket/static/js/main.3ebe48ef.js",
+    "main.js": "/Articket/static/js/main.ee33e4f2.js",
     "static/js/453.8ab44547.chunk.js": "/Articket/static/js/453.8ab44547.chunk.js",
     "static/media/background.png": "/Articket/static/media/background.fdb85f114bf63ce36001.png",
     "index.html": "/Articket/index.html",
     "main.2b23881a.css.map": "/Articket/static/css/main.2b23881a.css.map",
-    "main.3ebe48ef.js.map": "/Articket/static/js/main.3ebe48ef.js.map",
+    "main.ee33e4f2.js.map": "/Articket/static/js/main.ee33e4f2.js.map",
     "453.8ab44547.chunk.js.map": "/Articket/static/js/453.8ab44547.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2b23881a.css",
-    "static/js/main.3ebe48ef.js"
+    "static/js/main.ee33e4f2.js"
   ]
 }
