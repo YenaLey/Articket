@@ -89,7 +89,7 @@ ARTISTS = {
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
         'steps': 150,
-        'denoising_strength': 0.76,
+        'denoising_strength': 0.73,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ESFP", "ESTP", "ENTP"]
     },
@@ -107,7 +107,7 @@ ARTISTS = {
     },
     '피카소': {
         'description': '대담하고 창의적인 피카소',
-        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.35>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
+        'modifier': 'illustration,style of Pablo Picasso,<lora:picasso_xl:0.6>,masterpiece,best quality, portrait,cubism,abstract shapes,fragmented forms,bold lines,',
         'negative_prompt': {
             'male': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
@@ -576,7 +576,6 @@ if __name__ == '__main__':
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
         print(f"관리자 페이지 보려면: {backend_url}/admin")
-        # socketio.run(app, debug=True, host=REACT_APP_HOST, port=PORT)
         socketio.run(app, debug=True, host='localhost', port=5000)
     except Exception as e:
         log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
