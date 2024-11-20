@@ -28,19 +28,17 @@ export default function MobileResult() {
         "bad": "😵 나와 상극인 화가",
         "neutral": "😛 나와 중립인 화가"
     }
+  }, []);
 
-    // localStorage로부터 체험완료 여부 가져옴
-    useEffect(() => {
-        const storedDone = localStorage.getItem("done");
-        if (storedDone === "true") {
-            setDone(true);
-        }
-    }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const fetchMatchingImages = async () => {
         try {
             console.log("이미지 변환이 완료됐대요!");
-            const response = await axios.get(`http://${process.env.REACT_APP_HOST}:5000/get-matching-images`);
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/get-matching-images`);
             console.log("데이터 가져옴", response);
 
             const matchingArtists = response.data.matching_artists;
@@ -83,104 +81,136 @@ export default function MobileResult() {
         };
     }, [uploadStatus, errorStatus, navigate]);
 
+          // 데이터 검증 후 상태 업데이트
+          const matchingArtists = response.data.matching_artists;
+          if (!matchingArtists) {
+            throw new Error("API 응답에 matching_artists가 없습니다.");
+          }
 
-
-    const downloadAllImages = async () => {
-        console.log("ZIP 파일 생성 시작");
-        const zip = new JSZip();
-
-        try {
-            if (Array.isArray(images)) {
-                // ZIP 파일에 각 이미지를 추가
-                images.forEach((image, index) => {
-                    const binary = atob(image.image_base64); // Base64 문자열 디코딩
-                    const arrayBuffer = new Uint8Array(binary.length).map((_, i) => binary.charCodeAt(i));
-                    zip.file(`${image.description || `image_${index}`}.png`, arrayBuffer);
-                });
-
-                // ZIP 파일 생성 및 다운로드
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(zipBlob);
-                link.download = "Articket.zip";
-                link.click();
-                console.log("ZIP 파일 다운로드 완료");
-                URL.revokeObjectURL(link.href); // 메모리 해제
-            }
-        } catch (error) {
-            console.error("이미지 다운로드 중 오류 발생:", error);
-        } finally {
-            setDone(true);
-            localStorage.setItem("done", "true");
+          setMatchingImages(matchingArtists);
+          setImages(Object.values(matchingArtists));
+          setGenerated(true);
         }
+        // 이미지 변환 실패
+        else if (errorStatus) {
+          sessionStorage.removeItem("selectedOptions");
+          sessionStorage.removeItem("start");
+          sessionStorage.removeItem("currentIndex");
+          alert("사진 변환에 실패하였습니다.");
+          navigate("/upload");
+        }
+      } catch (error) {
+        console.error("데이터 가져오는 중 오류 발생:", error);
+      }
     };
 
-    return (
-        <div className="mresult">
-            <div className="mresult-container">
-                {/* 체험이 모두 끝났을 시 */}
-                {done ? (
-                    <div className="mdone-done">
-                        <h1>ATOO</h1>
-                        <h4>ARTICKET</h4>
-                        <button onClick={() => navigate("/total-result")}>
-                            성격 유형 결과 확인하기
-                        </button>
-                    </div>
-                ) :
-                    // 로딩 중일 시
-                    !generated ? (
-                        <div className="mloading-container">
-                            {imgSample.map((element, index) => (
-                                <div className="mloading-img" key={index}>
-                                    <div
-                                        className="mloading-overlay"
-                                        style={{ backgroundColor: element.color }}
-                                    />
-                                    <p>{element.artist}</p>
-                                    <img
-                                        src={process.env.PUBLIC_URL + element.src}
-                                        alt={element.artist}
-                                    />
-                                </div>
-                            ))}
-                            <div className="mloading-loading">
-                                <p>
-                                    성격 유형을 분석하여 해당 화가 스타일로
-                                    <br />
-                                    이미지를 변환 중이에요
-                                </p>
-                                <HashLoader color="#D8D8D8" size={30} />
-                            </div>
-                        </div>
-                    ) : (
-                        // 결과가 나왔을 시
-                        <div className="mresult-result">
-                            <h1>RESULT</h1>
-                            {Object.entries(matchingImages)
-                                .sort(([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)) // 키 순서대로 정렬
-                                .map(([key, { description, image_base64 }]) => (
-                                    <div className="mresult-img-container" key={key}>
-                                        <h1>{matchSample[key]}</h1>
-                                        <div className="mresult-img">
-                                            <img
-                                                src={`data:image/png;base64,${image_base64}`}
-                                                alt={description}
-                                            />
-                                        </div>
-                                        <p>{description}</p>
-                                    </div>
-                                ))}
-                            <button onClick={() => downloadAllImages()}>
-                                이미지 모두 저장하기
-                            </button>
+    fetchData();
 
-                            {/* <button onClick={() => navigate("/total-result")}>
+    // 클린업 함수
+    return () => {
+      clearTimeout(); // setTimeout은 직접 사용하지 않으므로 타이머 관리 필요 없음
+    };
+  }, [uploadStatus, errorStatus, navigate]);
+
+  const downloadAllImages = async () => {
+    console.log("ZIP 파일 생성 시작");
+    const zip = new JSZip();
+
+    try {
+      if (Array.isArray(images)) {
+        // ZIP 파일에 각 이미지를 추가
+        images.forEach((image, index) => {
+          const binary = atob(image.image_base64); // Base64 문자열 디코딩
+          const arrayBuffer = new Uint8Array(binary.length).map((_, i) =>
+            binary.charCodeAt(i)
+          );
+          zip.file(`${image.description || `image_${index}`}.png`, arrayBuffer);
+        });
+
+        // ZIP 파일 생성 및 다운로드
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(zipBlob);
+        link.download = "Articket.zip";
+        link.click();
+        console.log("ZIP 파일 다운로드 완료");
+        URL.revokeObjectURL(link.href); // 메모리 해제
+      }
+    } catch (error) {
+      console.error("이미지 다운로드 중 오류 발생:", error);
+    } finally {
+      setDone(true);
+      localStorage.setItem("done", "true");
+    }
+  };
+
+  return (
+    <div className="mresult">
+      <div className="mresult-container">
+        {/* 체험이 모두 끝났을 시 */}
+        {done ? (
+          <div className="mdone-done">
+            <h1>ATOO</h1>
+            <h4>ARTICKET</h4>
+            <button onClick={() => navigate("/total-result")}>
+              성격 유형 결과 확인하기
+            </button>
+          </div>
+        ) : // 로딩 중일 시
+        !generated ? (
+          <div className="mloading-container">
+            {imgSample.map((element, index) => (
+              <div className="mloading-img" key={index}>
+                <div
+                  className="mloading-overlay"
+                  style={{ backgroundColor: element.color }}
+                />
+                <p>{element.artist}</p>
+                <img
+                  src={process.env.PUBLIC_URL + element.src}
+                  alt={element.artist}
+                />
+              </div>
+            ))}
+            <div className="mloading-loading">
+              <p>
+                성격 유형을 분석하여 해당 화가 스타일로
+                <br />
+                이미지를 변환 중이에요
+              </p>
+              <HashLoader color="#D8D8D8" size={30} />
+            </div>
+          </div>
+        ) : (
+          // 결과가 나왔을 시
+          <div className="mresult-result">
+            <h1>RESULT</h1>
+            {Object.entries(matchingImages)
+              .sort(
+                ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
+              ) // 키 순서대로 정렬
+              .map(([key, { description, image_base64 }]) => (
+                <div className="mresult-img-container" key={key}>
+                  <h1>{matchSample[key]}</h1>
+                  <div className="mresult-img">
+                    <img
+                      src={`data:image/png;base64,${image_base64}`}
+                      alt={description}
+                    />
+                  </div>
+                  <p>{description}</p>
+                </div>
+              ))}
+            <button onClick={() => downloadAllImages()}>
+              이미지 모두 저장하기
+            </button>
+
+            {/* <button onClick={() => navigate("/total-result")}>
                                 성격 유형 결과 확인하기
                             </button> */}
-                        </div>
-                    )}
-            </div>
-        </div>
-    );
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

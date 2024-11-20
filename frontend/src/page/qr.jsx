@@ -8,7 +8,7 @@ function QR({ pathname }) {
     <div>
       <>
         <QRCodeCanvas
-          value={`http://${process.env.REACT_APP_HOST}:3000/${pathname}`}
+          value={`${process.env.REACT_APP_FRONTEND_URL}/${pathname}`}
           size={121}
         />
       </>

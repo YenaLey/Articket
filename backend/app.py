@@ -19,6 +19,7 @@ from reportlab.lib import colors
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
 
+# load_dotenv(dotenv_path='../frontend/.env')
 load_dotenv(dotenv_path='../frontend/.env')
 
 app = Flask(__name__)
@@ -34,12 +35,12 @@ def index():
 
 swagger = Swagger(app, template_file='./static/swagger.json')
 
-REACT_APP_HOST = os.getenv('HOST')
-PORT = 5000
-backend_url = f"http://{REACT_APP_HOST}:{PORT}"
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL')
+backend_url = f"{BACKEND_URL}"
 
 # Stable Diffusion WebUI URL 설정
-WEBUI_URL = os.getenv('WEBUI_URL')
+WEBUI_URL1 = os.getenv('WEBUI_URL1')
+WEBUI_URL2 = os.getenv('WEBUI_URL2')
 
 # BLIP API URL 설정 (환경 변수에서 가져옴)
 BLIP_URL = os.getenv('BLIP_URL')
@@ -180,8 +181,7 @@ def blip_interrogate(image_path):
         print(f"BLIP interrogate request failed with status code: {response.status_code}")
         return None
 
-def generate_image(image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, artist_name):
-    webui_url = WEBUI_URL
+def generate_image(webui_url, image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, artist_name):
     data = {
         "init_images": [f"data:image/png;base64, {image_base64}"],
         "prompt": f"{modifier}, {prompt}",
@@ -197,7 +197,6 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
         "restore_faces": True,
         "tiling": False,
         "seed": -1
-
     }
 
     MAX_RETRIES = 3
@@ -240,10 +239,10 @@ def generate_image(image_base64, modifier, negative_prompt, steps, denoising_str
             print(f"Error decoding response: {error_message}")
             return None
 
-def generate_image_with_retry(*args, retries=3, delay=5, **kwargs):
+def generate_image_with_retry(webui_url, *args, retries=3, delay=5, **kwargs):
     for attempt in range(retries):
         try:
-            return generate_image(*args, **kwargs)
+            return generate_image(webui_url, *args, **kwargs)
         except requests.exceptions.RequestException as e:
             print(f"Attempt {attempt + 1} failed: {e}")
             time.sleep(delay)
@@ -363,32 +362,53 @@ def generate_images():
         log_progress("blip", "completed", None, "completed", f"{prompt}")
 
     selected_artists['generated_images'] = {}
-    for artist_name in ['리히텐슈타인', '고흐', '피카소', '르누아르']:
-        artist_info = ARTISTS[artist_name]
-        modifier = artist_info['modifier']
-        negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
-        steps = artist_info['steps']
-        denoising_strength = artist_info['denoising_strength']
-        cfg_scale = artist_info['cfg_scale']
-        if artist_name == '고흐' and selected_gender == 'male':
-            modifier += 'handsome, portrait,'
-        elif artist_name == '고흐' and selected_gender == 'female':
-            modifier += 'pretty, portrait,'
-        result = generate_image_with_retry(
-            image_base64,
-            modifier,
-            negative_prompt,
-            steps,
-            denoising_strength,
-            cfg_scale,
-            prompt,
-            artist_name
-        )
-        if result is None:
-            log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
-            socketio.emit('operation_status', {'error_status': True})
-            return jsonify({"error": f"Failed to generate image for {artist_name}"}), 500
-        selected_artists['generated_images'][artist_name] = result
+
+    # 화가를 두 그룹으로 나눕니다.
+    group1_artists = ['리히텐슈타인', '고흐']
+    group2_artists = ['피카소', '르누아르']
+
+    # 각 그룹을 처리하는 함수
+    def process_artist_group(artists, webui_url):
+        for artist_name in artists:
+            artist_info = ARTISTS[artist_name]
+            modifier = artist_info['modifier']
+            negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
+            steps = artist_info['steps']
+            denoising_strength = artist_info['denoising_strength']
+            cfg_scale = artist_info['cfg_scale']
+            if artist_name == '고흐' and selected_gender == 'male':
+                modifier += 'handsome, portrait,'
+            elif artist_name == '고흐' and selected_gender == 'female':
+                modifier += 'pretty, portrait,'
+            result = generate_image_with_retry(
+                webui_url,
+                image_base64,
+                modifier,
+                negative_prompt,
+                steps,
+                denoising_strength,
+                cfg_scale,
+                prompt,
+                artist_name
+            )
+            if result is None:
+                log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
+                socketio.emit('operation_status', {'error_status': True})
+                raise Exception(f"Failed to generate image for {artist_name}")
+            selected_artists['generated_images'][artist_name] = result
+
+    # ThreadPoolExecutor를 사용하여 두 그룹을 병렬로 처리합니다.
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = []
+        futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
+        futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
+
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                log_progress("generate images", "error", str(e), "error")
+                return jsonify({"error": str(e)}), 500
 
     log_progress("generate images", "completed", None, "completed")
     socketio.emit('operation_status', {'image_success': True})
@@ -556,7 +576,8 @@ if __name__ == '__main__':
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
         print(f"관리자 페이지 보려면: {backend_url}/admin")
-        socketio.run(app, debug=True, host=REACT_APP_HOST, port=PORT)
+        # socketio.run(app, debug=True, host=REACT_APP_HOST, port=PORT)
+        socketio.run(app, debug=True, host='localhost', port=5000)
     except Exception as e:
         log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
         print(f"Flask 서버 실행 중 오류 발생: {e}")
