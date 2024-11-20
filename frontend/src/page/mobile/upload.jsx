@@ -19,7 +19,6 @@ export default function Upload() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [done, setDone] = useState(false);
 
-
   // 체험 완료 여부 확인
   const storedDone = localStorage.getItem("done");
   if (storedDone === "true") {
@@ -65,7 +64,7 @@ export default function Upload() {
 
     try {
       const response = await axios.post(
-        `http://${process.env.REACT_APP_HOST}:5000/upload-image/?name=${userName}&gender=${selectedGender}`,
+        `${process.env.REACT_APP_BACKEND_URL}/upload-image/?name=${userName}&gender=${selectedGender}`,
         formData,
         {
           headers: {
@@ -122,8 +121,9 @@ export default function Upload() {
           <p>사진 주인공의 성별을 선택해주세요</p>
           <div className="upload-gender-selection">
             <label
-              className={`gender-option ${selectedGender === "female" ? "selected" : ""
-                }`}
+              className={`gender-option ${
+                selectedGender === "female" ? "selected" : ""
+              }`}
             >
               <input
                 type="radio"
@@ -136,8 +136,9 @@ export default function Upload() {
               &nbsp;여자
             </label>
             <label
-              className={`gender-option ${selectedGender === "male" ? "selected" : ""
-                }`}
+              className={`gender-option ${
+                selectedGender === "male" ? "selected" : ""
+              }`}
             >
               <input
                 type="radio"
@@ -163,10 +164,7 @@ export default function Upload() {
           />
 
           {/* label 요소로 파일 선택 트리거 */}
-          <label
-            className={`upload-image`}
-            htmlFor="file-input"
-          >
+          <label className={`upload-image`} htmlFor="file-input">
             {imgPreview ? (
               <img src={imgPreview} alt="미리보기" />
             ) : (
@@ -179,15 +177,13 @@ export default function Upload() {
 
           <button
             onClick={uploadImage}
-            disabled={
-              uploading || uploadSuccess || !imgPreview
-            }
+            disabled={uploading || uploadSuccess || !imgPreview}
           >
             {uploading
-                ? "업로드 중..."
-                : uploadSuccess
-                  ? "업로드 완료"
-                  : "사진 선택 완료"}
+              ? "업로드 중..."
+              : uploadSuccess
+              ? "업로드 완료"
+              : "사진 선택 완료"}
           </button>
         </div>
       </div>

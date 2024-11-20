@@ -41,7 +41,7 @@ export default function Result() {
         (async () => {
           try {
             const response = await fetch(
-              `http://${process.env.REACT_APP_HOST}:5000/get-generated-images`,
+              `${process.env.REACT_APP_BACKEND_URL}/get-generated-images`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

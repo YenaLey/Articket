@@ -17,7 +17,10 @@ export const SocketProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const newSocket = io(`http://${process.env.REACT_APP_HOST}:5000`);
+    const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}`, {
+      secure: true,
+      transports: ["websocket"],
+    });
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
@@ -38,7 +41,7 @@ export const SocketProvider = ({ children }) => {
 
       if (status.error_status) {
         setErrorStatus(true);
-        console.log("에러났다내요")
+        console.log("에러났다내요");
       }
     });
 
@@ -87,7 +90,7 @@ export const SocketProvider = ({ children }) => {
         receivedOptions,
         errorStatus,
         questionIndex,
-        setQuestionIndex
+        setQuestionIndex,
       }}
     >
       {children}

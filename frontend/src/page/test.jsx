@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../style/test.css"
+import "../style/test.css";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { IoIosArrowDropleftCircle } from "react-icons/io";
 import { TbCircleLetterAFilled } from "react-icons/tb";
@@ -11,7 +11,8 @@ import { useSocket } from "../context/SocketContext";
 export default function Test() {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const { uploadStatus, setUploadStatus, receivedOptions, questionIndex } = useSocket();
+  const { uploadStatus, setUploadStatus, receivedOptions, questionIndex } =
+    useSocket();
 
   const questions = [
     {
@@ -63,7 +64,7 @@ export default function Test() {
   const generateImages = async () => {
     try {
       const response = await fetch(
-        `http://${process.env.REACT_APP_HOST}:5000/generate-images`,
+        `${process.env.REACT_APP_BACKEND_URL}/generate-images`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -78,26 +79,29 @@ export default function Test() {
     } catch (error) {
       console.error("/generate-images API 호출 중 오류 발생:", error);
     }
-  }
+  };
 
   useEffect(() => {
     generateImages();
-  }, [])
+  }, []);
 
   // 질문 순서 받아오기
   useEffect(() => {
     if (questionIndex !== null) {
       setCurrentQuestion(questionIndex);
 
-      if (uploadStatus && receivedOptions.length === 8 && !receivedOptions.includes(null)) {
+      if (
+        uploadStatus &&
+        receivedOptions.length === 8 &&
+        !receivedOptions.includes(null)
+      ) {
         navigate("/result");
       }
       setUploadStatus(false);
     }
-
   }, [navigate, questionIndex, receivedOptions, uploadStatus, setUploadStatus]);
 
-  const progressWidth = `${((currentQuestion) / questions.length) * 84}%`;
+  const progressWidth = `${(currentQuestion / questions.length) * 84}%`;
 
   return (
     <div className="test-container">
@@ -115,7 +119,9 @@ export default function Test() {
           <p>{currentQuestion + 1}/8</p>
           <h1>{questions[currentQuestion].question}</h1>
           <label
-            className={`checkbox-label ${receivedOptions[currentQuestion] === "A" ? "checked" : ""}`}
+            className={`checkbox-label ${
+              receivedOptions[currentQuestion] === "A" ? "checked" : ""
+            }`}
           >
             <input
               type="radio"
@@ -126,7 +132,9 @@ export default function Test() {
             <TbCircleLetterAFilled /> {questions[currentQuestion].optionA}
           </label>
           <label
-            className={`checkbox-label ${receivedOptions[currentQuestion] === "B" ? "checked" : ""}`}
+            className={`checkbox-label ${
+              receivedOptions[currentQuestion] === "B" ? "checked" : ""
+            }`}
           >
             <input
               type="radio"
@@ -136,16 +144,11 @@ export default function Test() {
             />
             <TbCircleLetterBFilled /> {questions[currentQuestion].optionB}
           </label>
-
         </div>
       </div>
 
-
       <div className="test-navigation">
-        <button
-          className="test-previous"
-          disabled={currentQuestion === 0}
-        >
+        <button className="test-previous" disabled={currentQuestion === 0}>
           <IoIosArrowDropleftCircle />
         </button>
         {currentQuestion < questions.length - 1 && (

@@ -36,7 +36,6 @@ export default function Remote() {
     } else {
       setCurrentIndex(Number(storedIndex));
     }
-
   }, []);
 
   useEffect(() => {
@@ -60,11 +59,14 @@ export default function Remote() {
     setSelectedOptions(optionsArray);
 
     try {
-      const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit-options`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ options: optionsArray }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/emit-options`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ options: optionsArray }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -85,7 +87,7 @@ export default function Remote() {
     setChosenOption("");
 
     try {
-      await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/select-option`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -98,13 +100,16 @@ export default function Remote() {
           newIndex = newIndex + 1;
           setCurrentIndex(currentIndex + 1);
         }
-        const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ index_status: newIndex }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/emit_index`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ index_status: newIndex }),
+          }
+        );
 
         if (response.ok) {
           const responseData = await response.json();
@@ -117,7 +122,7 @@ export default function Remote() {
       if (!updatedOptions.includes("") && !updatedOptions.includes(null)) {
         setSelectedOptions(Array(8).fill(null));
         await fetchPersonalityResult(updatedOptions);
-        navigate('/m-result');
+        navigate("/m-result");
       }
     } catch (error) {
       console.error("select-option API 호출 중 오류 발생:", error);
@@ -128,7 +133,9 @@ export default function Remote() {
   const fetchPersonalityResult = async (updatedOptions) => {
     try {
       const resultResponse = await fetch(
-        `http://${process.env.REACT_APP_HOST}:5000/get-personality-result/${updatedOptions.join("")}`,
+        `${
+          process.env.REACT_APP_BACKEND_URL
+        }/get-personality-result/${updatedOptions.join("")}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -146,7 +153,6 @@ export default function Remote() {
     }
   };
 
-
   // 왼쪽 방향키 클릭
   const handleLeftClick = async () => {
     if (currentIndex !== null && currentIndex > 0) {
@@ -154,13 +160,16 @@ export default function Remote() {
       setCurrentIndex(currentIndex - 1);
       setChosenOption("");
       try {
-        const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ index_status: newIndex }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/emit_index`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ index_status: newIndex }),
+          }
+        );
         if (response.ok) {
           const responseData = await response.json();
           console.log("인덱스 감소, 새 인덱스:", responseData.index_status);
@@ -180,13 +189,16 @@ export default function Remote() {
       setCurrentIndex(currentIndex + 1);
       setChosenOption("");
       try {
-        const response = await fetch(`http://${process.env.REACT_APP_HOST}:5000/emit_index`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ index_status: newIndex }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/emit_index`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ index_status: newIndex }),
+          }
+        );
         if (response.ok) {
           const responseData = await response.json();
           console.log("인덱스 증가, 새 인덱스:", responseData.index_status);
@@ -203,37 +215,46 @@ export default function Remote() {
   const testStart = async () => {
     handleOptionClick("C");
     setStart(true);
-  }
+  };
 
   if (done) {
     return (
       <div className="remote-completed">
         <p>체험이 완료되었습니다.</p>
-        <button onClick={() => navigate('/total-result')}>성격 유형 검사 결과 확인하기</button>
+        <button onClick={() => navigate("/total-result")}>
+          성격 유형 검사 결과 확인하기
+        </button>
       </div>
-    )
-  }
-  else {
+    );
+  } else {
     return (
       <div className="remote">
         <div className="remote-container">
           {!start ? (
-            <button onClick={() => testStart()} className="remote-start">예술가 유형 검사하기</button>
+            <button onClick={() => testStart()} className="remote-start">
+              예술가 유형 검사하기
+            </button>
           ) : (
             <React.Fragment>
-              <p className="remote-progress-dc">답변완료된 질문박스가 칠해집니다</p>
+              <p className="remote-progress-dc">
+                답변완료된 질문박스가 칠해집니다
+              </p>
               <div className="remote-progress">
-                {Array(8).fill(null).map((_, index) => {
-                  const element = selectedOptions[index] || "";
-                  return (
-                    <div
-                      key={index}
-                      className={`remote-progress-box ${element === "A" || element === "B" ? "checked" : ""}`}
-                    >
-                      {index + 1}
-                    </div>
-                  );
-                })}
+                {Array(8)
+                  .fill(null)
+                  .map((_, index) => {
+                    const element = selectedOptions[index] || "";
+                    return (
+                      <div
+                        key={index}
+                        className={`remote-progress-box ${
+                          element === "A" || element === "B" ? "checked" : ""
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                    );
+                  })}
               </div>
               <div className="remote-left">
                 <button
@@ -246,11 +267,17 @@ export default function Remote() {
               </div>
 
               <div className="remote-middle">
-                <p>현재 질문:<br />{currentIndex + 1} / 8</p>
+                <p>
+                  현재 질문:
+                  <br />
+                  {currentIndex + 1} / 8
+                </p>
                 <div className="remote-button-container">
                   <button
                     onClick={() => handleOptionClick("A")}
-                    className={`remote-button ${chosenOption === "A" ? "checked" : ""}`}
+                    className={`remote-button ${
+                      chosenOption === "A" ? "checked" : ""
+                    }`}
                   >
                     A
                   </button>
@@ -264,7 +291,9 @@ export default function Remote() {
                   </button>
                   <button
                     onClick={() => handleOptionClick("B")}
-                    className={`remote-button ${chosenOption === "B" ? "checked" : ""}`}
+                    className={`remote-button ${
+                      chosenOption === "B" ? "checked" : ""
+                    }`}
                   >
                     B
                   </button>
