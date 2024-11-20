@@ -5,9 +5,9 @@
     "description": "An API for users to upload images, take a personality test, and generate images transformed into the style of corresponding artists.",
     "version": "1.0.0"
   },
-  "host": "172.30.1.72:5000",
+  "host": "0040-14-45-8-98.ngrok-free.app",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": ["https"],
   "tags": [
     {
       "name": "Image Upload",
