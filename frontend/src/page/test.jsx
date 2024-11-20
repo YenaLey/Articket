@@ -99,14 +99,13 @@ export default function Test() {
         await navigate("/result"); // navigate 호출
       }
     };
-  
+
     if (questionIndex !== null) {
       setCurrentQuestion(questionIndex); // questionIndex 설정
       handleNavigation(); // 비동기 네비게이션 처리
       setUploadStatus(false); // 상태를 false로 설정
     }
   }, [navigate, questionIndex, receivedOptions, uploadStatus, setUploadStatus]);
-  
 
   const progressWidth = `${(currentQuestion / questions.length) * 84}%`;
 

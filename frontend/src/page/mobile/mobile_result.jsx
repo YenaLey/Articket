@@ -8,107 +8,79 @@ import HashLoader from "react-spinners/HashLoader";
 import { useSocket } from "../../context/SocketContext";
 
 export default function MobileResult() {
-    const navigate = useNavigate();
-    const [done, setDone] = useState(false);
-    const [generated, setGenerated] = useState(false);
-    const [images, setImages] = useState([]);
-    const [matchingImages, setMatchingImages] = useState({});
-    const timer = useRef(null);
-    const { uploadStatus, errorStatus } = useSocket();
-    const imgSample = [
-        { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
-        { src: "/img/고흐.png", artist: "고흐", color: "#E37900" },
-        { src: "/img/리히텐슈타인.png", artist: "리히텐슈타인", color: "#1A5934" },
-        { src: "/img/피카소.png", artist: "피카소", color: "#CA0000" },
-    ];
-    const order = ['match', 'good', 'bad', 'neutral'];
-    const matchSample = {
-        "match": "💁‍♀️ 나의 화가 유형",
-        "good": "☺️ 나와 잘 맞는 화가",
-        "bad": "😵 나와 상극인 화가",
-        "neutral": "😛 나와 중립인 화가"
+  const navigate = useNavigate();
+  const [done, setDone] = useState(false);
+  const [generated, setGenerated] = useState(false);
+  const [images, setImages] = useState([]);
+  const [matchingImages, setMatchingImages] = useState({});
+  const timer = useRef(null);
+  const { uploadStatus, errorStatus } = useSocket();
+  const imgSample = [
+    { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
+    { src: "/img/고흐.png", artist: "고흐", color: "#E37900" },
+    { src: "/img/리히텐슈타인.png", artist: "리히텐슈타인", color: "#1A5934" },
+    { src: "/img/피카소.png", artist: "피카소", color: "#CA0000" },
+  ];
+  const order = ["match", "good", "bad", "neutral"];
+  const matchSample = {
+    match: "💁‍♀️ 나의 화가 유형",
+    good: "☺️ 나와 잘 맞는 화가",
+    bad: "😵 나와 상극인 화가",
+    neutral: "😛 나와 중립인 화가",
+  };
+
+  // localStorage로부터 체험완료 여부 가져옴
+  useEffect(() => {
+    const storedDone = localStorage.getItem("done");
+    if (storedDone === "true") {
+      setDone(true);
     }
   }, []);
 
+  const fetchMatchingImages = async () => {
+    try {
+      console.log("이미지 변환이 완료됐대요!");
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/get-matching-images`
+      );
+      console.log("데이터 가져옴", response);
+
+      const matchingArtists = response.data.matching_artists;
+      if (!matchingArtists) {
+        throw new Error("API 응답에 matching_artists가 없습니다.");
+      }
+
+      // 상태 업데이트
+      setMatchingImages(matchingArtists);
+      setImages(Object.values(matchingArtists));
+      setGenerated(true);
+    } catch (error) {
+      console.error("데이터 가져오는 중 오류 발생:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const fetchMatchingImages = async () => {
-        try {
-            console.log("이미지 변환이 완료됐대요!");
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/get-matching-images`);
-            console.log("데이터 가져옴", response);
-
-            const matchingArtists = response.data.matching_artists;
-            if (!matchingArtists) {
-                throw new Error("API 응답에 matching_artists가 없습니다.");
-            }
-
-            // 상태 업데이트
-            setMatchingImages(matchingArtists);
-            setImages(Object.values(matchingArtists));
-            setGenerated(true);
-        } catch (error) {
-            console.error("데이터 가져오는 중 오류 발생:", error);
-        }
-    };
-
-    useEffect(() => {
-        if (uploadStatus || errorStatus) {
-            // 타이머를 사용하여 1초 후 작업 실행
-            timer.current = setTimeout(async () => {
-                if (uploadStatus) {
-                    await fetchMatchingImages();
-                } 
-                else if (errorStatus) {
-                    sessionStorage.removeItem("selectedOptions");
-                    sessionStorage.removeItem("start");
-                    sessionStorage.removeItem("currentIndex");
-                    alert("사진 변환에 실패하였습니다.");
-                    navigate("/upload");
-                }
-            }, 1000);
-        }
-
-        // 클린업 함수
-        return () => {
-            if (timer.current) {
-                clearTimeout(timer.current);
-                timer.current = null;
-            }
-        };
-    }, [uploadStatus, errorStatus, navigate]);
-
-          // 데이터 검증 후 상태 업데이트
-          const matchingArtists = response.data.matching_artists;
-          if (!matchingArtists) {
-            throw new Error("API 응답에 matching_artists가 없습니다.");
-          }
-
-          setMatchingImages(matchingArtists);
-          setImages(Object.values(matchingArtists));
-          setGenerated(true);
-        }
-        // 이미지 변환 실패
-        else if (errorStatus) {
+    if (uploadStatus || errorStatus) {
+      // 타이머를 사용하여 1초 후 작업 실행
+      timer.current = setTimeout(async () => {
+        if (uploadStatus) {
+          await fetchMatchingImages();
+        } else if (errorStatus) {
           sessionStorage.removeItem("selectedOptions");
           sessionStorage.removeItem("start");
           sessionStorage.removeItem("currentIndex");
           alert("사진 변환에 실패하였습니다.");
           navigate("/upload");
         }
-      } catch (error) {
-        console.error("데이터 가져오는 중 오류 발생:", error);
-      }
-    };
-
-    fetchData();
+      }, 1000);
+    }
 
     // 클린업 함수
     return () => {
-      clearTimeout(); // setTimeout은 직접 사용하지 않으므로 타이머 관리 필요 없음
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
     };
   }, [uploadStatus, errorStatus, navigate]);
 
