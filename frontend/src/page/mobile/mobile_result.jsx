@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import JSZip from "jszip";
@@ -13,6 +13,7 @@ export default function MobileResult() {
     const [generated, setGenerated] = useState(false);
     const [images, setImages] = useState([]);
     const [matchingImages, setMatchingImages] = useState({});
+    const timer = useRef(null);
     const { uploadStatus, errorStatus } = useSocket();
     const imgSample = [
         { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
@@ -36,28 +37,33 @@ export default function MobileResult() {
         }
     }, []);
 
+    const fetchMatchingImages = async () => {
+        try {
+            console.log("이미지 변환이 완료됐대요!");
+            const response = await axios.get(`http://${process.env.REACT_APP_HOST}:5000/get-matching-images`);
+            console.log("데이터 가져옴", response);
+
+            const matchingArtists = response.data.matching_artists;
+            if (!matchingArtists) {
+                throw new Error("API 응답에 matching_artists가 없습니다.");
+            }
+
+            // 상태 업데이트
+            setMatchingImages(matchingArtists);
+            setImages(Object.values(matchingArtists));
+            setGenerated(true);
+        } catch (error) {
+            console.error("데이터 가져오는 중 오류 발생:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-                // 이미지 변환 완료
+        if (uploadStatus || errorStatus) {
+            // 타이머를 사용하여 1초 후 작업 실행
+            timer.current = setTimeout(async () => {
                 if (uploadStatus) {
-                    console.log("이미지 변환이 완료됐대요!");
-                    const response = await axios.get(`http://${process.env.REACT_APP_HOST}:5000/get-matching-images`);
-                    console.log("데이터 가져옴", response);
-    
-                    // 데이터 검증 후 상태 업데이트
-                    const matchingArtists = response.data.matching_artists;
-                    if (!matchingArtists) {
-                        throw new Error("API 응답에 matching_artists가 없습니다.");
-                    }
-    
-                    setMatchingImages(matchingArtists);
-                    setImages(Object.values(matchingArtists));
-                    setGenerated(true);
-                }
-                // 이미지 변환 실패
+                    await fetchMatchingImages();
+                } 
                 else if (errorStatus) {
                     sessionStorage.removeItem("selectedOptions");
                     sessionStorage.removeItem("start");
@@ -65,19 +71,18 @@ export default function MobileResult() {
                     alert("사진 변환에 실패하였습니다.");
                     navigate("/upload");
                 }
-            } catch (error) {
-                console.error("데이터 가져오는 중 오류 발생:", error);
-            }
-        };
-    
-        fetchData();
-    
+            }, 1000);
+        }
+
         // 클린업 함수
         return () => {
-            clearTimeout(); // setTimeout은 직접 사용하지 않으므로 타이머 관리 필요 없음
+            if (timer.current) {
+                clearTimeout(timer.current);
+                timer.current = null;
+            }
         };
     }, [uploadStatus, errorStatus, navigate]);
-    
+
 
 
     const downloadAllImages = async () => {
