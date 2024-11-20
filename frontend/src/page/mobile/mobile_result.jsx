@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import JSZip from "jszip";
 import "../../style/mobile_result.css";
 import HashLoader from "react-spinners/HashLoader";
@@ -11,6 +10,7 @@ export default function MobileResult() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [json, setJson] = useState("json일까?");
   const [images, setImages] = useState([]);
   const [matchingImages, setMatchingImages] = useState({});
   const timer = useRef(null);
@@ -39,25 +39,42 @@ export default function MobileResult() {
 
   const fetchMatchingImages = async () => {
     try {
-      console.log("이미지 변환이 완료됐대요!");
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/get-matching-images`
-      );
-      console.log("데이터 가져옴", response);
+        console.log("이미지 변환이 완료됐대요!");
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-matching-images`, {
+            method: "GET",
+        });
 
-      const matchingArtists = response.data.matching_artists;
-      if (!matchingArtists) {
-        throw new Error("API 응답에 matching_artists가 없습니다.");
-      }
+        if (!response.ok) {
+            // 응답이 실패한 경우 (예: 404, 500)
+            const errorText = await response.text(); // 오류 메시지 확인
+            throw new Error(`API 응답 실패: ${response.status}, 내용: ${errorText}`);
+        }
 
-      // 상태 업데이트
+        // 응답이 JSON 형식이 아닌 경우 예외 처리
+        const contentType = response.headers.get("Content-Type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const responseText = await response.text();  // 응답 본문을 텍스트로 출력
+            setJson("json이 아니래요");
+            throw new Error(`응답이 JSON 형식이 아닙니다. 응답 내용: ${responseText}`);
+        }
+
+        // JSON 데이터 처리
+        const data = await response.json();
+        console.log("데이터 가져옴", data);
+
+        const matchingArtists = data.matching_artists;
+        if (!matchingArtists) {
+            throw new Error("API 응답에 matching_artists가 없습니다.");
+        }
+
+        // 상태 업데이트
       setMatchingImages(matchingArtists);
       setImages(Object.values(matchingArtists));
       setGenerated(true);
     } catch (error) {
-      console.error("데이터 가져오는 중 오류 발생:", error);
+        console.error("데이터 가져오는 중 오류 발생:", error);
     }
-  };
+};
 
   useEffect(() => {
     if (uploadStatus || errorStatus) {
@@ -129,59 +146,61 @@ export default function MobileResult() {
             </button>
           </div>
         ) : // 로딩 중일 시
-        !generated ? (
-          <div className="mloading-container">
-            {imgSample.map((element, index) => (
-              <div className="mloading-img" key={index}>
-                <div
-                  className="mloading-overlay"
-                  style={{ backgroundColor: element.color }}
-                />
-                <p>{element.artist}</p>
-                <img
-                  src={process.env.PUBLIC_URL + element.src}
-                  alt={element.artist}
-                />
-              </div>
-            ))}
-            <div className="mloading-loading">
-              <p>
-                성격 유형을 분석하여 해당 화가 스타일로
-                <br />
-                이미지를 변환 중이에요
-              </p>
-              <HashLoader color="#D8D8D8" size={30} />
-            </div>
-          </div>
-        ) : (
-          // 결과가 나왔을 시
-          <div className="mresult-result">
-            <h1>RESULT</h1>
-            {Object.entries(matchingImages)
-              .sort(
-                ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
-              ) // 키 순서대로 정렬
-              .map(([key, { description, image_base64 }]) => (
-                <div className="mresult-img-container" key={key}>
-                  <h1>{matchSample[key]}</h1>
-                  <div className="mresult-img">
-                    <img
-                      src={`data:image/png;base64,${image_base64}`}
-                      alt={description}
-                    />
-                  </div>
-                  <p>{description}</p>
+          !generated ? (
+            <div className="mloading-container">
+              {imgSample.map((element, index) => (
+                <div className="mloading-img" key={index}>
+                  <div
+                    className="mloading-overlay"
+                    style={{ backgroundColor: element.color }}
+                  />
+                  <p>{element.artist}</p>
+                  <img
+                    src={process.env.PUBLIC_URL + element.src}
+                    alt={element.artist}
+                  />
                 </div>
               ))}
-            <button onClick={() => downloadAllImages()}>
-              이미지 모두 저장하기
-            </button>
+              <div className="mloading-loading">
+                <p>
+                  성격 유형을 분석하여 해당 화가 스타일로
+                  <br />
+                  이미지를 변환 중이에요 {json}
+                </p>
+                <HashLoader color="#D8D8D8" size={30} />
+              </div>
+            </div>
+          ) : (
+            // 결과가 나왔을 시
+            <div className="mresult-result">
+              <h1>RESULT</h1>
+              <button onClick={() => downloadAllImages()}>
+                이미지 모두 저장하기
+              </button>
+              <div className="mresult-img-container">
+                {Object.entries(matchingImages)
+                  .sort(
+                    ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
+                  ) // 키 순서대로 정렬
+                  .map(([key, { description, image_base64 }]) => (
+                    <div className="mresult-img" key={key}>
+                      <h1>{matchSample[key]}</h1>
+                      <div>
+                        <img
+                          src={`data:image/png;base64,${image_base64}`}
+                          alt={description}
+                        />
+                      </div>
+                      <p>{description}</p>
+                    </div>
+                  ))}
+              </div>
 
-            {/* <button onClick={() => navigate("/total-result")}>
+              {/* <button onClick={() => navigate("/total-result")}>
                                 성격 유형 결과 확인하기
                             </button> */}
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </div>
   );
