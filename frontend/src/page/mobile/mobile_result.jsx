@@ -68,9 +68,9 @@ export default function MobileResult() {
         }
 
         // 상태 업데이트
-        setMatchingImages(matchingArtists);
-        setImages(Object.values(matchingArtists));
-        setGenerated(true);
+      setMatchingImages(matchingArtists);
+      setImages(Object.values(matchingArtists));
+      setGenerated(true);
     } catch (error) {
         console.error("데이터 가져오는 중 오류 발생:", error);
     }
@@ -174,25 +174,27 @@ export default function MobileResult() {
             // 결과가 나왔을 시
             <div className="mresult-result">
               <h1>RESULT</h1>
-              {Object.entries(matchingImages)
-                .sort(
-                  ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
-                ) // 키 순서대로 정렬
-                .map(([key, { description, image_base64 }]) => (
-                  <div className="mresult-img-container" key={key}>
-                    <h1>{matchSample[key]}</h1>
-                    <div className="mresult-img">
-                      <img
-                        src={`data:image/png;base64,${image_base64}`}
-                        alt={description}
-                      />
-                    </div>
-                    <p>{description}</p>
-                  </div>
-                ))}
               <button onClick={() => downloadAllImages()}>
                 이미지 모두 저장하기
               </button>
+              <div className="mresult-img-container">
+                {Object.entries(matchingImages)
+                  .sort(
+                    ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
+                  ) // 키 순서대로 정렬
+                  .map(([key, { description, image_base64 }]) => (
+                    <div className="mresult-img" key={key}>
+                      <h1>{matchSample[key]}</h1>
+                      <div>
+                        <img
+                          src={`data:image/png;base64,${image_base64}`}
+                          alt={description}
+                        />
+                      </div>
+                      <p>{description}</p>
+                    </div>
+                  ))}
+              </div>
 
               {/* <button onClick={() => navigate("/total-result")}>
                                 성격 유형 결과 확인하기
