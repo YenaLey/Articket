@@ -87,19 +87,26 @@ export default function Test() {
 
   // 질문 순서 받아오기
   useEffect(() => {
-    if (questionIndex !== null) {
-      setCurrentQuestion(questionIndex);
-
+    // 비동기 함수 정의
+    const handleNavigation = async () => {
       if (
+        questionIndex !== null &&
         uploadStatus &&
         receivedOptions.length === 8 &&
         !receivedOptions.includes(null)
       ) {
-        navigate("/result");
+        setUploadStatus(false); // uploadStatus를 false로 설정
+        await navigate("/result"); // navigate 호출
       }
-      setUploadStatus(false);
+    };
+  
+    if (questionIndex !== null) {
+      setCurrentQuestion(questionIndex); // questionIndex 설정
+      handleNavigation(); // 비동기 네비게이션 처리
+      setUploadStatus(false); // 상태를 false로 설정
     }
   }, [navigate, questionIndex, receivedOptions, uploadStatus, setUploadStatus]);
+  
 
   const progressWidth = `${(currentQuestion / questions.length) * 84}%`;
 

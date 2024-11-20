@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import JSZip from "jszip"; // ZIP 파일 생성 라이브러리
 import { dummy } from "../base64_test";
@@ -45,10 +46,24 @@ export default function RealTest() {
         }
     };
 
+    const handleSelectClick = async () => {
+        try {
+            await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        } catch (error) {
+            console.log("select-option api 호출 중 오류 발생:", error);
+        }
+    }
+
     return (
-        <div className="realtest-container">
-            <button onClick={() => downloadAllImages()}>이미지 다운로드</button>
-            <button onClick={() => shibal()}>초기화하기</button>
+        <div className="realtest-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <button onClick={() => downloadAllImages()} style={{width:"150px", height:"50px", marginBottom:"20px"}}>이미지 다운로드</button>
+            <button onClick={() => shibal()} style={{width:"150px", height:"50px", marginBottom:"20px"}}>초기화하기</button>
+            <button onClick={() => handleSelectClick()} style={{width:"150px", height:"50px"}}>UploadStatus</button>
         </div>
     );
 }
