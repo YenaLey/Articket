@@ -369,6 +369,7 @@ def generate_images():
 
     # 각 그룹을 처리하는 함수
     def process_artist_group(artists, webui_url):
+        group_results = {}
         for artist_name in artists:
             artist_info = ARTISTS[artist_name]
             modifier = artist_info['modifier']
@@ -395,7 +396,8 @@ def generate_images():
                 log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
                 socketio.emit('operation_status', {'error_status': True})
                 raise Exception(f"Failed to generate image for {artist_name}")
-            selected_artists['generated_images'][artist_name] = result
+            group_results[artist_name] = result
+        return group_results
 
     # ThreadPoolExecutor를 사용하여 두 그룹을 병렬로 처리합니다.
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -405,7 +407,8 @@ def generate_images():
 
         for future in as_completed(futures):
             try:
-                future.result()
+                group_results = future.result()
+                selected_artists['generated_images'].update(group_results)
             except Exception as e:
                 log_progress("generate images", "error", str(e), "error")
                 return jsonify({"error": str(e)}), 500
