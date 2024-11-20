@@ -48,7 +48,7 @@ export default function RealTest() {
 
     const handleSelectClick = async () => {
         try {
-            await fetch(`http://${process.env.REACT_APP_HOST}:5000/select-option`, {
+            await fetch(`${process.env.REACT_APP_BACKEND_URL}/select-option`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
