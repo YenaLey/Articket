@@ -37,6 +37,7 @@ swagger = Swagger(app, template_file='./static/swagger.json')
 REACT_APP_HOST = os.getenv('HOST')
 PORT = 5000
 backend_url = f"http://{REACT_APP_HOST}:{PORT}"
+print(backend_url)
 
 # Stable Diffusion WebUI URL 설정
 WEBUI_URL = os.getenv('WEBUI_URL')
