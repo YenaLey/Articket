@@ -42,6 +42,8 @@ backend_url = f"{BACKEND_URL}"
 WEBUI_URL1 = os.getenv('WEBUI_URL1')
 WEBUI_URL2 = os.getenv('WEBUI_URL2')
 
+HOST = os.getenv('HOST')
+
 # BLIP API URL 설정 (환경 변수에서 가져옴)
 BLIP_URL = os.getenv('BLIP_URL')
 
@@ -89,7 +91,7 @@ ARTISTS = {
             'female': 'beard,mustache,facial hair,senescent,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,nsfw,',
         },
         'steps': 150,
-        'denoising_strength': 0.73,
+        'denoising_strength': 0.7,
         'cfg_scale': 7,
         'condition': lambda options_list: calculate_mbti(options_list) in ["ENFP", "ESFP", "ESTP", "ENTP"]
     },
@@ -302,7 +304,6 @@ def edit_pdf_template(template_path, user_name, urls, save_path):
         print(f"Error editing PDF template: {e}")
         return {"error": "Failed to edit PDF template"}
 
-
 '''
 이미지 업로드 API
 사용자가 이미지를 업로드하고, 서버에 저장된 이미지의 경로를 반환합니다.
@@ -334,91 +335,6 @@ def upload_image():
 
     return jsonify({"image_path": original_image}), 200
 
-# '''
-# 이미지 변환 시작 API
-# 이미지 업로드 후 이 API를 호출하여 모든 화가에 대한 이미지를 생성합니다.
-# '''
-# @app.route('/generate-images', methods=['POST'])
-# def generate_images():
-#     global selected_artists, user_name, selected_gender, current_count
-
-#     if not selected_gender or not user_name:
-#         log_progress("generate images", "error", "User name or gender is missing", "error")
-#         return jsonify({"error": "User name or gender is missing"}), 400
-
-#     if 'image_path' not in selected_artists:
-#         log_progress("generate images", "error", "Image has not been uploaded", "error")
-#         return jsonify({"error": "Image has not been uploaded"}), 400
-
-#     image_path = selected_artists['image_path']
-
-#     image_base64 = encode_image_to_base64(image_path)
-#     prompt = blip_interrogate(image_path)
-#     if not prompt:
-#         log_progress("blip", "error", None, "error")
-#         socketio.emit('operation_status', {'error_status': True})
-#         return jsonify({"error": "Failed to interrogate image"}), 500
-#     else:
-#         log_progress("blip", "completed", None, "completed", f"{prompt}")
-
-#     selected_artists['generated_images'] = {}
-
-#     # 화가를 두 그룹으로 나눕니다.
-#     group1_artists = ['리히텐슈타인', '고흐']
-#     group2_artists = ['피카소', '르누아르']
-
-#     # 각 그룹을 처리하는 함수
-#     def process_artist_group(artists, webui_url):
-#         group_results = {}
-#         for artist_name in artists:
-#             artist_info = ARTISTS[artist_name]
-#             modifier = artist_info['modifier']
-#             negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
-#             steps = artist_info['steps']
-#             denoising_strength = artist_info['denoising_strength']
-#             cfg_scale = artist_info['cfg_scale']
-#             if artist_name == '고흐' and selected_gender == 'male':
-#                 modifier += 'handsome, portrait,'
-#             elif artist_name == '고흐' and selected_gender == 'female':
-#                 modifier += 'pretty, portrait,'
-#             result = generate_image_with_retry(
-#                 webui_url,
-#                 image_base64,
-#                 modifier,
-#                 negative_prompt,
-#                 steps,
-#                 denoising_strength,
-#                 cfg_scale,
-#                 prompt,
-#                 artist_name
-#             )
-#             if result is None:
-#                 log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
-#                 socketio.emit('operation_status', {'error_status': True})
-#                 raise Exception(f"Failed to generate image for {artist_name}")
-#             group_results[artist_name] = result
-#         return group_results
-
-#     # ThreadPoolExecutor를 사용하여 두 그룹을 병렬로 처리합니다.
-#     with ThreadPoolExecutor(max_workers=2) as executor:
-#         futures = []
-#         futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
-#         futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
-
-#         for future in as_completed(futures):
-#             try:
-#                 group_results = future.result()
-#                 selected_artists['generated_images'].update(group_results)
-#             except Exception as e:
-#                 log_progress("generate images", "error", str(e), "error")
-#                 return jsonify({"error": str(e)}), 500
-
-#     log_progress("generate images", "completed", None, "completed")
-#     socketio.emit('operation_status', {'image_success': True})
-
-#     return jsonify({"message": "Images generated successfully"}), 200
-
-###
 '''
 이미지 변환 시작 API
 이미지 업로드 후 이 API를 호출하여 모든 화가에 대한 이미지를 생성합니다.
@@ -447,41 +363,61 @@ def generate_images():
         log_progress("blip", "completed", None, "completed", f"{prompt}")
 
     selected_artists['generated_images'] = {}
-    for artist_name in ['리히텐슈타인', '고흐', '피카소', '르누아르']:
-        artist_info = ARTISTS[artist_name]
-        modifier = artist_info['modifier']
-        negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
-        steps = artist_info['steps']
-        denoising_strength = artist_info['denoising_strength']
-        cfg_scale = artist_info['cfg_scale']
-        if artist_name == '고흐' and selected_gender == 'male':
-            modifier += 'handsome, portrait,'
-        elif artist_name == '고흐' and selected_gender == 'female':
-            modifier += 'pretty, portrait,'
-        result = generate_image_with_retry(
-            WEBUI_URL1, ## 병렬처리 할 땐 없애기
-            image_base64,
-            modifier,
-            negative_prompt,
-            steps,
-            denoising_strength,
-            cfg_scale,
-            prompt,
-            artist_name
-        )
-        if result is None:
-            log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
-            socketio.emit('operation_status', {'error_status': True})
-            return jsonify({"error": f"Failed to generate image for {artist_name}"}), 500
-        selected_artists['generated_images'][artist_name] = result
+
+    # 화가를 두 그룹으로 나눕니다.
+    group1_artists = ['리히텐슈타인', '고흐']
+    group2_artists = ['피카소', '르누아르']
+
+    # 각 그룹을 처리하는 함수
+    def process_artist_group(artists, webui_url):
+        group_results = {}
+        for artist_name in artists:
+            artist_info = ARTISTS[artist_name]
+            modifier = artist_info['modifier']
+            negative_prompt = artist_info['negative_prompt'].get(selected_gender, '')
+            steps = artist_info['steps']
+            denoising_strength = artist_info['denoising_strength']
+            cfg_scale = artist_info['cfg_scale']
+            if artist_name == '고흐' and selected_gender == 'male':
+                modifier += 'handsome, portrait,'
+            elif artist_name == '고흐' and selected_gender == 'female':
+                modifier += 'pretty, portrait,'
+            result = generate_image_with_retry(
+                webui_url,
+                image_base64,
+                modifier,
+                negative_prompt,
+                steps,
+                denoising_strength,
+                cfg_scale,
+                prompt,
+                artist_name
+            )
+            if result is None:
+                log_progress("generate images", "error", f"Failed to generate image for {artist_name}", "error")
+                socketio.emit('operation_status', {'error_status': True})
+                raise Exception(f"Failed to generate image for {artist_name}")
+            group_results[artist_name] = result
+        return group_results
+
+    # ThreadPoolExecutor를 사용하여 두 그룹을 병렬로 처리합니다.
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = []
+        futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
+        futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
+
+        for future in as_completed(futures):
+            try:
+                group_results = future.result()
+                selected_artists['generated_images'].update(group_results)
+            except Exception as e:
+                log_progress("generate images", "error", str(e), "error")
+                return jsonify({"error": str(e)}), 500
 
     log_progress("generate images", "completed", None, "completed")
     socketio.emit('operation_status', {'image_success': True})
 
     return jsonify({"message": "Images generated successfully"}), 200
-###
-
-
 
 '''
 백엔드에서 프론트엔드로 성공 여부를 알리기 위해 호출하는 API.
@@ -644,7 +580,7 @@ if __name__ == '__main__':
         print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
         print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
         print(f"관리자 페이지 보려면: {backend_url}/admin")
-        socketio.run(app, debug=True, host='localhost', port=5000)
+        socketio.run(app, debug=True, host=HOST, port=5000)
     except Exception as e:
         log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
         print(f"Flask 서버 실행 중 오류 발생: {e}")

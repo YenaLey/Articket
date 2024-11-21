@@ -17,10 +17,7 @@ export const SocketProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}`, {
-      secure: true,
-      transports: ["websocket"],
-    });
+    const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}`);
     setSocket(newSocket);
 
     newSocket.on("connect", () => {

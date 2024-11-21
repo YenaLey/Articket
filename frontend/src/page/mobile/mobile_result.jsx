@@ -10,7 +10,6 @@ export default function MobileResult() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [json, setJson] = useState("json일까?");
   const [images, setImages] = useState([]);
   const [matchingImages, setMatchingImages] = useState({});
   const timer = useRef(null);
@@ -59,7 +58,6 @@ export default function MobileResult() {
       const contentType = response.headers.get("Content-Type");
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text(); // 응답 본문을 텍스트로 출력
-        setJson("json이 아니래요");
         throw new Error(
           `응답이 JSON 형식이 아닙니다. 응답 내용: ${responseText}`
         );
@@ -172,7 +170,7 @@ export default function MobileResult() {
               <p>
                 성격 유형을 분석하여 해당 화가 스타일로
                 <br />
-                이미지를 변환 중이에요 {json}
+                이미지를 변환 중이에요
               </p>
               <HashLoader color="#D8D8D8" size={30} />
             </div>
