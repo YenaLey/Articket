@@ -12,6 +12,8 @@ export default function MobileResult() {
   const [generated, setGenerated] = useState(false);
   const [images, setImages] = useState([]);
   const [matchingImages, setMatchingImages] = useState({});
+  const [error, setError] = useState("");
+  const [now, setNow] = useState(false);
   const timer = useRef(null);
   const { uploadStatus, errorStatus } = useSocket();
   const imgSample = [
@@ -49,6 +51,7 @@ export default function MobileResult() {
       if (!response.ok) {
         // 응답이 실패한 경우 (예: 404, 500)
         const errorText = await response.text(); // 오류 메시지 확인
+        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
         throw new Error(
           `API 응답 실패: ${response.status}, 내용: ${errorText}`
         );
@@ -58,6 +61,7 @@ export default function MobileResult() {
       const contentType = response.headers.get("Content-Type");
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text(); // 응답 본문을 텍스트로 출력
+        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
         throw new Error(
           `응답이 JSON 형식이 아닙니다. 응답 내용: ${responseText}`
         );
@@ -69,6 +73,7 @@ export default function MobileResult() {
 
       const matchingArtists = data.matching_artists;
       if (!matchingArtists) {
+        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
         throw new Error("API 응답에 matching_artists가 없습니다.");
       }
 
@@ -78,6 +83,7 @@ export default function MobileResult() {
       setGenerated(true);
     } catch (error) {
       console.error("데이터 가져오는 중 오류 발생:", error);
+      setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
     }
   };
 
@@ -86,6 +92,7 @@ export default function MobileResult() {
       // 타이머를 사용하여 1초 후 작업 실행
       timer.current = setTimeout(async () => {
         if (uploadStatus) {
+          setNow(true);
           await fetchMatchingImages();
         } else if (errorStatus) {
           sessionStorage.removeItem("selectedOptions");
@@ -151,61 +158,67 @@ export default function MobileResult() {
             </button>
           </div>
         ) : // 로딩 중일 시
-        !generated ? (
-          <div className="mloading-container">
-            {imgSample.map((element, index) => (
-              <div className="mloading-img" key={index}>
-                <div
-                  className="mloading-overlay"
-                  style={{ backgroundColor: element.color }}
-                />
-                <p>{element.artist}</p>
-                <img
-                  src={process.env.PUBLIC_URL + element.src}
-                  alt={element.artist}
-                />
+          !generated ? (
+            <div className="mloading-container">
+              {imgSample.map((element, index) => (
+                <div className="mloading-img" key={index}>
+                  <div
+                    className="mloading-overlay"
+                    style={{ backgroundColor: element.color }}
+                  />
+                  <p>{element.artist}</p>
+                  <img
+                    src={process.env.PUBLIC_URL + element.src}
+                    alt={element.artist}
+                  />
+                </div>
+              ))}
+              <div className="mloading-loading">
+                {!now ?
+                  <p>
+                    성격 유형을 분석하여 해당 화가 스타일로
+                    <br />
+                    이미지를 변환 중이에요
+                  </p>
+                  : <p>
+                    이미지를 가져오고 있어요
+                  </p>
+                }
+                <p>{error}</p>
+                <HashLoader color="#D8D8D8" size={30} />
               </div>
-            ))}
-            <div className="mloading-loading">
-              <p>
-                성격 유형을 분석하여 해당 화가 스타일로
-                <br />
-                이미지를 변환 중이에요
-              </p>
-              <HashLoader color="#D8D8D8" size={30} />
             </div>
-          </div>
-        ) : (
-          // 결과가 나왔을 시
-          <div className="mresult-result">
-            <h1>RESULT</h1>
-            <button onClick={() => downloadAllImages()}>
-              이미지 모두 저장하기
-            </button>
-            <div className="mresult-img-container">
-              {Object.entries(matchingImages)
-                .sort(
-                  ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
-                ) // 키 순서대로 정렬
-                .map(([key, { description, image_base64 }]) => (
-                  <div className="mresult-img" key={key}>
-                    <h1>{matchSample[key]}</h1>
-                    <div>
-                      <img
-                        src={`data:image/png;base64,${image_base64}`}
-                        alt={description}
-                      />
+          ) : (
+            // 결과가 나왔을 시
+            <div className="mresult-result">
+              <h1>RESULT</h1>
+              <button onClick={() => downloadAllImages()}>
+                이미지 모두 저장하기
+              </button>
+              <div className="mresult-img-container">
+                {Object.entries(matchingImages)
+                  .sort(
+                    ([keyA], [keyB]) => order.indexOf(keyA) - order.indexOf(keyB)
+                  ) // 키 순서대로 정렬
+                  .map(([key, { description, image_base64 }]) => (
+                    <div className="mresult-img" key={key}>
+                      <h1>{matchSample[key]}</h1>
+                      <div>
+                        <img
+                          src={`data:image/png;base64,${image_base64}`}
+                          alt={description}
+                        />
+                      </div>
+                      <p>{description}</p>
                     </div>
-                    <p>{description}</p>
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
 
-            {/* <button onClick={() => navigate("/total-result")}>
+              {/* <button onClick={() => navigate("/total-result")}>
                                 성격 유형 결과 확인하기
                             </button> */}
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </div>
   );
