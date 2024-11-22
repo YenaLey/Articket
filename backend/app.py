@@ -173,15 +173,30 @@ def encode_image_to_base64(image_path):
 
 # BLIP으로 이미지를 텍스트로 변환하는 함수
 def blip_interrogate(image_path):
-    interrogate_url = f"{BLIP_URL}/generate_caption"
-    response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
-    
-    if response.status_code == 200:
-        print("BLIP interrogate request successful!")
-        return response.json().get('caption', '')
-    else:
-        print(f"BLIP interrogate request failed with status code: {response.status_code}")
+
+    ##clip
+    image_base64 = encode_image_to_base64(image_path)
+    interrogate_url = f"{WEBUI_URL1}/sdapi/v1/interrogate"
+    interrogate_data = {
+        "image": f"data:image/png;base64,{image_base64}",
+        "model": "clip",
+        "clip_skip": 1
+    }
+    response = requests.post(interrogate_url, json=interrogate_data)
+    if response.status_code != 200:
         return None
+    return response.json().get('caption', '')
+
+    ##blip
+    # interrogate_url = f"{BLIP_URL}/generate_caption"
+    # response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
+    
+    # if response.status_code == 200:
+    #     print("BLIP interrogate request successful!")
+    #     return response.json().get('caption', '')
+    # else:
+    #     print(f"BLIP interrogate request failed with status code: {response.status_code}")
+    #     return None
 
 def generate_image(webui_url, image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, artist_name):
     data = {
@@ -354,7 +369,8 @@ def generate_images():
     image_path = selected_artists['image_path']
 
     image_base64 = encode_image_to_base64(image_path)
-    prompt = blip_interrogate(image_path)
+    # prompt = blip_interrogate(image_path) ## 블립 안될 경우 주석처리하기
+    prompt = "a young girl wearing a baseball cap and a gray shirt" ## 임시 블립 값 넣기
     if not prompt:
         log_progress("blip", "error", None, "error")
         socketio.emit('operation_status', {'error_status': True})
