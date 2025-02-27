@@ -29,6 +29,7 @@ export default function Main() {
   }, [receivedOptions, navigate]);
 
   const newImageUrl = (url) => {
+    console.log(url);
     let secureUrl = url;
 
     // wss:// -> https:// 변환

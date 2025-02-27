@@ -1,0 +1,4 @@
+echo "python-3.9.18" > backend/runtime.txt
+git add backend/runtime.txt
+git commit -m "Add runtime.txt for Python version"
+git push origin main
