@@ -8,7 +8,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "cd backend && python3 app.py",
+    "startCommand": "cd backend && python app.py",
     "envVars": {
       "REACT_APP_BACKEND_URL": "https://backend-up.railway.app",
       "WEBUI_URL1": "your-webui-url1",
