@@ -193,6 +193,19 @@ export default function MobileResult() {
         resultContainer.style.borderRadius = "0px";
         ticketBottomContainer.style.borderRadius = "0px";
 
+        // ✅ 모든 이미지가 로딩될 때까지 기다림
+        const images = resultContainer.querySelectorAll("img");
+        await Promise.all(
+          [...images].map((img) => {
+            return new Promise((resolve, reject) => {
+              if (img.complete) resolve();
+              img.onload = resolve;
+              img.onerror = reject;
+            });
+          })
+        );
+
+        // 📌 html2canvas 실행 (이미지가 로드된 후)
         const canvas = await html2canvas(resultContainer, {
           useCORS: true, // CORS 문제 방지
           scale: 2, // 고해상도
@@ -207,25 +220,12 @@ export default function MobileResult() {
         zip.file("ticket.png", resultImage.split(",")[1], { base64: true });
       }
 
-      if (Array.isArray(images)) {
-        images.forEach((image, index) => {
-          const binary = atob(image.image_base64);
-          const arrayBuffer = new Uint8Array(binary.length).map((_, i) =>
-            binary.charCodeAt(i)
-          );
-          zip.file(`${image.description || `image_${index}`}.png`, arrayBuffer);
-        });
-      }
-
       // ✅ 추가할 이미지 (public/img/huchu.jpeg)
       const huchuImagePath = `${process.env.PUBLIC_URL}/img/huchu.jpeg`;
-
-      // 📌 Fetch를 사용해 이미지 가져오기
       const response = await fetch(huchuImagePath);
       if (!response.ok) {
         throw new Error("추가 이미지 불러오기 실패");
       }
-
       const blob = await response.blob();
       const arrayBuffer = await blob.arrayBuffer();
       zip.file("huchu.jpeg", arrayBuffer); // ZIP 파일에 추가
@@ -302,7 +302,11 @@ export default function MobileResult() {
             <div className="mresult-img-container">
               {matchingImages.map((url, index) => (
                 <div className="mresult-img" key={index}>
-                  <img src={newImageUrl(url)} alt={`image_${index}`} />
+                  <img
+                    src={newImageUrl(url)}
+                    alt={`image_${index}`}
+                    crossOrigin="anonymous"
+                  />
                 </div>
               ))}
             </div>
