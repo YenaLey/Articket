@@ -189,7 +189,7 @@ export default function MobileResult() {
           ticketBottomContainer.style.borderRadius;
 
         // 📌 캡처 전에 스타일 초기화
-        resultContainer.style.transform = "scale(0.85)";
+        resultContainer.style.transform = "scale(0.65)";
         resultContainer.style.borderRadius = "0px";
         ticketBottomContainer.style.borderRadius = "0px";
 
@@ -250,6 +250,19 @@ export default function MobileResult() {
     }
   };
 
+  const newImageUrl = (url) => {
+    let secureUrl = url;
+
+    // wss:// -> https:// 변환
+    if (url.startsWith("wss://")) {
+      secureUrl = url.replace("wss://", "https://");
+    } else if (url.startsWith("ws://")) {
+      secureUrl = url.replace("ws://", "https://");
+    }
+
+    return secureUrl;
+  };
+
   return (
     <div className="mresult">
       <div className="mresult-container">
@@ -289,7 +302,7 @@ export default function MobileResult() {
             <div className="mresult-img-container">
               {matchingImages.map((url, index) => (
                 <div className="mresult-img" key={index}>
-                  <img src={url} alt={`image_${index}`} />
+                  <img src={newImageUrl(url)} alt={`image_${index}`} />
                 </div>
               ))}
             </div>

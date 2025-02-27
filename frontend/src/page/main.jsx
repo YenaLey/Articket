@@ -28,6 +28,19 @@ export default function Main() {
     }
   }, [receivedOptions, navigate]);
 
+  const newImageUrl = (url) => {
+    let secureUrl = url;
+
+    // wss:// -> https:// 변환
+    if (url.startsWith("wss://")) {
+      secureUrl = url.replace("wss://", "https://");
+    } else if (url.startsWith("ws://")) {
+      secureUrl = url.replace("ws://", "https://");
+    }
+
+    return secureUrl;
+  };
+
   return (
     <div className="main-container">
       <div className="main-title">
@@ -47,7 +60,7 @@ export default function Main() {
       {imageUrl && (
         <div className="main-image">
           <div className="main-imgcontainer">
-            <img src={imageUrl} alt="업로드된 이미지" />
+            <img src={newImageUrl(imageUrl)} alt="업로드된 이미지" />
           </div>
           <p>사진이 업로드 되었습니다</p>
         </div>

@@ -103,6 +103,19 @@ export default function Result() {
     return () => clearTimeout(timer);
   }, [errorStatus, navigate]);
 
+  const newImageUrl = (url) => {
+    let secureUrl = url;
+
+    // wss:// -> https:// 변환
+    if (url.startsWith("wss://")) {
+      secureUrl = url.replace("wss://", "https://");
+    } else if (url.startsWith("ws://")) {
+      secureUrl = url.replace("ws://", "https://");
+    }
+
+    return secureUrl;
+  };
+
   return (
     <div className="result-container">
       <h1 onClick={() => navigate("/")}>ARTICKET</h1>
@@ -141,7 +154,7 @@ export default function Result() {
               <h4>
                 <span>{userName}</span>님의<br></br>예술 작품
               </h4>
-              <img src={originalImage} alt="원본" />
+              <img src={newImageUrl(originalImage)} alt="원본" />
               <p>원본</p>
             </div>
             <FaLongArrowAltRight className="result-convert-arrow" />
@@ -155,7 +168,10 @@ export default function Result() {
                       {/* <p style={{ fontSize: "1.5rem" }}>
                       {who[index] || "정보 없음"}
                     </p> */}
-                      <img src={url} alt={`generated ${index + 1}`} />
+                      <img
+                        src={newImageUrl(url)}
+                        alt={`generated ${index + 1}`}
+                      />
                       <p>{artists[index]}</p>
                     </div>
                   );

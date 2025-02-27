@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify, abort
 from flasgger import Swagger, swag_from
 from flask_cors import CORS
@@ -19,6 +22,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors 
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
+
+
 
 # load_dotenv(dotenv_path='../frontend/.env')
 load_dotenv(dotenv_path='../frontend/.env')
@@ -609,13 +614,14 @@ def get_matching_images():
         return jsonify({"error": "An error occurred while generating matching images"}), 500
 
 if __name__ == '__main__':
-    try:
-        print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
-        print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
-        print(f"관리자 페이지 보려면: {backend_url}/admin")
-        socketio.run(app, debug=True, host=HOST, port=5000)
-    except Exception as e:
-        log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
-        print(f"Flask 서버 실행 중 오류 발생: {e}")
-    finally:
-        log_progress("server_shutdown", "error", "Server is shutting down", "error")
+    with app.app_context():
+        try:
+            print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
+            print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
+            print(f"관리자 페이지 보려면: {backend_url}/admin")
+            socketio.run(app, debug=True, host=HOST, port=5000, use_reloader=False)
+        except Exception as e:
+            log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
+            print(f"Flask 서버 실행 중 오류 발생: {e}")
+        finally:
+            log_progress("server_shutdown", "error", "Server is shutting down", "error")
