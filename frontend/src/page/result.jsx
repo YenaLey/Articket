@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
 import "../style/result.css";
 import HashLoader from "react-spinners/HashLoader";
+import { FaLongArrowAltRight } from "react-icons/fa";
 
 export default function Result() {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ export default function Result() {
     { src: "/img/고흐.png", artist: "고흐" },
     { src: "/img/르누아르.png", artist: "르누아르" },
   ];
+
+  const artists = ["피카소", "르누아르", "리히텐슈타인", "고흐"];
 
   // 생성된 이미지와 기타 데이터 가져오기
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function Result() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (errorStatus) {
-        navigate("/");
+        navigate("/", { replace: true });
       }
     }, 4000);
 
@@ -122,51 +125,45 @@ export default function Result() {
             ))}
           </div>
           <div className="loading-loading">
-            <p>
-              성격 유형을 분석하여 해당 화가 스타일로 이미지를 변환 중이에요
-            </p>
+            <p>화가 스타일로 이미지를 변환 중이에요</p>
             <HashLoader color="#D8D8D8" size={50} />
           </div>
         </div>
       ) : (
         <div className="result-result">
           <div className="result-description">
-            <h4>
-              <span>{userName}</span> 의 예술가 유형은?
-            </h4>
-            <h2>{artist}</h2>
-            <p>{artists_summary[artist]}</p>
+            {/* <h2>{artist}</h2>
+            <p>{artists_summary[artist]}</p> */}
           </div>
 
           <div className="result-img-container">
-            <div className="result-img">
-              <p style={{ fontSize: "1.5rem" }}>원본사진</p>
+            <div className="result-original-img">
+              <h4>
+                <span>{userName}</span>님의<br></br>예술 작품
+              </h4>
               <img src={originalImage} alt="원본" />
-              <p>&nbsp;</p>
+              <p>원본</p>
             </div>
-            {generatedImageUrls.length > 0 ? (
-              generatedImageUrls.map((url, index) => {
-                if (url === null) return null;
+            <FaLongArrowAltRight className="result-convert-arrow" />
+            <div className="result-convert-img-container">
+              {generatedImageUrls.length > 0 ? (
+                generatedImageUrls.map((url, index) => {
+                  if (url === null) return null;
 
-                return (
-                  <div className="result-img" key={index}>
-                    <p style={{ fontSize: "1.5rem" }}>
+                  return (
+                    <div key={index}>
+                      {/* <p style={{ fontSize: "1.5rem" }}>
                       {who[index] || "정보 없음"}
-                    </p>
-                    <img src={url} alt={`generated ${index + 1}`} />
-                    <p>
-                      {index === 0
-                        ? artist
-                        : index === 1
-                        ? matchingArtists["good"]
-                        : matchingArtists["bad"]}
-                    </p>
-                  </div>
-                );
-              })
-            ) : (
-              <p>생성된 이미지가 없습니다.</p>
-            )}
+                    </p> */}
+                      <img src={url} alt={`generated ${index + 1}`} />
+                      <p>{artists[index]}</p>
+                    </div>
+                  );
+                })
+              ) : (
+                <p>생성된 이미지가 없습니다.</p>
+              )}
+            </div>
           </div>
         </div>
       )}

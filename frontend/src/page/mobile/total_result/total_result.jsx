@@ -37,10 +37,10 @@ export default function TotalResult() {
         className="total-container"
         style={{ backgroundColor: color[index].backgroundColor }}
       >
-        <div ref={scrollToTopRef} className="total-top"/>
+        <div ref={scrollToTopRef} className="total-top" />
         <button className="total-floating" onClick={scrollToTop}>
           <GoMoveToTop />
-        </button> 
+        </button>
         <div className="total-button-container">
           {adata.map((element, num) => (
             <button
@@ -55,53 +55,99 @@ export default function TotalResult() {
 
         <div
           className="total-dc-container"
-          style={{ background: `${gradients[index]}`}}
+          style={{ background: `${gradients[index]}` }}
         >
-          <img src={process.env.PUBLIC_URL + adata[index].img} alt="background" />
+          <img
+            src={process.env.PUBLIC_URL + adata[index].img}
+            alt="background"
+          />
           <h1>{adata[index].summary}</h1>
           <p>{adata[index].description}</p>
         </div>
 
         <div className="total-work-container">
-          <h1>당신에게 어울리는 작품들</h1>
+          <h1>작품 소개</h1>
           {adata[index].artwork.map((work, num) => (
             <div className="total-work" key={num}>
               <img src={process.env.PUBLIC_URL + work.img} alt={work.title} />
-              <h4 style={{color: `${color[index].charColor}`}}>{work.summary}</h4>
-              <p style={{fontSize: "1rem"}}>{work.title}</p>
+              <h4 style={{ color: `${color[index].charColor}` }}>
+                {work.summary}
+              </h4>
+              <p style={{ fontSize: "1rem" }}>{work.title}</p>
               <p>{work.description}</p>
             </div>
           ))}
         </div>
 
-        <div className="total-ProsAndCons">
-          <hr style={{backgroundColor:`${color[index].charColor}`, marginBottom:"30px"}} />
+        {/* <div className="total-ProsAndCons">
+          <hr
+            style={{
+              backgroundColor: `${color[index].charColor}`,
+              marginBottom: "30px",
+            }}
+          />
           <h1>당신의 긍정적인 영향과 주의할 점</h1>
           <p>{adata[index].pros_and_cons}</p>
-          <hr style={{backgroundColor:`${color[index].charColor}`, marginTop:"30px"}} />
-        </div>
+          <hr
+            style={{
+              backgroundColor: `${color[index].charColor}`,
+              marginTop: "30px",
+            }}
+          />
+        </div> */}
 
         <div className="total-match-container">
           <div className="total-match good">
-            <h1>당신의 찰떡조합은?</h1>
-            <img 
-              src={process.env.PUBLIC_URL + adata[index].good_artist.img} 
-              alt="찰떡" 
-              style={{borderColor:`${color[adata[index].good_artist.artist_num].charColor}`}}
+            <h1>이 화가의 찰떡조합은?</h1>
+            <img
+              src={process.env.PUBLIC_URL + adata[index].good_artist.img}
+              alt="찰떡"
+              style={{
+                borderColor: `${
+                  color[adata[index].good_artist.artist_num].charColor
+                }`,
+              }}
             />
-            <p style={{color:`${color[adata[index].good_artist.artist_num].charColor}`}}>{adata[index].good_artist.summary}</p>
-            <p style={{ fontSize:"1rem"}}>{adata[index].good_artist.description}</p>
+            <p
+              style={{
+                color: `${
+                  color[adata[index].good_artist.artist_num].charColor
+                }`,
+              }}
+            >
+              {adata[index].good_artist.summary}
+            </p>
+            <p style={{ fontSize: "1rem" }}>
+              {adata[index].good_artist.description}
+            </p>
           </div>
           <div className="total-match bad">
-            <h1>당신의 상극조합은?</h1>
-            <img 
-              src={process.env.PUBLIC_URL + adata[index].bad_artist.img} 
-              alt="상극" 
-              style={{borderColor:`${color[adata[index].bad_artist.artist_num].charColor}`}}
+            <h1>이 화가의 상극조합은?</h1>
+            <img
+              src={process.env.PUBLIC_URL + adata[index].bad_artist.img}
+              alt="상극"
+              style={{
+                borderColor: `${
+                  color[adata[index].bad_artist.artist_num].charColor
+                }`,
+              }}
             />
-            <p style={{color:`${color[adata[index].bad_artist.artist_num].charColor}`}}>{adata[index].bad_artist.summary}</p>
-            <p style={{ fontSize:"1rem"}}>{adata[index].bad_artist.description}</p>
-            <hr style={{backgroundColor:`${color[index].charColor}`, marginTop:"30px"}} />
+            <p
+              style={{
+                color: `${color[adata[index].bad_artist.artist_num].charColor}`,
+              }}
+            >
+              {adata[index].bad_artist.summary}
+            </p>
+            <p style={{ fontSize: "1rem" }}>
+              {adata[index].bad_artist.description}
+            </p>
+            <hr
+              style={{
+                backgroundColor: `${color[index].charColor}`,
+                marginTop: "30px",
+              }}
+            />
           </div>
         </div>
 

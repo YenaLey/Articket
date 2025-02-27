@@ -1,27 +1,31 @@
 .mresult {
   width: 100vw;
-  height: 100%;
+  height: 100dvh;
   overflow-x: hidden;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: white;
   font-family: "Nanum Gothic";
 }
 
 .mresult-container {
-  width: 100%;
   max-width: 480px;
-  height: 100vh;
-  overflow-y: auto;
-  background-color: #5e6cba;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle,
+      rgba(46, 64, 164, 0) 0%,
+      rgba(46, 64, 164, 0) 90%
+    ),
+    url("../../public/img/background3.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  color: white;
-  position: relative;
 
   &::-webkit-scrollbar {
     display: none;
@@ -31,10 +35,14 @@
 /* 로딩화면 */
 .mloading-container {
   max-width: 100%;
+  height: 100%;
+  background-color: #5e6cba;
   padding: 40px 10px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  color: white;
 }
 
 .mloading-img {
@@ -59,10 +67,6 @@
     font-weight: 600;
     margin: 0;
     transform: translateY(50%);
-  }
-
-  &:nth-child(4) {
-    margin-bottom: 10px;
   }
 }
 
@@ -89,42 +93,54 @@
 
 /* 결과화면 */
 .mresult-result {
-  max-width: 100%;
-  padding: 40px 10px;
+  width: 360px;
+  height: 640px;
   display: flex;
+  transform: scale(0.85) rotate(3deg);
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  background-color: #5e6cba;
+  color: white;
+  border-radius: 5px;
+
+  & p {
+    font-size: 13px;
+    margin-top: 50px;
+    margin-bottom: 0px;
+  }
 
   & h1 {
     margin-top: 0;
+    margin-bottom: 10px;
     font-family: "Merriweather";
-  }
-
-  & button {
-    padding: 1rem 2.5rem;
-    margin-bottom: 20px;
-    border: none;
-    border-radius: 50px;
-    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
-    background-color: #cdd5ff;
-    color: black;
-    font-size: 1.2rem;
-    font-weight: bold;
-
-    &:hover {
-      transform: translateY(2px);
-      box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.3);
-    }
+    font-size: 47px;
   }
 }
 
-.mresult-img-container {
-  margin-bottom: 10%;
-  max-width: 80%;
+.download-button {
+  padding: 12px 20px;
+  padding-right: 15px;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+  background-color: #cdd5ff;
+  color: #5e6cba;
+  font-size: 0.9rem;
+  font-weight: bold;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 5px;
+}
+
+.mresult-img-container {
+  width: 82%;
+  margin-bottom: 10%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   text-align: center;
   color: white;
   border-radius: 20px;
@@ -135,7 +151,6 @@
   }
 
   & p {
-    margin-bottom: 0;
     font-size: 1rem;
     font-weight: bold;
   }
@@ -145,16 +160,31 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   & img {
-    width: 40%;
+    width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 3px;
   }
 
   & h1 {
     max-width: fit-content;
+  }
+
+  &:nth-child(1) {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  &:nth-child(2) {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  & p {
+    font-size: 13px;
+    margin: 13px 0;
   }
 }
 
@@ -168,7 +198,7 @@
   align-items: center;
 
   & h1 {
-    font-size: 1rem;
+    font-size: 23px;
     font-weight: bold;
     margin: 0;
   }
@@ -193,5 +223,33 @@
       transform: translateY(2px);
       box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.3);
     }
+  }
+}
+
+.mresult-ticket-bottom {
+  width: 100%;
+  background-color: white;
+  border-radius: 0 0 5px 5px;
+  box-sizing: border-box;
+  padding: 15px;
+  padding-top: 35px;
+
+  & div {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  & p {
+    color: #5e6cba;
+    font-size: 20px;
+    font-family: "Merriweather";
+    text-align: left;
+    margin: 0;
+  }
+
+  & span {
+    color: #5e6cba;
+    font-size: 15px;
+    font-family: "Merriweather";
   }
 }

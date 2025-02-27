@@ -90,12 +90,15 @@ export default function Test() {
     if (questionIndex !== null) {
       setCurrentQuestion(questionIndex);
 
-      if (uploadStatus && receivedOptions.length === 8 && !receivedOptions.includes(null)) {
+      if (
+        uploadStatus &&
+        receivedOptions.length === 8 &&
+        !receivedOptions.includes(null)
+      ) {
         navigate("/result");
       }
       setUploadStatus(false);
     }
-
   }, [navigate, questionIndex, receivedOptions, uploadStatus, setUploadStatus]);
 
   const progressWidth = `${(currentQuestion / questions.length) * 84}%`;

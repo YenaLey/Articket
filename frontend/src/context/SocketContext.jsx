@@ -17,7 +17,18 @@ export const SocketProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}`);
+    let socketUrl = process.env.REACT_APP_BACKEND_URL;
+
+    if (socketUrl.startsWith("https://")) {
+      socketUrl = socketUrl.replace("https://", "wss://"); // HTTPS -> WSS
+    } else if (socketUrl.startsWith("http://")) {
+      socketUrl = socketUrl.replace("http://", "ws://"); // HTTP -> WS
+    }
+
+    const newSocket = io(socketUrl, {
+      transports: ["websocket"], // WebSocket만 사용
+    });
+
     setSocket(newSocket);
 
     newSocket.on("connect", () => {

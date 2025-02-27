@@ -13,42 +13,42 @@ export default function Remote() {
   const [start, setStart] = useState(false);
   const [done, setDone] = useState(false);
 
-  // session storage 설정
-  useEffect(() => {
-    const storedDone = localStorage.getItem("done");
-    if (storedDone === "true") {
-      setDone(true);
-    }
+  // // session storage 설정
+  // useEffect(() => {
+  //   const storedDone = localStorage.getItem("done");
+  //   if (storedDone === "true") {
+  //     setDone(true);
+  //   }
 
-    const storedStart = sessionStorage.getItem("start");
-    if (storedStart === "true") {
-      setStart(true);
-    }
+  //   const storedStart = sessionStorage.getItem("start");
+  //   if (storedStart === "true") {
+  //     setStart(true);
+  //   }
 
-    const storedOptions = sessionStorage.getItem("selectedOptions");
-    if (storedOptions) {
-      setSelectedOptions(JSON.parse(storedOptions));
-    }
+  //   const storedOptions = sessionStorage.getItem("selectedOptions");
+  //   if (storedOptions) {
+  //     setSelectedOptions(JSON.parse(storedOptions));
+  //   }
 
-    const storedIndex = sessionStorage.getItem("currentIndex");
-    if (storedIndex === undefined || storedIndex === null) {
-      setCurrentIndex(0);
-    } else {
-      setCurrentIndex(Number(storedIndex));
-    }
-  }, []);
+  //   const storedIndex = sessionStorage.getItem("currentIndex");
+  //   if (storedIndex === undefined || storedIndex === null) {
+  //     setCurrentIndex(0);
+  //   } else {
+  //     setCurrentIndex(Number(storedIndex));
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    sessionStorage.setItem("start", start.toString());
-  }, [start]);
+  // useEffect(() => {
+  //   sessionStorage.setItem("start", start.toString());
+  // }, [start]);
 
-  useEffect(() => {
-    sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
-  }, [selectedOptions]);
+  // useEffect(() => {
+  //   sessionStorage.setItem("selectedOptions", JSON.stringify(selectedOptions));
+  // }, [selectedOptions]);
 
-  useEffect(() => {
-    sessionStorage.setItem("currentIndex", JSON.stringify(currentIndex));
-  }, [currentIndex]);
+  // useEffect(() => {
+  //   sessionStorage.setItem("currentIndex", JSON.stringify(currentIndex));
+  // }, [currentIndex]);
 
   // 옵션 A or B 클릭 시 /emit-options 호출
   const handleOptionClick = async (option) => {
@@ -122,7 +122,7 @@ export default function Remote() {
       if (!updatedOptions.includes("") && !updatedOptions.includes(null)) {
         setSelectedOptions(Array(8).fill(null));
         await fetchPersonalityResult(updatedOptions);
-        navigate("/m-result");
+        navigate("/m-result", { replace: true });
       }
     } catch (error) {
       console.error("select-option API 호출 중 오류 발생:", error);
@@ -211,10 +211,37 @@ export default function Remote() {
     }
   };
 
+  const generateImages = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/generate-images`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.ok) {
+        const msg = await response.json();
+        console.log(msg);
+      } else {
+        console.error("Faild to generate images");
+      }
+    } catch (error) {
+      console.error("/generate-images API 호출 중 오류 발생:", error);
+    }
+  };
+
   // 테스트 시작
   const testStart = async () => {
     handleOptionClick("C");
     setStart(true);
+  };
+
+  const makeImageStart = async () => {
+    testStart();
+    generateImages();
+    fetchPersonalityResult(["A", "A", "A", "A", "A", "A", "A", "A"]);
+    navigate("/m-result", { replace: true });
   };
 
   if (done) {
@@ -222,7 +249,7 @@ export default function Remote() {
       <div className="remote-completed">
         <p>체험이 완료되었습니다.</p>
         <button onClick={() => navigate("/total-result")}>
-          성격 유형 검사 결과 확인하기
+          화가 유형 구경하기
         </button>
       </div>
     );
@@ -231,8 +258,8 @@ export default function Remote() {
       <div className="remote">
         <div className="remote-container">
           {!start ? (
-            <button onClick={() => testStart()} className="remote-start">
-              예술가 유형 검사하기
+            <button onClick={() => makeImageStart()} className="remote-start">
+              이미지 변환하기
             </button>
           ) : (
             <React.Fragment>

@@ -23,7 +23,8 @@ export default function Main() {
 
   useEffect(() => {
     if (receivedOptions[0] === "C") {
-      navigate("/test");
+      // navigate("/test");
+      navigate("/result");
     }
   }, [receivedOptions, navigate]);
 
