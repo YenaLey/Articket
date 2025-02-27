@@ -1,0 +1,20 @@
+{
+  "build": {
+    "baseImage": "python:3.9",
+    "commands": [
+      "cd backend",
+      "pip install --upgrade pip",
+      "pip install -r requirements.txt"
+    ]
+  },
+  "deploy": {
+    "startCommand": "cd backend && python3 app.py",
+    "envVars": {
+      "REACT_APP_BACKEND_URL": "https://backend-up.railway.app",
+      "WEBUI_URL1": "your-webui-url1",
+      "WEBUI_URL2": "your-webui-url2",
+      "BLIP_URL": "your-blip-url",
+      "HOST": "0.0.0.0"
+    }
+  }
+}
