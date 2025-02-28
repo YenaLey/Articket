@@ -22,6 +22,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors 
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
+from PIL import Image
 
 load_dotenv(dotenv_path='../frontend/.env')
 
@@ -181,8 +182,27 @@ def save_to_desktop(image_path, filename):
     shutil.copy(image_path, desktop_path)
     return desktop_path
 
+# 업로드된 이미지를 해상도를 줄여 GPU 사용량을 절약하는 함수
+def preprocess_image(image_path):
+    """
+    업로드된 이미지를 해상도를 줄여 GPU 사용량을 절약하는 함수
+    """
+    try:
+        img = Image.open(image_path).convert("RGB")
+        max_size = 512 
+
+        # 이미지 크기가 너무 클 경우 축소
+        if img.width > max_size or img.height > max_size:
+            img.thumbnail((max_size, max_size))  # 해상도 축소
+        img.save(image_path) 
+
+        print(f"이미지 전처리 완료: {image_path}, 새 크기: {img.size}")
+    except Exception as e:
+        print("이미지 전처리 중 오류:", e)
+
 # 이미지 파일을 base64로 인코딩하는 함수
 def encode_image_to_base64(image_path):
+    preprocess_image(image_path)
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
@@ -354,6 +374,9 @@ def upload_image():
     current_count = get_latest_count_from_desktop()
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
     file.save(file_path)
+
+    preprocess_image(file_path)
+
     save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
     original_image = backend_url + '/' + file_path.replace('./', '')
@@ -553,17 +576,17 @@ def generate_style_images():
         image_url = artist_result['url']
         urls.append(image_url)
 
-    template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
-    save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
+    # template_path = f'./static/{result_artist}_티켓_템플릿.pdf'
+    # save_path = os.path.join(DESKTOP_FOLDER, f"{current_count}_{user_name}_티켓.pdf")
 
-    if not os.path.exists(template_path):
-        log_progress("get ticket pdf", "error", f"Template file for {result_artist} not found", "error")
-    else:
-        pdf_result = edit_pdf_template(template_path, user_name, urls, save_path)
-        if "error" in pdf_result:   
-            log_progress("get ticket pdf", "error", f"Failed to generate PDF", "error")
-        else:
-            log_progress(f"get {user_name}'s ticket pdf", "completed", None, "completed")
+    # if not os.path.exists(template_path):
+    #     log_progress("get ticket pdf", "error", f"Template file for {result_artist} not found", "error")
+    # else:
+    #     pdf_result = edit_pdf_template(template_path, user_name, urls, save_path)
+    #     if "error" in pdf_result:   
+    #         log_progress("get ticket pdf", "error", f"Failed to generate PDF", "error")
+    #     else:
+    #         log_progress(f"get {user_name}'s ticket pdf", "completed", None, "completed")
 
     socketio.emit('operation_status', {'success': True})
 

@@ -208,7 +208,7 @@ export default function MobileResult() {
         // 📌 html2canvas 실행 (이미지가 로드된 후)
         const canvas = await html2canvas(resultContainer, {
           useCORS: true, // CORS 문제 방지
-          scale: 2, // 고해상도
+          scale: 4, // 고해상도
         });
 
         // 📌 캡처 후 원래 스타일 복구
@@ -217,18 +217,20 @@ export default function MobileResult() {
         ticketBottomContainer.style.borderRadius = originalTicketBottomStyle;
 
         const resultImage = canvas.toDataURL("image/png");
-        zip.file("ticket.png", resultImage.split(",")[1], { base64: true });
+        zip.file("quipu_ticket.png", resultImage.split(",")[1], {
+          base64: true,
+        });
       }
 
       // ✅ 추가할 이미지 (public/img/huchu.jpeg)
-      const huchuImagePath = `${process.env.PUBLIC_URL}/img/huchu.jpeg`;
+      const huchuImagePath = `${process.env.PUBLIC_URL}/img/quipu_say.jpeg`;
       const response = await fetch(huchuImagePath);
       if (!response.ok) {
         throw new Error("추가 이미지 불러오기 실패");
       }
       const blob = await response.blob();
       const arrayBuffer = await blob.arrayBuffer();
-      zip.file("huchu.jpeg", arrayBuffer); // ZIP 파일에 추가
+      zip.file("quipu_say.jpeg", arrayBuffer); // ZIP 파일에 추가
 
       // 📌 ZIP 파일 생성 및 다운로드
       const zipBlob = await zip.generateAsync({ type: "blob" });

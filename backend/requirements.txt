@@ -11,3 +11,4 @@ PyPDF2
 flasgger
 eventlet
 gunicorn
+pillow
