@@ -23,11 +23,7 @@ from reportlab.lib import colors
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
 
-"""
-✅ Railway 사용 여부
-"""
-load_dotenv() # Railway 사용
-# load_dotenv(dotenv_path='../frontend/.env') # Railway 미사용
+load_dotenv(dotenv_path='../frontend/.env')
 
 app = Flask(__name__)
 CORS(app)
@@ -44,8 +40,6 @@ swagger = Swagger(app, template_file='./static/swagger.json')
 
 BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL')
 backend_url = f"{BACKEND_URL}"
-
-print(BACKEND_URL)
 
 # Stable Diffusion WebUI URL 설정
 WEBUI_URL1 = os.getenv('WEBUI_URL1')
@@ -71,6 +65,18 @@ user_name = ''
 result_artist = '' 
 current_count = 0
 selected_gender = ''
+
+"""
+✅ Railway 미사용 시 주석 처리하기
+"""
+BACKEND_URL= "https://articket-production.up.railway.app/"
+backend_url = f"{BACKEND_URL}"
+WEBUI_URL1 = "https://7ub9cizdhvn3ua-3002.proxy.runpod.net/"
+WEBUI_URL2 = "https://7ub9cizdhvn3ua-3002.proxy.runpod.net/"
+BLIP_URL = "https://7ub9cizdhvn3ua-3002.proxy.runpod.net/"
+PORT = "5000"
+HOST = "0.0.0.0"
+
 
 def calculate_mbti(options_list):
     E, I, N, S, T, F, J, P = 0, 0, 0, 0, 0, 0, 0, 0
