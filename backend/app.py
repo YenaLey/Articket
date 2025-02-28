@@ -68,16 +68,15 @@ current_count = 0
 selected_gender = ''
 
 """
-✅ Railway 미사용 시 주석 처리하기
+✅ Railway로 백엔드 배포 시 사용
 """
-# BACKEND_URL= "https://articket-production.up.railway.app/"
-# backend_url = f"{BACKEND_URL}"
-# WEBUI_URL1 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
-# WEBUI_URL2 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
-# BLIP_URL = "https://1g0kli7r0g0scn-3002.proxy.runpod.net/"
-# PORT = "5000"
-# HOST = "0.0.0.0"
-
+BACKEND_URL= "https://articket-production.up.railway.app/"
+backend_url = f"{BACKEND_URL}"
+WEBUI_URL1 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
+WEBUI_URL2 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
+BLIP_URL = "https://1g0kli7r0g0scn-3002.proxy.runpod.net/"
+PORT = "5000"
+HOST = "0.0.0.0"
 
 def calculate_mbti(options_list):
     E, I, N, S, T, F, J, P = 0, 0, 0, 0, 0, 0, 0, 0
