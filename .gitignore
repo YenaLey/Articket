@@ -3,3 +3,4 @@ venv/
 .DS_Store
 /archive/*
 frontend/ .env
+__pycache__/

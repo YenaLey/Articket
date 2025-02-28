@@ -614,14 +614,21 @@ def get_matching_images():
         return jsonify({"error": "An error occurred while generating matching images"}), 500
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))  # Railway에서는 PORT 환경변수를 사용해야 함
+    host = os.environ.get("HOST", "0.0.0.0")  # 기본 HOST 설정
+
     with app.app_context():
         try:
-            print(f"Flask 백엔드 서버가 성공적으로 실행 중입니다: {backend_url}")
-            print(f"Swagger API 문서를 보려면: {backend_url}/apidocs")
-            print(f"관리자 페이지 보려면: {backend_url}/admin")
-            socketio.run(app, debug=True, host=HOST, port=5000, use_reloader=False)
+            print(f"Flask 백엔드 서버 실행 중: {backend_url}")
+            print(f"Swagger API 문서: {backend_url}/apidocs")
+            print(f"관리자 페이지: {backend_url}/admin")
+
+            # Gunicorn을 사용하지 않는 경우
+            socketio.run(app, debug=True, host=host, port=port, use_reloader=False)
+
         except Exception as e:
             log_progress("server", "error", f"Server encountered an exception: {str(e)}", "error")
             print(f"Flask 서버 실행 중 오류 발생: {e}")
+
         finally:
             log_progress("server_shutdown", "error", "Server is shutting down", "error")
