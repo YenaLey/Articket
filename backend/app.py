@@ -23,10 +23,11 @@ from reportlab.lib import colors
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
 
-
-
-# load_dotenv(dotenv_path='../frontend/.env')
-load_dotenv(dotenv_path='../frontend/.env')
+"""
+✅ Railway 사용 여부
+"""
+load_dotenv() # Railway 사용
+# load_dotenv(dotenv_path='../frontend/.env') # Railway 미사용
 
 app = Flask(__name__)
 CORS(app)
