@@ -70,13 +70,13 @@ selected_gender = ''
 """
 ✅ Railway 미사용 시 주석 처리하기
 """
-BACKEND_URL= "https://articket-production.up.railway.app/"
-backend_url = f"{BACKEND_URL}"
-WEBUI_URL1 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
-WEBUI_URL2 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
-BLIP_URL = "https://1g0kli7r0g0scn-3002.proxy.runpod.net/"
-PORT = "5000"
-HOST = "0.0.0.0"
+# BACKEND_URL= "https://articket-production.up.railway.app/"
+# backend_url = f"{BACKEND_URL}"
+# WEBUI_URL1 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
+# WEBUI_URL2 = "https://3kvjm9iz67776r-3001.proxy.runpod.net/"
+# BLIP_URL = "https://1g0kli7r0g0scn-3002.proxy.runpod.net/"
+# PORT = "5000"
+# HOST = "0.0.0.0"
 
 
 def calculate_mbti(options_list):
@@ -411,8 +411,8 @@ def generate_images():
     """
     ✅ BLIP_URL 사용 여부 확인
     """
-    # prompt = "a young girl wearing a baseball cap and a gray shirt" ## BLIP_URL 미사용
-    prompt = blip_interrogate(image_path) ## BLIP_URL 사용
+    prompt = "a young girl wearing a baseball cap and a gray shirt" ## BLIP_URL 미사용
+    # prompt = blip_interrogate(image_path) ## BLIP_URL 사용
 
     if not prompt:
         log_progress("blip", "error", None, "error")
@@ -463,26 +463,26 @@ def generate_images():
     ✅ WEBUI_URL 사용 여부 확인
     """
     ## WEBUI_URL 미사용
-    # selected_artists['generated_images'] = {
-    #     '리히텐슈타인': {'file_path': './static/dummy/2_후추_리히텐슈타인.png', 'url': backend_url + '/static/dummy/2_후추_리히텐슈타인.png'},
-    #     '고흐': {'file_path': './static/dummy/2_후추_고흐.png', 'url': backend_url + '/static/dummy/2_후추_고흐.png'},
-    #     '피카소': {'file_path': './static/dummy/2_후추_피카소.png', 'url': backend_url + '/static/dummy/2_후추_피카소.png'},
-    #     '르누아르': {'file_path': './static/dummy/2_후추_르누아르.png', 'url': backend_url + '/static/dummy/2_후추_르누아르.png'}
-    # }
+    selected_artists['generated_images'] = {
+        '리히텐슈타인': {'file_path': './static/dummy/2_후추_리히텐슈타인.png', 'url': backend_url + '/static/dummy/2_후추_리히텐슈타인.png'},
+        '고흐': {'file_path': './static/dummy/2_후추_고흐.png', 'url': backend_url + '/static/dummy/2_후추_고흐.png'},
+        '피카소': {'file_path': './static/dummy/2_후추_피카소.png', 'url': backend_url + '/static/dummy/2_후추_피카소.png'},
+        '르누아르': {'file_path': './static/dummy/2_후추_르누아르.png', 'url': backend_url + '/static/dummy/2_후추_르누아르.png'}
+    }
 
     ## WEBUI_URL 사용
     # ThreadPoolExecutor를 사용하여 두 그룹을 병렬로 처리합니다.
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = []
-        futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
-        futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
-        for future in as_completed(futures):
-            try:
-                group_results = future.result()
-                selected_artists['generated_images'].update(group_results)
-            except Exception as e:
-                log_progress("generate images", "error", str(e), "error")
-                return jsonify({"error": str(e)}), 500
+    # with ThreadPoolExecutor(max_workers=2) as executor:
+    #     futures = []
+    #     futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
+    #     futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
+    #     for future in as_completed(futures):
+    #         try:
+    #             group_results = future.result()
+    #             selected_artists['generated_images'].update(group_results)
+    #         except Exception as e:
+    #             log_progress("generate images", "error", str(e), "error")
+    #             return jsonify({"error": str(e)}), 500
 
     log_progress("generate images", "completed", None, "completed")
     socketio.emit('operation_status', {'image_success': True})
