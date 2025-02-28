@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend /app
 
 # gunicorn 실행 명령 (Railway가 $PORT 환경변수로 포트를 넘겨줌)
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:${PORT}", "app:app"]
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
