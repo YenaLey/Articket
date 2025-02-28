@@ -45,6 +45,8 @@ swagger = Swagger(app, template_file='./static/swagger.json')
 BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL')
 backend_url = f"{BACKEND_URL}"
 
+print(BACKEND_URL)
+
 # Stable Diffusion WebUI URL 설정
 WEBUI_URL1 = os.getenv('WEBUI_URL1')
 WEBUI_URL2 = os.getenv('WEBUI_URL2')
