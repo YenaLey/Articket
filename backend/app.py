@@ -463,10 +463,10 @@ def generate_images():
     """
     ## WEBUI_URL 미사용
     selected_artists['generated_images'] = {
-        '리히텐슈타인': {'file_path': './static/dummy/2_후추_리히텐슈타인.png', 'url': backend_url + '/static/dummy/2_후추_리히텐슈타인.png'},
-        '고흐': {'file_path': './static/dummy/2_후추_고흐.png', 'url': backend_url + '/static/dummy/2_후추_고흐.png'},
-        '피카소': {'file_path': './static/dummy/2_후추_피카소.png', 'url': backend_url + '/static/dummy/2_후추_피카소.png'},
-        '르누아르': {'file_path': './static/dummy/2_후추_르누아르.png', 'url': backend_url + '/static/dummy/2_후추_르누아르.png'}
+        '리히텐슈타인': {'file_path': './static/dummy/test_리히텐슈타인.png', 'url': backend_url + '/static/dummy/test_리히텐슈타인.png'},
+        '고흐': {'file_path': './static/dummy/test_고흐.png', 'url': backend_url + '/static/dummy/test_고흐.png'},
+        '피카소': {'file_path': './static/dummy/test_피카소.png', 'url': backend_url + '/static/dummy/test_피카소.png'},
+        '르누아르': {'file_path': './static/dummy/test_르누아르.png', 'url': backend_url + '/static/dummy/test_르누아르.png'}
     }
 
     ## WEBUI_URL 사용
