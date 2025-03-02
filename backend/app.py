@@ -22,7 +22,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.lib import colors 
 from io import BytesIO
 from admin import admin, init_socketio, log_progress
-from PIL import Image
+from PIL import Image, ImageOps
 
 load_dotenv(dotenv_path='../frontend/.env')
 
@@ -70,7 +70,8 @@ selected_gender = ''
 """
 ✅ Railway로 백엔드 배포 시 사용
 """
-BACKEND_URL= "https://articket-production.up.railway.app"
+# BACKEND_URL= "https://articket-production.up.railway.app"
+BACKEND_URL= "http://192.168.35.2:5000"
 backend_url = f"{BACKEND_URL}"
 WEBUI_URL1 = "https://ey5mdstu6sjx2b-3001.proxy.runpod.net/"
 WEBUI_URL2 = "https://ey5mdstu6sjx2b-3001.proxy.runpod.net/"
@@ -188,6 +189,7 @@ def preprocess_image(image_path):
     """
     try:
         img = Image.open(image_path).convert("RGB")
+        img = ImageOps.exif_transpose(img) # EXIF 정보 기반 자동 회전 조정
         max_size = 512 
 
         # 이미지 크기가 너무 클 경우 축소
@@ -470,22 +472,36 @@ def generate_images():
     # }
 
     ## WEBUI_URL 사용
-    with ThreadPoolExecutor(max_workers=1) as executor:
+    PARALLEL_MODE = False  # True면 동시에 실행, False면 순차 실행
+
+    with ThreadPoolExecutor(max_workers=2 if PARALLEL_MODE else 1) as executor:
         futures = []
+        
         futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
+        
+        if not PARALLEL_MODE:
+            group_results1 = futures[0].result()
+            selected_artists['generated_images'].update(group_results1)
+
         futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
-        for future in as_completed(futures):
-            try:
-                group_results = future.result()
-                selected_artists['generated_images'].update(group_results)
-            except Exception as e:
-                log_progress("generate images", "error", str(e), "error")
-                return jsonify({"error": str(e)}), 500
+
+        if not PARALLEL_MODE:
+            group_results2 = futures[1].result()
+            selected_artists['generated_images'].update(group_results2)
+        
+        if PARALLEL_MODE:
+            for future in futures:
+                try:
+                    group_results = future.result()
+                    selected_artists['generated_images'].update(group_results)
+                except Exception as e:
+                    log_progress("generate images", "error", str(e), "error")
+                    jsonify({"error": str(e)}), 500
 
     log_progress("generate images", "completed", None, "completed")
     socketio.emit('operation_status', {'image_success': True})
 
-    return jsonify({"message": "Images generated successfully (Dummy Data Used)"}), 200
+    return jsonify({"message": "Images generated successfully"}), 200
 
 '''
 백엔드에서 프론트엔드로 성공 여부를 알리기 위해 호출하는 API.

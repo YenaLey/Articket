@@ -137,7 +137,8 @@ export default function MobileResult() {
           setUserName(user_name);
           setGenerated(true);
         } catch (error) {
-          console.error("🚨 이미지 데이터 가져오기 오류:", error);
+          console.error("이미지 데이터 가져오기 오류:", error);
+          navigate("/upload", { replace: true });
         }
       };
 
@@ -145,31 +146,31 @@ export default function MobileResult() {
     }
   }, [imageStatus]);
 
-  // const getImageUrl = async () => {};
+  const getImageUrl = async () => {};
 
-  // useEffect(() => {
-  //   if (uploadStatus || errorStatus) {
-  //     timer.current = setTimeout(() => {
-  //       if (uploadStatus) {
-  //         setNow(true);
-  //         getImageUrl();
-  //       } else if (errorStatus) {
-  //         sessionStorage.removeItem("selectedOptions");
-  //         sessionStorage.removeItem("start");
-  //         sessionStorage.removeItem("currentIndex");
-  //         alert("사진 변환에 실패하였습니다.");
-  //         navigate("/upload", { replace: true });
-  //       }
-  //     }, 1000);
-  //   }
+  useEffect(() => {
+    if (uploadStatus || errorStatus) {
+      timer.current = setTimeout(() => {
+        if (uploadStatus) {
+          setNow(true);
+          getImageUrl();
+        } else if (errorStatus) {
+          sessionStorage.removeItem("selectedOptions");
+          sessionStorage.removeItem("start");
+          sessionStorage.removeItem("currentIndex");
+          alert("사진 변환에 실패하였습니다.");
+          navigate("/upload", { replace: true });
+        }
+      }, 1000);
+    }
 
-  //   return () => {
-  //     if (timer.current) {
-  //       clearTimeout(timer.current);
-  //       timer.current = null;
-  //     }
-  //   };
-  // }, [uploadStatus, errorStatus, navigate]);
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
+    };
+  }, [uploadStatus, errorStatus, navigate]);
 
   const downloadAllImages = async () => {
     console.log("ZIP 파일 생성 시작");
