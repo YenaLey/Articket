@@ -70,11 +70,11 @@ selected_gender = ''
 """
 ✅ Railway로 백엔드 배포 시 사용
 """
-BACKEND_URL= "https://articket-production.up.railway.app/"
+BACKEND_URL= "https://articket-production.up.railway.app"
 backend_url = f"{BACKEND_URL}"
-WEBUI_URL1 = "https://ouf5x2qn26uc7t-3001.proxy.runpod.net/"
-WEBUI_URL2 = "https://ouf5x2qn26uc7t-3001.proxy.runpod.net/"
-BLIP_URL = "https://zws8wb8fa5jevb-3002.proxy.runpod.net/"
+WEBUI_URL1 = "https://ouf5x2qn26uc7t-3001.proxy.runpod.net"
+WEBUI_URL2 = "https://ouf5x2qn26uc7t-3001.proxy.runpod.net"
+BLIP_URL = "https://zws8wb8fa5jevb-3002.proxy.runpod.net"
 PORT = "5000"
 HOST = "0.0.0.0"
 
