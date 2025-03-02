@@ -470,7 +470,7 @@ def generate_images():
     # }
 
     ## WEBUI_URL 사용
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = []
         futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1))
         futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2))
