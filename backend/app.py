@@ -64,7 +64,6 @@ for folder in [UPLOAD_FOLDER, GENERATED_FOLDER, DESKTOP_FOLDER]:
 selected_artists = {}
 user_name = ''
 result_artist = '' 
-current_count = 0
 selected_gender = ''
 
 """
@@ -168,62 +167,36 @@ def clear_folder(folder_path):
         except Exception as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
 
-# 데스크탑 폴더에서 가장 큰 카운트 값을 가져오는 함수
-def get_latest_count_from_desktop():
-    count_list = []
-    for filename in os.listdir(DESKTOP_FOLDER):
-        if filename.split('_')[0].isdigit():
-            count_list.append(int(filename.split('_')[0]))
-    return max(count_list) + 1 if count_list else 1
-
-# 바탕화면 폴더에 이미지 저장 함수
-def save_to_desktop(image_path, filename):
-    desktop_path = os.path.join(DESKTOP_FOLDER, filename)
-    shutil.copy(image_path, desktop_path)
-    return desktop_path
-
 # 업로드된 이미지를 해상도를 줄여 GPU 사용량을 절약하는 함수
-def preprocess_image(image_path):
+def preprocess_image(image_path, target_size=512, quality=85):
     """
-    업로드된 이미지를 해상도를 줄여 GPU 사용량을 절약하는 함수
+    이미지 전처리: 크기 조정 + 자동 회전 + JPEG 저장
     """
     try:
         img = Image.open(image_path).convert("RGB")
-        img = ImageOps.exif_transpose(img) # EXIF 정보 기반 자동 회전 조정
-        max_size = 512 
+        # EXIF 정보 기반 자동 회전
+        img = ImageOps.exif_transpose(img)
 
-        # 이미지 크기가 너무 클 경우 축소
-        if img.width > max_size or img.height > max_size:
-            img.thumbnail((max_size, max_size))  # 해상도 축소
-        img.save(image_path) 
+        # 크기 조정
+        if max(img.width, img.height) > target_size:
+            img.thumbnail((target_size, target_size))
+
+        img.save(image_path, "JPEG", quality=quality, optimize=True, progressive=True)
 
         print(f"이미지 전처리 완료: {image_path}, 새 크기: {img.size}")
+        return image_path
+
     except Exception as e:
         print("이미지 전처리 중 오류:", e)
+        return image_path
 
 # 이미지 파일을 base64로 인코딩하는 함수
 def encode_image_to_base64(image_path):
-    preprocess_image(image_path)
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
 # BLIP으로 이미지를 텍스트로 변환하는 함수
 def blip_interrogate(image_path):
-
-    # ##clip
-    # image_base64 = encode_image_to_base64(image_path)
-    # interrogate_url = f"{WEBUI_URL1}/sdapi/v1/interrogate"
-    # interrogate_data = {
-    #     "image": f"data:image/png;base64,{image_base64}",
-    #     "model": "clip",
-    #     "clip_skip": 1
-    # }
-    # response = requests.post(interrogate_url, json=interrogate_data)
-    # if response.status_code != 200:
-    #     return None
-    # return response.json().get('caption', '')
-
-    #blip
     interrogate_url = f"{BLIP_URL}/generate_caption"
     response = requests.post(interrogate_url, files={"file": open(image_path, "rb")})
     
@@ -266,13 +239,12 @@ def generate_image(webui_url, image_base64, modifier, negative_prompt, steps, de
             response.raise_for_status()
             response_data = response.json()
 
-            image_filename = f"{current_count}_{user_name}_{artist_name}.png"
+            image_filename = f"{user_name}_{artist_name}.png"
             generated_path = os.path.join(app.config['GENERATED_FOLDER'], image_filename)
 
             with open(generated_path, "wb") as f:
                 f.write(base64.b64decode(response_data['images'][0]))
 
-            save_to_desktop(generated_path, image_filename)
             log_progress(f"{artist_name}'s img2img", "completed", None, "completed")
             result = {
                 'file_path': generated_path,
@@ -361,7 +333,7 @@ def edit_pdf_template(template_path, user_name, urls, save_path):
 '''
 @app.route('/upload-image/', methods=['POST'])
 def upload_image():
-    global user_name, current_count, selected_gender
+    global user_name, selected_gender
     user_name = request.args.get("name")
     selected_gender = request.args.get("gender")
     
@@ -372,20 +344,18 @@ def upload_image():
     file = request.files['image']
     clear_folder(UPLOAD_FOLDER)
     clear_folder(GENERATED_FOLDER)
-    current_count = get_latest_count_from_desktop()
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_name}_original.jpg")
     file.save(file_path)
 
     preprocess_image(file_path)
 
-    save_to_desktop(file_path, f"{current_count}_{user_name}_original.png")
     selected_artists['image_path'] = file_path
     original_image = backend_url + '/' + file_path.replace('./', '')
 
     socketio.emit('operation_status', {'success': True, 'image_path': original_image})
     socketio.emit('index_data', {'index_status': 0})
 
-    log_progress("upload image", "completed", None, "completed", f"{user_name}, {selected_gender}, {current_count}_{user_name}_original.png")
+    log_progress("upload image", "completed", None, "completed", f"{user_name}, {selected_gender}, {user_name}_original.png")
 
     return jsonify({"image_path": original_image}), 200
 
