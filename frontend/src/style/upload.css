@@ -16,14 +16,6 @@
     font-family: "Merriweather";
     font-size: 45px;
     margin: 0;
-
-    & h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-family: "Teko";
-      font-weight: bold;
-      line-height: 0.5;
-    }
   }
 }
 
@@ -37,20 +29,34 @@
 
   & p {
     margin: 10px 0;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 700;
     color: white;
   }
 
   & input {
+    width: 200px;
     padding: 6px 3px;
-    font-size: 1rem;
+    font-size: 16px;
     border: none;
     border-radius: 10px;
     text-align: center;
     background-color: #cdd5ff;
     margin-bottom: 10px;
   }
+}
+
+.upload-name input[type="text"] {
+  -webkit-appearance: none; /* iOS에서 기본 스타일 제거 */
+  appearance: none;
+  width: 200px;
+  padding: 6px 3px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #cdd5ff;
+  margin-bottom: 10px;
 }
 
 .upload-gender-selection {
@@ -60,21 +66,23 @@
   justify-content: center;
 }
 
+.gender-option input[type="radio"] {
+  -webkit-appearance: none; /* iOS에서 기본 스타일 제거 */
+  appearance: none;
+  font-size: 16px;
+}
+
 .gender-option {
   cursor: pointer;
   width: 40%;
   background-color: #cdd5ff;
   color: black;
-  font-size: 1.1rem;
-  padding: 5px 0;
+  padding: 8px 0;
   display: flex;
   justify-content: center;
   align-items: center;
   transition: 0.2s ease all;
-
-  & svg {
-    font-size: 1.5rem;
-  }
+  font-size: 16px;
 
   &:nth-child(1) {
     border-top-left-radius: 15px;
@@ -98,6 +106,22 @@
   }
 }
 
+.gender-option:first-of-type {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border-right: 1px solid #150050;
+}
+
+.gender-option:last-of-type {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.gender-option.selected {
+  background-color: #150050;
+  color: white;
+}
+
 .upload-image {
   align-self: center;
   width: 80%;
@@ -110,6 +134,7 @@
   background-color: #cdd5ff;
   border-radius: 10px;
   gap: 20px;
+  font-size: 16px;
 
   & img {
     width: 100%;
@@ -124,7 +149,7 @@
 
   & p {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 16px;
     color: #585858;
   }
 }
@@ -142,7 +167,7 @@
     width: 80%;
     padding: 7px 0 10px 0;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 16px;
     font-weight: bold;
     color: black;
     background-color: #cdd5ff;
@@ -158,6 +183,23 @@
   }
 }
 
+input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  display: none;
+  clip: rect(0, 0, 0, 0);
+}
+
+input[type="file"],
+input[type="text"] {
+  font-size: 16px; /* iOS 확대 방지 핵심 */
+  -webkit-text-size-adjust: none;
+  /* 혹은 상위에 -webkit-text-size-adjust: 100%; */
+}
+
 .upload-completed {
   font-family: "Nanum Gothic";
 
@@ -168,9 +210,8 @@
     box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
     background-color: #cdd5ff;
     color: black;
-    font-size: 1.2rem;
+    font-size: 16px;
     font-weight: bold;
-
 
     &:hover {
       transform: translateY(2px);

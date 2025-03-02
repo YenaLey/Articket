@@ -152,7 +152,6 @@ export default function Upload() {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          style={{ display: "none" }}
         />
 
         {/* label 요소로 파일 선택 트리거 */}
