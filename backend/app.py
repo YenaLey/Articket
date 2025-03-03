@@ -69,12 +69,12 @@ selected_gender = ''
 """
 ✅ Railway로 백엔드 배포 시 사용
 """
-# BACKEND_URL= "https://articket-production.up.railway.app"
-BACKEND_URL= "http://192.168.35.2:5000"
+# BACKEND_URL= "http://192.168.35.2:5000"
+BACKEND_URL= "https://articket-production.up.railway.app"
 backend_url = f"{BACKEND_URL}"
-WEBUI_URL1 = "https://ey5mdstu6sjx2b-3001.proxy.runpod.net/"
-WEBUI_URL2 = "https://ey5mdstu6sjx2b-3001.proxy.runpod.net/"
-BLIP_URL = "https://zws8wb8fa5jevb-3002.proxy.runpod.net"
+WEBUI_URL1 = "https://c9zs2zafkesbzs-3001.proxy.runpod.net/"
+WEBUI_URL2 = "https://eseoeg8rjf7iqz-3001.proxy.runpod.net/"
+BLIP_URL = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
 PORT = "5000"
 HOST = "0.0.0.0"
 
@@ -442,7 +442,7 @@ def generate_images():
     # }
 
     ## WEBUI_URL 사용
-    PARALLEL_MODE = False  # True면 동시에 실행, False면 순차 실행
+    PARALLEL_MODE = True  # True면 동시에 실행, False면 순차 실행
 
     with ThreadPoolExecutor(max_workers=2 if PARALLEL_MODE else 1) as executor:
         futures = []
