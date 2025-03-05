@@ -190,6 +190,14 @@ def preprocess_image(image_path, target_size=512, quality=85):
         print("이미지 전처리 중 오류:", e)
         return image_path
 
+# 업로드 폴더에서 가장 큰 카운트 값을 가져오는 함수
+def get_latest_count_from_uploads():
+    count_list = []
+    for filename in os.listdir(UPLOAD_FOLDER):
+        if filename.split('_')[0].isdigit():
+            count_list.append(int(filename.split('_')[0]))
+    return max(count_list) + 1 if count_list else 1
+
 # 이미지 파일을 base64로 인코딩하는 함수
 def encode_image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -206,6 +214,24 @@ def blip_interrogate(image_path):
     else:
         print(f"BLIP interrogate request failed with status code: {response.status_code}")
         return None
+
+# CLIP으로 이미지를 텍스트로 변환하는 함수
+def clip_interrogate(image_path, clip_skip_level=1):
+    start_time = time.time()
+    image_base64 = encode_image_to_base64(image_path)
+    interrogate_url = f"{WEBUI_URL1}/sdapi/v1/interrogate"
+    interrogate_data = {
+        "image": f"data:image/png;base64,{image_base64}",
+        "model": "clip",
+        "clip_skip": clip_skip_level
+    }
+    response = requests.post(interrogate_url, json=interrogate_data)
+    elapsed_time = time.time() - start_time
+    print(f"CLIP 소요 시간: {elapsed_time:.2f} 초")
+
+    if response.status_code != 200:
+        return None
+    return response.json().get('caption', '')
 
 def generate_image(webui_url, image_base64, modifier, negative_prompt, steps, denoising_strength, cfg_scale, prompt, artist_name):
     data = {
@@ -344,7 +370,9 @@ def upload_image():
     file = request.files['image']
     clear_folder(UPLOAD_FOLDER)
     clear_folder(GENERATED_FOLDER)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_name}_original.jpg")
+
+    current_count = get_latest_count_from_uploads()
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{current_count}_{user_name}_original.png")
     file.save(file_path)
 
     preprocess_image(file_path)
@@ -383,7 +411,8 @@ def generate_images():
     ✅ BLIP_URL 사용 여부 확인
     """
     # prompt = "a young girl wearing a baseball cap and a gray shirt" ## BLIP_URL 미사용
-    prompt = blip_interrogate(image_path) ## BLIP_URL 사용
+    # prompt = blip_interrogate(image_path) ## BLIP_URL 사용
+    prompt = clip_interrogate(image_path) ## CLIP 사용
 
     if not prompt:
         log_progress("blip", "error", None, "error")
