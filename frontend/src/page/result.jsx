@@ -10,22 +10,9 @@ export default function Result() {
   const navigate = useNavigate();
   const { socket, imageStatus, errorStatus } = useSocket();
   const [userName, setUserName] = useState("");
-  const [artist, setArtist] = useState("");
-  const [matchingArtists, setMatchingArtists] = useState({});
   const [originalImage, setOriginalImage] = useState("");
   const [generatedImageUrls, setGeneratedImageUrls] = useState([]); // 생성된 이미지 URLs 배열
   const [loading, setLoading] = useState(true);
-  const who = ["나의 화가 유형", "나와 찰떡인 화가", "나와 상극인 화가"];
-  const artists_summary = {
-    "세련된 일상의 리히텐슈타인":
-      "일상에 신선한 시각을 더하며 다재다능함을 발휘하는 창의적인 예술가",
-    "감정과 열정의 섬세한 고흐":
-      "삶의 깊이를 탐구하며 위로와 영감을 전하는 진지한 예술가",
-    "대담하고 창의적인 피카소":
-      "새로운 길을 개척하며 성장을 이끄는 창의적인 리더형 예술가",
-    "낙천적이고 따뜻한 르누아르":
-      "따뜻한 색감과 넘치는 표현으로 사람들과의 조화로운 관계와 삶의 아름다움을 찬미한 낙천적인 예술가",
-  };
 
   // 기본 화가 이미지 샘플
   const imgSample = [
@@ -57,17 +44,10 @@ export default function Result() {
 
             const generatedResult = await response.json();
             console.log(generatedResult);
-            const {
-              user_name,
-              artist,
-              matching_artists,
-              original_image,
-              generated_image,
-            } = generatedResult;
+            const { user_name, original_image, generated_image } =
+              generatedResult;
 
             setUserName(user_name);
-            setArtist(artist);
-            setMatchingArtists(matching_artists);
             setOriginalImage(original_image);
             setGeneratedImageUrls(
               Array.isArray(generated_image)

@@ -142,7 +142,7 @@ export default function MobileResult() {
         }
       };
 
-      fetchImages(); // ✅ 즉시 실행 함수 호출
+      fetchImages(); // 즉시 실행 함수 호출
     }
   }, [imageStatus]);
 
