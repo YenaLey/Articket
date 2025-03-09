@@ -1,21 +1,24 @@
-# app/admin.py
-from flask import Blueprint, jsonify, request
-from flask_socketio import SocketIO, emit
+from flask import Blueprint, render_template
+from app.socket import socketio 
 
-admin = Blueprint('admin', __name__)
+admin = Blueprint('admin', __name__, template_folder="../templates")
 
-# 소켓 초기화 함수
-def init_socketio(socketio):
-    # 필요할 경우 추가 소켓 이벤트 바인딩
-    pass
-
-# 단순 이벤트 예시
 @admin.route('/admin')
-def admin_index():
-    return "관리자 페이지"
+def admin_page():
+    return render_template('admin.html')
 
-def log_progress(step, status, detail=None, log_type="info", extra_info=None):
-    """
-    관리자 페이지나 로그 모니터링을 위한 헬퍼 함수
-    """
-    print(f"[{log_type.upper()}] {step} - {status} - {detail or ''} - {extra_info or ''}")
+def log_progress(event, message, why, status, data=None):
+    """실시간 로그 전송 유틸리티 함수"""
+    if socketio:
+        try:
+            socketio.emit('log', {
+                "event": event,
+                "message": message,
+                "why": why,
+                "status": status,
+                "data": data
+            }, to=None)
+        except Exception as e:
+            print(f"log_progress 에러 발생: {e}")
+    else:
+        print("SocketIO is not initialized. Unable to send log.")

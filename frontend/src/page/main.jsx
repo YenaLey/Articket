@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/main.css";
 import QR from "./qr";
@@ -6,27 +6,32 @@ import { useSocket } from "../context/SocketContext";
 
 export default function Main() {
   const navigate = useNavigate();
-  const { uploadStatus, imageUrl, receivedOptions } = useSocket();
+  const { socket } = useSocket();
+  const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (uploadStatus) {
-        console.log("업로드 성공 상태가 true로 변경됨!");
-        if (imageUrl) {
-          console.log("받은 이미지 URL:", imageUrl);
-        }
+    if (!socket || !socket.connected) return;
+
+    const handleUploadImage = (status) => {
+      if (status.success) {
+        setImgUrl(newImageUrl(status.image_path));
       }
-    }, 2000);
+    };
 
-    return () => clearTimeout(timer);
-  }, [uploadStatus, imageUrl]);
+    const handleStartGenerateImages = (status) => {
+      if (status.success) {
+        navigate("/result");
+      }
+    };
 
-  useEffect(() => {
-    if (receivedOptions[0] === "C") {
-      // navigate("/test");
-      navigate("/result");
-    }
-  }, [receivedOptions, navigate]);
+    socket.on("upload_image", handleUploadImage);
+    socket.on("start_generate_images", handleStartGenerateImages);
+
+    return () => {
+      socket.off("upload_image", handleUploadImage);
+      socket.off("start_generate_images", handleStartGenerateImages);
+    };
+  }, [socket]);
 
   const newImageUrl = (url) => {
     console.log(url);
@@ -49,7 +54,7 @@ export default function Main() {
         <h4 className="main-title-title">ARTICKET</h4>
       </div>
 
-      {!imageUrl && (
+      {!imgUrl && (
         <div className="main-qr">
           <QR pathname={`#/upload`} />
           <p onClick={() => navigate(`#/upload`)}>
@@ -58,10 +63,10 @@ export default function Main() {
         </div>
       )}
 
-      {imageUrl && (
+      {imgUrl && (
         <div className="main-image">
           <div className="main-imgcontainer">
-            <img src={newImageUrl(imageUrl)} alt="업로드된 이미지" />
+            <img src={imgUrl} alt="업로드된 이미지" />
           </div>
           <p>사진이 업로드 되었습니다</p>
         </div>

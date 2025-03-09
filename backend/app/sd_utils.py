@@ -1,12 +1,9 @@
-# app/sd_utils.py
 import requests
-import base64
 import time
-from flask import jsonify
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 from app.config import (
-    BACKEND_URL, USE_WEBUI, WEBUI_URL1, WEBUI_URL2, BLIP_URL,
+    BACKEND_URL, USE_WEBUI, WEBUI_URL1, WEBUI_URL2, BLIP_URL, USE_BLIP, USE_CLIP,
     PARALLEL_MODE
 )
 from app.admin import log_progress
@@ -41,6 +38,20 @@ def clip_interrogate(image_path, clip_skip_level=1, webui_url=WEBUI_URL1):
     if response.status_code == 200:
         return response.json().get('caption', '')
     return None
+
+
+def get_prompt_from_image(image_path):
+    """
+    BLIP, CLIP, 모두 미사용 시에는 dummy prompt
+    """
+    if USE_BLIP:
+        prompt = blip_interrogate(image_path)
+        if prompt: return prompt
+    if USE_CLIP:
+        prompt = clip_interrogate(image_path, clip_skip_level=1)
+        if prompt: return prompt
+    # 둘 다 실패하거나 사용하지 않으면 dummy prompt
+    return "a young girl wearing a baseball cap and a gray shirt"
 
 def generate_image(
     webui_url, image_base64, modifier, negative_prompt,

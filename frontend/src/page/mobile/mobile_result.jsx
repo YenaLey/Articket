@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import JSZip from "jszip";
 import "../../style/mobile_result.css";
@@ -10,37 +10,17 @@ import { IoTicketOutline } from "react-icons/io5";
 
 export default function MobileResult() {
   const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [generated, setGenerated] = useState(false);
-  const [images, setImages] = useState([]);
-  const [matchingImages, setMatchingImages] = useState([]);
   const [userName, setUserName] = useState("");
-  const [error, setError] = useState("");
-  const [now, setNow] = useState(false);
-  const timer = useRef(null);
-  const { uploadStatus, errorStatus, imageStatus } = useSocket();
+  const { socket } = useSocket();
+  const [generatedImageUrls, setGeneratedImageUrls] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const imgSample = [
     { src: "/img/르누아르.png", artist: "르누아르", color: "#036B82" },
     { src: "/img/고흐.png", artist: "고흐", color: "#E37900" },
     { src: "/img/리히텐슈타인.png", artist: "리히텐슈타인", color: "#1A5934" },
     { src: "/img/피카소.png", artist: "피카소", color: "#CA0000" },
   ];
-  const order = ["match", "good", "bad", "neutral"];
-  const matchSample = {
-    match: "💁‍♀️ 나의 화가 유형",
-    good: "☺️ 나와 잘 맞는 화가",
-    bad: "😵 나와 상극인 화가",
-    neutral: "😛 나와 중립인 화가",
-  };
-  const artists = ["피카소", "르누아르", "리히텐슈타인", "고흐"];
-
-  // localStorage로부터 체험완료 여부 가져옴
-  useEffect(() => {
-    const storedDone = localStorage.getItem("done");
-    if (storedDone === "true") {
-      setDone(true);
-    }
-  }, []);
 
   const getFormattedDate = () => {
     const today = new Date();
@@ -51,126 +31,42 @@ export default function MobileResult() {
     return `${year}.${month}.${day}`;
   };
 
-  const fetchMatchingImages = async () => {
-    try {
-      console.log("이미지 변환이 완료됐대요!");
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/get-matching-images`,
-        {
-          method: "GET",
-        }
-      );
-
-      if (!response.ok) {
-        // 응답이 실패한 경우 (예: 404, 500)
-        const errorText = await response.text(); // 오류 메시지 확인
-        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
-        throw new Error(
-          `API 응답 실패: ${response.status}, 내용: ${errorText}`
-        );
-      }
-
-      // 응답이 JSON 형식이 아닌 경우 예외 처리
-      const contentType = response.headers.get("Content-Type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const responseText = await response.text(); // 응답 본문을 텍스트로 출력
-        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
-        throw new Error(
-          `응답이 JSON 형식이 아닙니다. 응답 내용: ${responseText}`
-        );
-      }
-
-      // JSON 데이터 처리
-      const data = await response.json();
-      console.log("데이터 가져옴", data);
-
-      const matchingArtists = data.matching_artists;
-      if (!matchingArtists) {
-        setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
-        throw new Error("API 응답에 matching_artists가 없습니다.");
-      }
-
-      // 상태 업데이트
-      setMatchingImages(matchingArtists);
-      setUserName(data.user_name);
-      setImages(Object.values(matchingArtists));
-      setGenerated(true);
-    } catch (error) {
-      console.error("데이터 가져오는 중 오류 발생:", error);
-      setError("사진 불러오기가 지연되고 있습니다. 다시 시도해주세요");
-    }
-  };
-
   useEffect(() => {
-    if (imageStatus) {
-      const fetchImages = async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/get-generated-images`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}), // ✅ 빈 객체라도 body에 추가하여 요청 형식 맞춤
-            }
+    if (!socket || !socket.connected) return;
+
+    const handleUpdateStatus = (data) => {
+      if (data.error_status) {
+        navigate("/#upload", { replace: true });
+        return;
+      }
+
+      if (data.success) {
+        setUserName(data.user_name || "");
+
+        if (Array.isArray(data.generated_image)) {
+          setGeneratedImageUrls(data.generated_image);
+        } else {
+          setGeneratedImageUrls(
+            data.generated_image ? [data.generated_image] : []
           );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch generated images");
-          }
-
-          const generatedResult = await response.json();
-          console.log("이미지 데이터 가져오기 성공:", generatedResult);
-
-          const {
-            user_name,
-            artist,
-            matching_artists,
-            original_image,
-            generated_image,
-          } = generatedResult;
-
-          if (!generated_image || !Array.isArray(generated_image)) {
-            throw new Error("Invalid image data format");
-          }
-
-          setMatchingImages(generated_image);
-          setUserName(user_name);
-          setGenerated(true);
-        } catch (error) {
-          console.error("이미지 데이터 가져오기 오류:", error);
-          navigate("/upload", { replace: true });
         }
-      };
 
-      fetchImages(); // 즉시 실행 함수 호출
-    }
-  }, [imageStatus]);
-
-  const getImageUrl = async () => {};
-
-  useEffect(() => {
-    if (uploadStatus || errorStatus) {
-      timer.current = setTimeout(() => {
-        if (uploadStatus) {
-          setNow(true);
-          getImageUrl();
-        } else if (errorStatus) {
-          sessionStorage.removeItem("selectedOptions");
-          sessionStorage.removeItem("start");
-          sessionStorage.removeItem("currentIndex");
-          alert("사진 변환에 실패하였습니다.");
-          navigate("/upload", { replace: true });
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (timer.current) {
-        clearTimeout(timer.current);
-        timer.current = null;
+        setLoading(false);
       }
     };
-  }, [uploadStatus, errorStatus, navigate]);
+
+    socket.on("get_generate_images", handleUpdateStatus);
+
+    return () => {
+      socket.off("get_generate_images", handleUpdateStatus);
+    };
+  }, [socket, navigate]);
+
+  const newImageUrl = (url = "") => {
+    if (url.startsWith("wss://")) return url.replace("wss://", "https://");
+    if (url.startsWith("ws://")) return url.replace("ws://", "https://");
+    return url;
+  };
 
   const downloadAllImages = async () => {
     console.log("ZIP 파일 생성 시작");
@@ -247,42 +143,21 @@ export default function MobileResult() {
       URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error("이미지 다운로드 중 오류 발생:", error);
-    } finally {
-      setDone(true);
-      localStorage.setItem("done", "true");
     }
-  };
-
-  const newImageUrl = (url) => {
-    let secureUrl = url;
-
-    // wss:// -> https:// 변환
-    if (url.startsWith("wss://")) {
-      secureUrl = url.replace("wss://", "https://");
-    } else if (url.startsWith("ws://")) {
-      secureUrl = url.replace("ws://", "https://");
-    }
-
-    return secureUrl;
   };
 
   return (
     <div className="mresult">
       <div className="mresult-container">
-        {!generated ? (
+        {loading ? (
           <div className="mloading-container">
             <HashLoader color="#D8D8D8" size={35} />
             <div className="mloading-loading">
-              {!now ? (
-                <p>
-                  화가 스타일로
-                  <br />
-                  이미지를 변환 중이에요
-                </p>
-              ) : (
-                <p>이미지를 가져오고 있어요</p>
-              )}
-              <p>{error}</p>
+              <p>
+                화가 스타일로
+                <br />
+                이미지를 변환 중이에요
+              </p>
             </div>
             {imgSample.map((element, index) => (
               <div className="mloading-img" key={index}>
@@ -303,7 +178,7 @@ export default function MobileResult() {
             <p>당신의 사진이 예술이 되는 곳</p>
             <h1>ARTICKET</h1>
             <div className="mresult-img-container">
-              {matchingImages.map((url, index) => (
+              {generatedImageUrls.map((url, index) => (
                 <div className="mresult-img" key={index}>
                   <img
                     src={newImageUrl(url)}
@@ -332,7 +207,7 @@ export default function MobileResult() {
             </div>
           </div>
         )}
-        {generated && (
+        {!loading && (
           <button
             className="download-button"
             onClick={() => downloadAllImages()}

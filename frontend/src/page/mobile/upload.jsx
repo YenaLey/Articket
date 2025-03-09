@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
@@ -66,7 +66,7 @@ export default function Upload() {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/upload-image/?name=${userName}&gender=${selectedGender}`,
+        `${process.env.REACT_APP_BACKEND_URL}/upload-image?name=${userName}&gender=${selectedGender}`,
         formData,
         {
           headers: {
@@ -78,13 +78,13 @@ export default function Upload() {
       alert("이미지 업로드가 완료되었습니다.");
       setUploadSuccess(true);
 
-      if (socket && response.data.image_path) {
-        socket.emit("operation_status", {
-          success: true,
-          image_path: response.data.image_path,
-        });
-        console.log(response.data.image_path);
-      }
+      // if (socket && response.data.image_path) {
+      //   socket.emit("operation_status", {
+      //     success: true,
+      //     image_path: response.data.image_path,
+      //   });
+      //   console.log(response.data.image_path);
+      // }
 
       setTimeout(() => {
         navigate("/remote", { replace: true });
