@@ -7,8 +7,10 @@ admin = Blueprint('admin', __name__, template_folder="../templates")
 def admin_page():
     return render_template('admin.html')
 
+'''
+실시간 로그 전송 유틸리티 함수
+'''
 def log_progress(event, message, why, status, data=None):
-    """실시간 로그 전송 유틸리티 함수"""
     if socketio:
         try:
             socketio.emit('log', {
