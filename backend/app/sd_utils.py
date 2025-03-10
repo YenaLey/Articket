@@ -102,7 +102,7 @@ def generate_image(
 '''
 선택된 화가 그룹에 대해 이미지 변환을 수행하는 함수
 '''
-def process_artist_group(artists, webui_url, user_name, selected_gender, image_path, prompt):
+def process_artist_group(artists, webui_url, user_name, selected_gender, image_path, prompt, room):
     group_results = {}
     image_base64 = encode_image_to_base64(image_path)
 
@@ -133,7 +133,7 @@ def process_artist_group(artists, webui_url, user_name, selected_gender, image_p
 
         if not base64_img:
             log_progress("generate images", "error", f"Failed for {artist_name}", "error")
-            socketio.emit('get_generate_images', {'error_status': True}, to=None)
+            socketio.emit('get_generate_images', {'error_status': True}, room=room)
             raise Exception(f"Failed to generate image for {artist_name}")
 
         filename = f"{user_name}_{artist_name}.png"
@@ -158,13 +158,13 @@ def get_prompt_from_image(image_path):
     if USE_CLIP:
         prompt = clip_interrogate(image_path, clip_skip_level=1)
         if prompt: return prompt
-    # 둘 다 사용하지 않으면 dummy prompt 사용
+    # 둘 다 사용하지 않거나 실패하면 dummy prompt 사용
     return "a young girl wearing a baseball cap and a gray shirt"
 
 '''
 선택된 모든 화가 스타일로 이미지를 변환하는 함수 (병렬 또는 순차 실행)
 '''
-def generate_all_artists(user_name, selected_gender, image_path, prompt):
+def generate_all_artists(user_name, selected_gender, image_path, prompt, room):
     results = {}
 
     artist_keys = list(ARTISTS.keys())
@@ -191,7 +191,7 @@ def generate_all_artists(user_name, selected_gender, image_path, prompt):
             futures = []
 
             # group1 처리
-            futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1, user_name, selected_gender, image_path, prompt))
+            futures.append(executor.submit(process_artist_group, group1_artists, WEBUI_URL1, user_name, selected_gender, image_path, prompt, room))
 
             # 순차 모드일 경우
             if not PARALLEL_MODE:
@@ -199,7 +199,7 @@ def generate_all_artists(user_name, selected_gender, image_path, prompt):
                 results.update(group_results1)
 
             # group2 처리
-            futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2, user_name, selected_gender, image_path, prompt))
+            futures.append(executor.submit(process_artist_group, group2_artists, WEBUI_URL2, user_name, selected_gender, image_path, prompt, room))
 
             # 순차 모드일 경우
             if not PARALLEL_MODE:

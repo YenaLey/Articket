@@ -189,9 +189,6 @@ export default function MobileResult() {
               ))}
             </div>
 
-            {/* <button onClick={() => navigate("/total-result")}>
-                                성격 유형 결과 확인하기
-                            </button> */}
             <div className="mresult-ticket-bottom">
               <div style={{ justifyContent: "flex-end", gap: "20px" }}>
                 <span>

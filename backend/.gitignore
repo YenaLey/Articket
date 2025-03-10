@@ -1,13 +1,11 @@
-# Python virtual environment
 venv/
 .venv/
 
-# macOS specific files
+app/__pycache__
+
 .DS_Store
 
-# Environment variables
 .env
 
-# Ignore generated and uploaded images but keep directories
 /static/generated/*
 /static/uploads/*

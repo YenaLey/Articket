@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import "../../style/upload.css";
 import { ImFilePicture } from "react-icons/im";
@@ -11,23 +11,27 @@ import axios from "axios";
 export default function Upload() {
   const navigate = useNavigate();
   const { socket } = useSocket();
+  const location = useLocation();
   const [imgPreview, setImgPreview] = useState(null);
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [done, setDone] = useState(false);
+  const queryParams = new URLSearchParams(location.search);
+  const room = queryParams.get("room");
 
-  // // 체험 완료 여부 확인
-  // useEffect(() => {
-  //   const storedDone = localStorage.getItem("done");
-  //   if (storedDone === "true") {
-  //     setDone(true);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!socket) return;
 
-  // 파일 선택 핸들러
+    if (!room) {
+      navigate("/error");
+      return;
+    }
+
+    socket.emit("join", { room });
+  }, [socket, room]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
@@ -46,7 +50,6 @@ export default function Upload() {
     }
   };
 
-  // 성별 선택 핸들러
   const handleGenderChange = (event) => {
     setSelectedGender(event.target.value);
   };
@@ -54,7 +57,7 @@ export default function Upload() {
   // 이미지 업로드 함수
   const uploadImage = async () => {
     if (!image || !userName || !selectedGender) {
-      alert("이름, 성별, 이미지를 모두 입력해주세요.");
+      alert("내용를 모두 입력해주세요.");
       return;
     }
 
@@ -66,25 +69,18 @@ export default function Upload() {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/upload-image?name=${userName}&gender=${selectedGender}`,
+        `${process.env.REACT_APP_BACKEND_URL}/upload-image?name=${userName}&gender=${selectedGender}&room=${room}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true,
         }
       );
       console.log("이미지 업로드 성공:", response.data);
       alert("이미지 업로드가 완료되었습니다.");
       setUploadSuccess(true);
-
-      // if (socket && response.data.image_path) {
-      //   socket.emit("operation_status", {
-      //     success: true,
-      //     image_path: response.data.image_path,
-      //   });
-      //   console.log(response.data.image_path);
-      // }
 
       setTimeout(() => {
         navigate("/remote", { replace: true });

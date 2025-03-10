@@ -1,8 +1,8 @@
 USE_RAILWAY = False # 백엔드 배포 여부
 
-USE_CLIP = True # CLIP 사용 여부
+USE_CLIP = False # CLIP 사용 여부
 USE_BLIP = False # BLIP 사용 여부
-USE_WEBUI = True # WEBUI 사용 여부
+USE_WEBUI = False # WEBUI 사용 여부
 
 PARALLEL_MODE = False # 병렬 생성 여부
 

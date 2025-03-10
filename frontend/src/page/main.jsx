@@ -3,14 +3,17 @@ import { useNavigate } from "react-router-dom";
 import "../style/main.css";
 import QR from "./qr";
 import { useSocket } from "../context/SocketContext";
+import PropTypes from "prop-types";
 
-export default function Main() {
+export default function Main({ room }) {
   const navigate = useNavigate();
   const { socket } = useSocket();
   const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
     if (!socket) return;
+
+    socket.emit("join", { room });
 
     const handleUploadImage = (status) => {
       if (status.success) {
@@ -56,10 +59,8 @@ export default function Main() {
 
       {!imgUrl && (
         <div className="main-qr">
-          <QR pathname={`#/upload`} />
-          <p onClick={() => navigate(`#/upload`)}>
-            QR코드를 스캔해 리모콘에 접속해주세요
-          </p>
+          <QR pathname={`#/upload?room=${room}`} />
+          <p>QR코드를 스캔해 리모콘에 접속해주세요</p>
         </div>
       )}
 
@@ -74,3 +75,7 @@ export default function Main() {
     </div>
   );
 }
+
+Main.propTypes = {
+  room: PropTypes.string.isRequired,
+};

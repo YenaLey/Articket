@@ -4,15 +4,18 @@ import { SocketProvider } from "./context/SocketContext";
 import "./App.css";
 import Main from "./page/main";
 import Upload from "./page/mobile/upload";
-import TotalResult from "./page/mobile/total_result/total_result";
-import Test from "./page/test";
 import Result from "./page/result";
 import ErrorPage from "./page/error";
 import Remote from "./page/mobile/remote";
 import MobileResult from "./page/mobile/mobile_result";
-import RealTest from "./page/mobile/real_test";
+
+function generateRoomId() {
+  return Math.random().toString(36).substring(2, 10);
+}
 
 function App() {
+  const room = generateRoomId();
+
   return (
     <Router>
       <SocketProvider>
@@ -20,7 +23,7 @@ function App() {
           <header className="App-header">
             <Routes>
               {/* 기본 페이지 경로 */}
-              <Route path="/" element={<Main />} />
+              <Route path="/" element={<Main room={room} />} />
 
               {/* 이미지 업로드 페이지 경로 */}
               <Route path="/upload" element={<Upload />} />
@@ -31,16 +34,9 @@ function App() {
               {/* 결과 페이지 remote 경로 */}
               <Route path="/m-result" element={<MobileResult />} />
 
-              {/* 성격 검사 페이지 경로 */}
-              <Route path="/test" element={<Test />} />
-
-              {/* 유형 설명 페이지 경로 */}
-              <Route path="/total-result" element={<TotalResult />} />
-
               {/* 결과 페이지 경로 */}
               <Route path="/result" element={<Result />} />
 
-              <Route path="/shibal" element={<RealTest />} />
               {/* 에러 페이지 경로 */}
               <Route path="/*" element={<ErrorPage />} />
               <Route path="/error" element={<ErrorPage />} />
