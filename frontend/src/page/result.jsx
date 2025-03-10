@@ -24,10 +24,12 @@ export default function Result() {
   ];
 
   useEffect(() => {
-    if (!socket) {
-      navigate("/", { replace: true });
-      return;
-    }
+    // if (!socket) {
+    //   navigate("/", { replace: true });
+    //   return;
+    // }
+
+    if (!socket) return;
 
     const handleUpdateStatus = (data) => {
       if (data.error_status) {

@@ -18,6 +18,7 @@ def log_progress(event, message, why, status, data=None):
                 "status": status,
                 "data": data
             }, to=None)
+            socketio.sleep(0)
         except Exception as e:
             print(f"log_progress 에러 발생: {e}")
     else:

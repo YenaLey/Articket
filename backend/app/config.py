@@ -6,12 +6,12 @@ USE_WEBUI = True
 
 PARALLEL_MODE = False
 
-WEBUI_URL1 = "https://e0u886fiy1x6h8-3001.proxy.runpod.net/"
-WEBUI_URL2 = "https://e0u886fiy1x6h8-3001.proxy.runpod.net/"
+WEBUI_URL1 = "https://gwjax6u0gvsow6-3001.proxy.runpod.net/"
+WEBUI_URL2 = "https://gwjax6u0gvsow6-3001.proxy.runpod.net/"
 BLIP_URL   = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
 
 PORT = 8080
-HOST = "192.168.46.155"
+HOST = "10.0.22.33"
 
 if USE_RAILWAY:
     BACKEND_URL = "https://articket-production.up.railway.app" # 배포된 백엔드 URL

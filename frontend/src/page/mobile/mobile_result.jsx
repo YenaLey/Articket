@@ -32,11 +32,11 @@ export default function MobileResult() {
   };
 
   useEffect(() => {
-    if (!socket || !socket.connected) return;
+    if (!socket) return;
 
     const handleUpdateStatus = (data) => {
       if (data.error_status) {
-        navigate("/#upload", { replace: true });
+        navigate("/upload", { replace: true });
         return;
       }
 

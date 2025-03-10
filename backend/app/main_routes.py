@@ -9,7 +9,7 @@ from app.config import (
 from app.socket import socketio
 from app.admin import log_progress
 from app.image_utils import preprocess_image, encode_image_to_base64, clear_folder
-from app.sd_utils import get_prompt_from_image, generate_all_artists
+from app.sd_utils import get_prompt_from_image, generate_all_artists, generate_image_with_retry
 
 
 main_bp = Blueprint('main_bp', __name__)
@@ -58,10 +58,15 @@ def upload_image():
 '''
 @main_bp.route('/generate-images', methods=['POST'])
 def generate_images():
-    socketio.emit('start_generate_images', {'success': True}, to=None)
+    """
+    이미지 생성 요청을 받으면,
+    1) 클라이언트에 'start_generate_images' 이벤트 전송
+    2) 백그라운드 태스크(start_background_task)로 실제 이미지 생성 처리
+    3) 즉시 HTTP 200 응답
+    """
+    global user_name, selected_gender
 
-    global selected_artists, user_name, selected_gender
-
+    # 필요한 정보가 제대로 존재하는지 확인
     if not user_name or not selected_gender:
         log_progress("generate images", "error", "User name or gender is missing", "error")
         return jsonify({"error": "User name or gender is missing"}), 400
@@ -70,19 +75,38 @@ def generate_images():
         log_progress("generate images", "error", "Image has not been uploaded", "error")
         return jsonify({"error": "Image has not been uploaded"}), 400
 
+    # 우선 '시작' 이벤트를 emit
+    socketio.emit('start_generate_images', {'success': True}, to=None)
+
+    # 실제 시간 오래 걸리는 생성 로직은 백그라운드 태스크로 처리
+    socketio.start_background_task(
+        generate_images_task,
+        user_name,
+        selected_gender,
+        selected_artists
+    )
+
+    # HTTP 요청에는 곧바로 응답
+    return jsonify({"message": "Images generation started in the background"}), 200
+
+
+def generate_images_task(user_name, selected_gender, selected_artists):
+    """
+    백그라운드로 동작하며, 실제 이미지를 생성한다.
+    완료 시점에 'get_generate_images' 이벤트로 결과를 클라이언트에 전달.
+    """
     image_path = selected_artists['image_path']
     prompt = get_prompt_from_image(image_path)
 
     if not prompt:
         log_progress("interrogate", "error", "Failed to get prompt from image", "error")
         socketio.emit('get_generate_images', {'error_status': True}, to=None)
-        return jsonify({"error": "Failed to get prompt"}), 500
-    else:
-        log_progress("interrogate", "completed", prompt, "completed")
+        return  # 함수 종료
+
+    log_progress("interrogate", "completed", prompt, "completed")
 
     def process_artist_group(artists, webui_url):
         group_results = {}
-        from app.sd_utils import generate_image_with_retry
         image_base64 = encode_image_to_base64(image_path)
 
         for artist_name in artists:
@@ -124,6 +148,7 @@ def generate_images():
                 'file_path': save_path,
                 'url': BACKEND_URL + save_path.replace('./', '/')
             }
+
         return group_results
 
     artist_keys = list(ARTISTS.keys())
@@ -133,9 +158,10 @@ def generate_images():
     all_results = generate_all_artists(
         process_artist_group, group1_artists, group2_artists
     )
+
     if all_results is None:
         socketio.emit('get_generate_images', {'error_status': True}, to=None)
-        return jsonify({"error": "Failed to generate some images"}), 500
+        return
 
     selected_artists['generated_images'] = all_results
 
@@ -151,5 +177,3 @@ def generate_images():
         'original_image': BACKEND_URL + selected_artists.get('image_path').replace('./', '/'),
         'generated_image': urls
     }, to=None)
-
-    return jsonify({"message": "Images generated successfully"}), 200

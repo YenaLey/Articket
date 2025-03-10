@@ -10,7 +10,7 @@ export default function Main() {
   const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
-    if (!socket || !socket.connected) return;
+    if (!socket) return;
 
     const handleUploadImage = (status) => {
       if (status.success) {
