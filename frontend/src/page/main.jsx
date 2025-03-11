@@ -34,7 +34,7 @@ export default function Main({ room }) {
       socket.off("upload_image", handleUploadImage);
       socket.off("start_generate_images", handleStartGenerateImages);
     };
-  }, [socket]);
+  }, [socket, room, navigate]);
 
   const newImageUrl = (url) => {
     console.log(url);

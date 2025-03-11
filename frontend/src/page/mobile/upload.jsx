@@ -30,7 +30,7 @@ export default function Upload() {
     }
 
     socket.emit("join", { room });
-  }, [socket, room]);
+  }, [socket, room, navigate]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
