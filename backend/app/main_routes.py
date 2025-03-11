@@ -13,6 +13,15 @@ from app.sd_utils import get_prompt_from_image, generate_all_artists
 
 main_bp = Blueprint('main_bp', __name__)
 
+"""사파리에서 쿠키를 저장하기 위한 API (첫 번째 요청을 GET으로 보내야 함)"""
+@main_bp.route('/set-cookie', methods=['GET'])
+def set_cookie():
+    
+    if "user_id" not in session:
+        session["user_id"] = uuid.uuid4().hex
+
+    return jsonify({"message": "Session cookie set", "user_id": session["user_id"]}), 200
+
 '''
 이미지 업로드 API
 사용자가 이미지를 업로드하고, 업로드 폴더에 저장합니다.

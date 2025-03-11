@@ -9,3 +9,5 @@ app/__pycache__
 
 /static/generated/*
 /static/uploads/*
+
+flask_session/

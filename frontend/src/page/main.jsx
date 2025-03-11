@@ -38,8 +38,20 @@ export default function Main({ room }) {
 
   const handleCopyQRLink = () => {
     const qrLink = `${window.location.origin}/#/upload?room=${room}`;
-    navigator.clipboard.writeText(qrLink);
-    alert("QR 링크가 복사되었습니다.");
+
+    const textArea = document.createElement("textarea");
+    textArea.value = qrLink;
+    document.body.appendChild(textArea);
+    textArea.select();
+
+    try {
+      document.execCommand("copy");
+      alert("QR 링크가 복사되었습니다.");
+    } catch (err) {
+      console.error("클립보드 복사 실패:", err);
+    }
+
+    document.body.removeChild(textArea);
   };
 
   return (

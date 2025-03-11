@@ -1,5 +1,5 @@
 USE_DEPLOY_BACKEND = True # 백엔드 배포 여부
-USE_DEPLOY_FRONTEND = True # 백엔드 배포 여부
+USE_DEPLOY_FRONTEND = True # 프론트엔드 배포 여부
 
 USE_CLIP = True # CLIP 사용 여부
 USE_BLIP = False # BLIP 사용 여부

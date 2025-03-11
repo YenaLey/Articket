@@ -30,6 +30,19 @@ export default function Upload() {
     }
 
     socket.emit("join", { room });
+
+    const initializeSession = async () => {
+      try {
+        await axios.get(`${process.env.REACT_APP_BACKEND_URL}/set-cookie`, {
+          withCredentials: true,
+          credentials: "include",
+        });
+      } catch (error) {
+        console.error("세션 초기화 실패:", error);
+      }
+    };
+
+    initializeSession();
   }, [socket, room, navigate]);
 
   const handleFileChange = (e) => {
