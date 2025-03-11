@@ -4,6 +4,7 @@ from flasgger import Swagger
 import os
 import secrets
 import shutil
+from flask_session import Session
 
 from app.config import (
     UPLOAD_FOLDER,
@@ -19,6 +20,14 @@ def create_app():
     app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(16)
 
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+    app.config["SESSION_TYPE"] = "filesystem"
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_USE_SIGNER"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "None"  # 크로스 도메인 쿠키 허용
+    app.config["SESSION_COOKIE_SECURE"] = True  # HTTPS에서만 동작하도록 설정
+
+    Session(app)
 
     socketio.init_app(app)
 
