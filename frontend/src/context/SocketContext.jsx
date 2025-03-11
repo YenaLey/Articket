@@ -11,12 +11,6 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     let socketUrl = process.env.REACT_APP_BACKEND_URL;
 
-    // if (socketUrl.startsWith("https://")) {
-    //   socketUrl = socketUrl.replace("https://", "wss://"); // HTTPS -> WSS
-    // } else if (socketUrl.startsWith("http://")) {
-    //   socketUrl = socketUrl.replace("http://", "ws://"); // HTTP -> WS
-    // }
-
     const newSocket = io(socketUrl, {
       transports: ["websocket"],
       reconnection: true,

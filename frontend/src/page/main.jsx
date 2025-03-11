@@ -17,7 +17,7 @@ export default function Main({ room }) {
 
     const handleUploadImage = (status) => {
       if (status.success) {
-        setImgUrl(newImageUrl(status.image_path));
+        setImgUrl(status.image_path);
       }
     };
 
@@ -35,20 +35,6 @@ export default function Main({ room }) {
       socket.off("start_generate_images", handleStartGenerateImages);
     };
   }, [socket, room, navigate]);
-
-  const newImageUrl = (url) => {
-    console.log(url);
-    let secureUrl = url;
-
-    // wss:// -> https:// 변환
-    // if (url.startsWith("wss://")) {
-    //   secureUrl = url.replace("wss://", "https://");
-    // } else if (url.startsWith("ws://")) {
-    //   secureUrl = url.replace("ws://", "https://");
-    // }
-
-    return secureUrl;
-  };
 
   return (
     <div className="main-container">

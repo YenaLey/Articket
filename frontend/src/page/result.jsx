@@ -55,12 +55,6 @@ export default function Result() {
     };
   }, [socket, navigate]);
 
-  const newImageUrl = (url = "") => {
-    // if (url.startsWith("wss://")) return url.replace("wss://", "https://");
-    // if (url.startsWith("ws://")) return url.replace("ws://", "https://");
-    return url;
-  };
-
   return (
     <div className="result-container">
       <h1 onClick={() => navigate("/")}>ARTICKET</h1>
@@ -98,7 +92,7 @@ export default function Result() {
                 <br />
                 예술 작품
               </h4>
-              <img src={newImageUrl(originalImage)} alt="원본" />
+              <img src={originalImage} alt="원본" />
               <p>원본</p>
             </div>
             <FaLongArrowAltRight className="result-convert-arrow" />
@@ -106,10 +100,7 @@ export default function Result() {
               {generatedImageUrls.length > 0 ? (
                 generatedImageUrls.map((url, index) => (
                   <div key={index}>
-                    <img
-                      src={newImageUrl(url)}
-                      alt={`generated_${index + 1}`}
-                    />
+                    <img src={url} alt={`generated_${index + 1}`} />
                     <p>{artists[index] || "알 수 없음"}</p>
                   </div>
                 ))
