@@ -36,6 +36,11 @@ export default function Main({ room }) {
     };
   }, [socket, room, navigate]);
 
+  const handleCopyQRLink = () => {
+    const qrLink = `${window.location.origin}/#/upload?room=${room}`;
+    navigator.clipboard.writeText(qrLink);
+  };
+
   return (
     <div className="main-container">
       <div className="main-title">
@@ -44,7 +49,7 @@ export default function Main({ room }) {
       </div>
 
       {!imgUrl && (
-        <div className="main-qr">
+        <div className="main-qr" onClick={handleCopyQRLink}>
           <QR pathname={`#/upload?room=${room}`} />
           <p>QR코드를 스캔해 리모콘에 접속해주세요</p>
         </div>
