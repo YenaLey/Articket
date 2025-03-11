@@ -12,4 +12,4 @@ COPY backend/app /app/app
 ENV FLASK_APP=app
 ENV PORT=8080
 
-CMD exec gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:$PORT app:app
+CMD exec gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:$PORT run:app
