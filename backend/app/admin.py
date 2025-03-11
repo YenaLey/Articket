@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from backend.app.socket_utils import socketio 
+from app.socket_utils import socketio 
 
 admin = Blueprint('admin', __name__, template_folder="../templates")
 

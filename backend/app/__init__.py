@@ -11,7 +11,7 @@ from app.config import (
 )
 from app.admin import admin
 from app.main_routes import main_bp
-from backend.app.socket_utils import socketio
+from app.socket_utils import socketio
 
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder="../static")
