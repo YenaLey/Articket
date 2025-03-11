@@ -7,7 +7,7 @@ RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/app /app
+COPY backend/app /app/app
 
 ENV FLASK_APP=app
 ENV PORT=8080
