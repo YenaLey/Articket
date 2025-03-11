@@ -55,6 +55,10 @@ export default function Main({ room }) {
           onClick={handleCopyQRLink}
           style={{ cursor: "pointer" }}
           role="button"
+          tabIndex="0"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleCopyQRLink();
+          }}
         >
           <QR pathname={`#/upload?room=${room}`} />
           <p>QR코드를 스캔해 리모콘에 접속해주세요</p>
