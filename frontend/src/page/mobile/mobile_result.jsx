@@ -62,12 +62,6 @@ export default function MobileResult() {
     };
   }, [socket, navigate]);
 
-  const newImageUrl = (url = "") => {
-    if (url.startsWith("wss://")) return url.replace("wss://", "https://");
-    if (url.startsWith("ws://")) return url.replace("ws://", "https://");
-    return url;
-  };
-
   const downloadAllImages = async () => {
     console.log("ZIP 파일 생성 시작");
     const zip = new JSZip();
@@ -181,7 +175,7 @@ export default function MobileResult() {
               {generatedImageUrls.map((url, index) => (
                 <div className="mresult-img" key={index}>
                   <img
-                    src={newImageUrl(url)}
+                    src={url}
                     alt={`image_${index}`}
                     crossOrigin="anonymous"
                   />

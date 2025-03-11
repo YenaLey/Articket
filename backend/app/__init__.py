@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flasgger import Swagger
 import os
@@ -8,7 +8,7 @@ from flask_session import Session
 
 from app.config import (
     UPLOAD_FOLDER,
-    GENERATED_FOLDER
+    GENERATED_FOLDER, FRONTEND_URL
 )
 from app.admin import admin
 from app.main_routes import main_bp
@@ -19,7 +19,7 @@ def create_app():
 
     app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(16)
 
-    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": FRONTEND_URL}}, supports_credentials=True)
 
     app.config["SESSION_TYPE"] = "filesystem"
     app.config["SESSION_PERMANENT"] = False
@@ -62,5 +62,15 @@ def create_app():
     @app.route('/')
     def index():
         return 'ARTICKET 백엔드 서버입니다. 어드민 페이지(/admin)'
+
+    @app.before_request
+    def before_request():
+        if request.method == "OPTIONS":
+            response = jsonify({"message": "CORS preflight request successful"})
+            response.headers.add("Access-Control-Allow-Origin", FRONTEND_URL)
+            response.headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie")
+            response.headers.add("Access-Control-Allow-Credentials", "true")
+            return response
 
     return app

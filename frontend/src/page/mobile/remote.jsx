@@ -13,6 +13,7 @@ export default function Remote() {
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
+          credentials: "include",
         }
       );
     } catch (error) {

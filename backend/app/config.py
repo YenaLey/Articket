@@ -1,4 +1,5 @@
-USE_RAILWAY = True # 백엔드 배포 여부
+USE_DEPLOY_BACKEND = True # 백엔드 배포 여부
+USE_DEPLOY_FRONTEND = True # 백엔드 배포 여부
 
 USE_CLIP = True # CLIP 사용 여부
 USE_BLIP = False # BLIP 사용 여부
@@ -13,10 +14,15 @@ BLIP_URL   = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
 PORT = 8080
 HOST = "10.0.11.122"
 
-if USE_RAILWAY:
+if USE_DEPLOY_BACKEND:
     BACKEND_URL = "https://articket-production.up.railway.app" # 배포된 백엔드 URL
 else:
     BACKEND_URL = f'http://{HOST}:{PORT}'
+
+if USE_DEPLOY_FRONTEND:
+    FRONTEND_URL = "https://articket.netlify.app" # 배포된 프론트엔드 URL
+else:
+    FRONTEND_URL = f'http://{HOST}:3000'
 
 UPLOAD_FOLDER  = './static/uploads'
 GENERATED_FOLDER = './static/generated'

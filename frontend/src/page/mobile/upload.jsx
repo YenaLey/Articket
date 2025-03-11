@@ -76,6 +76,7 @@ export default function Upload() {
             "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
+          credentials: "include",
         }
       );
       console.log("이미지 업로드 성공:", response.data);
