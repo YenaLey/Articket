@@ -12,3 +12,4 @@ flasgger
 eventlet
 gunicorn
 pillow
+flask_session
