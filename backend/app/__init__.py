@@ -63,14 +63,4 @@ def create_app():
     def index():
         return 'ARTICKET 백엔드 서버입니다. 어드민 페이지(/admin)'
 
-    @app.before_request
-    def before_request():
-        if request.method == "OPTIONS":
-            response = jsonify({"message": "CORS preflight request successful"})
-            response.headers.add("Access-Control-Allow-Origin", FRONTEND_URL)
-            response.headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type, Set-Cookie")
-            response.headers.add("Access-Control-Allow-Credentials", "true")
-            return response
-
     return app
