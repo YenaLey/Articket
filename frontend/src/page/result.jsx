@@ -56,8 +56,8 @@ export default function Result() {
   }, [socket, navigate]);
 
   const newImageUrl = (url = "") => {
-    if (url.startsWith("wss://")) return url.replace("wss://", "https://");
-    if (url.startsWith("ws://")) return url.replace("ws://", "https://");
+    // if (url.startsWith("wss://")) return url.replace("wss://", "https://");
+    // if (url.startsWith("ws://")) return url.replace("ws://", "https://");
     return url;
   };
 
