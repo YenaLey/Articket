@@ -8,7 +8,7 @@ from app.config import (
     BACKEND_URL, USE_WEBUI, WEBUI_URL1, WEBUI_URL2, BLIP_URL, USE_BLIP, USE_CLIP,
     PARALLEL_MODE, GENERATED_FOLDER, ARTISTS
 )
-from app.socket import socketio
+from backend.app.socket_utils import socketio
 from app.admin import log_progress
 from app.image_utils import encode_image_to_base64
 

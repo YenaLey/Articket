@@ -6,7 +6,7 @@ from app.config import (
   BACKEND_URL, 
   UPLOAD_FOLDER, ARTISTS
 )
-from app.socket import socketio
+from backend.app.socket_utils import socketio
 from app.admin import log_progress
 from app.image_utils import preprocess_image
 from app.sd_utils import get_prompt_from_image, generate_all_artists
