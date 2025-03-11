@@ -11,7 +11,7 @@ WEBUI_URL2 = "https://phvc7e5g6pop4a-3001.proxy.runpod.net/"
 BLIP_URL   = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
 
 PORT = 8080
-HOST = "10.0.22.33"
+HOST = "10.0.11.122"
 
 if USE_RAILWAY:
     BACKEND_URL = "https://articket-production.up.railway.app" # 배포된 백엔드 URL

@@ -41,11 +41,11 @@ export default function Main({ room }) {
     let secureUrl = url;
 
     // wss:// -> https:// 변환
-    if (url.startsWith("wss://")) {
-      secureUrl = url.replace("wss://", "https://");
-    } else if (url.startsWith("ws://")) {
-      secureUrl = url.replace("ws://", "https://");
-    }
+    // if (url.startsWith("wss://")) {
+    //   secureUrl = url.replace("wss://", "https://");
+    // } else if (url.startsWith("ws://")) {
+    //   secureUrl = url.replace("ws://", "https://");
+    // }
 
     return secureUrl;
   };
