@@ -1,13 +1,13 @@
 USE_RAILWAY = True # 백엔드 배포 여부
 
-USE_CLIP = False # CLIP 사용 여부
+USE_CLIP = True # CLIP 사용 여부
 USE_BLIP = False # BLIP 사용 여부
-USE_WEBUI = False # WEBUI 사용 여부
+USE_WEBUI = True # WEBUI 사용 여부
 
 PARALLEL_MODE = False # 병렬 생성 여부
 
-WEBUI_URL1 = "https://phvc7e5g6pop4a-3001.proxy.runpod.net/"
-WEBUI_URL2 = "https://phvc7e5g6pop4a-3001.proxy.runpod.net/"
+WEBUI_URL1 = "https://0b7dk2jorogzsw-3001.proxy.runpod.net/"
+WEBUI_URL2 = "https://0b7dk2jorogzsw-3001.proxy.runpod.net/"
 BLIP_URL   = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
 
 PORT = 8080
