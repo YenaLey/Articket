@@ -83,6 +83,33 @@ ARTICKET 2.0은 사용자 경험과 시스템 효율성을 향상시키기 위�
   - Stable Diffusion API  
   - RunPod의 RTX 4090 GPU (배포)
 
+## ⚙️ Configuration (config.py 설정)
+
+다양한 환경에서 유연하게 실행될 수 있도록 `config.py` 파일에서 주요 설정을 조정할 수 있습니다.  
+
+```python
+# 배포 여부 설정
+USE_DEPLOY_BACKEND = True  # 백엔드 배포 여부 (True: 배포된 서버 사용, False: 로컬 서버 실행)
+USE_DEPLOY_FRONTEND = True  # 프론트엔드 배포 여부 (True: 배포된 웹 애플리케이션 사용)
+
+# AI 모델 사용 여부 설정
+USE_CLIP = True  # CLIP 모델 사용 여부 (True: 이미지-텍스트 매칭 활성화)
+USE_BLIP = False  # BLIP 모델 사용 여부 (True: 이미지 캡션 생성 기능 활성화)
+USE_WEBUI = True  # Stable Diffusion WEBUI 사용 여부
+
+# 생성 모드 설정
+PARALLEL_MODE = False  # 병렬 생성 여부 (True: 여러 개의 이미지 동시에 생성, False: 순차 생성)
+
+# API 서버 및 웹 UI 주소 설정
+WEBUI_URL1 = "https://0b7dk2jorogzsw-3001.proxy.runpod.net/" # Stable Diffusion WEBUI 1
+WEBUI_URL2 = "https://0b7dk2jorogzsw-3001.proxy.runpod.net/" # Stable Diffusion WEBUI 2
+BLIP_URL   = "https://mm05wbqtthcrkn-3002.proxy.runpod.net/"
+
+# 서버 실행 환경 설정
+PORT = 8080  # 애플리케이션이 실행될 포트 번호
+HOST = "10.0.11.122"  # 서버의 IP 주소 (로컬 네트워크)
+```
+
 ## 📅 개발 일정
 
 | 프로젝트        | 개발 기간           | 사용처                                      |
