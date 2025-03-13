@@ -119,4 +119,4 @@ HOST = "10.0.11.122"  # 서버의 IP 주소 (로컬 네트워크)
 
 > 자세한 개발 과정 및 구현 노하우는 아래 블로그 포스팅을 참고해주세요.  
 > - [Articket 1.0](https://velog.io/@yena121/CO-SHOW-NCCOSS-%EC%B0%A8%EC%84%B8%EB%8C%80%ED%86%B5%EC%8B%A0-%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C-%ED%9B%84%EA%B8%B0)  
-> - [Articket 2.0](https://velog.io/@yena121/Articket-2.0-%EC%83%88%EB%A1%9C%EC%9A%B4-%EB%B6%80%EC%8A%A4%EB%A5%BC)
+> - [Articket 2.0](https://velog.io/@yena121/Articket-2.0-%EC%83%88%EB%A1%9C%EC%9A%B4-%EB%B6%80%EC%8A%A4%EB%A5%BC-%EC%9C%84%ED%95%9C-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81)
